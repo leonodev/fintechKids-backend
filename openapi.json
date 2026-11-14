@@ -1119,6 +1119,77 @@
       }
     },
     "/api/v1/member-balances/{member_id}": {
+      "get": {
+        "tags": [
+          "6. Balance de los Miembros (Member Balances)"
+        ],
+        "summary": "Obtener el saldo (balance) de un miembro en concreto",
+        "description": "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, inicializa y retorna su balance en `0` monedas y `00:00:00`.",
+        "operationId": "get_member_balance_api_v1_member_balances__member_id__get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
+            }
+          },
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "patch": {
         "tags": [
           "6. Balance de los Miembros (Member Balances)"

@@ -303,6 +303,18 @@ def test_full_auth_and_crud_flow():
     assert patch_balance_res.json()["coins_obtained"] == 220
     assert patch_balance_res.json()["time_obtained"] == "02:15:00"
 
+    # 3.6.7b Obtener el saldo de un miembro en concreto (GET /api/v1/member-balances/{member_id})
+    get_single_balance_res = client.get(
+        f"/api/v1/member-balances/{member_for_goal_uuid}",
+        params={"email_parent": "fredy@fhk.app"},
+        headers=headers,
+    )
+    assert get_single_balance_res.status_code == 200
+    single_balance = get_single_balance_res.json()
+    assert single_balance["member_id"] == member_for_goal_uuid
+    assert single_balance["coins_obtained"] == 220
+    assert single_balance["time_obtained"] == "02:15:00"
+
     # 3.6.8 Listar balances del miembro
     list_balance_res = client.get(
         f"/api/v1/member-balances?member_id={member_for_goal_uuid}",

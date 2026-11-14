@@ -105,6 +105,71 @@ def list_member_balances(
     return query.order_by(MemberBalance.created_at.desc()).all()
 
 
+@router.get(
+    "/{member_id}",
+    response_model=MemberBalanceResponse,
+    summary="Obtener el saldo (balance) de un miembro en concreto",
+    description=(
+        "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico "
+        "buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` "
+        "del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, "
+        "inicializa y retorna su balance en `0` monedas y `00:00:00`."
+    ),
+)
+def get_member_balance(
+    member_id: UUID,
+    email_parent: Optional[str] = Query(
+        default=None,
+        description="Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
+        examples=["padre@fhk.app"],
+    ),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MemberBalance:
+    if email_parent and email_parent.lower() != current_user.email_parent.lower():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
+        )
+
+    member_uuid_str = str(member_id)
+    family_member = (
+        db.query(FamilyMember)
+        .filter(
+            FamilyMember.identification_uuid == member_uuid_str,
+            FamilyMember.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not family_member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ningún miembro en tu familia con el `member_id` (UUID) indicado.",
+        )
+
+    balance = (
+        db.query(MemberBalance)
+        .filter(
+            MemberBalance.member_id == member_uuid_str,
+            MemberBalance.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not balance:
+        # Si el miembro aún no tenía registro de saldo, se inicializa en 0 para que la app siempre reciba un balance válido
+        balance = MemberBalance(
+            member_id=member_uuid_str,
+            coins_obtained=0,
+            time_obtained="00:00:00",
+            parent_id=current_user.id,
+        )
+        db.add(balance)
+        db.commit()
+        db.refresh(balance)
+
+    return balance
+
+
 @router.patch(
     "/{member_id}",
     response_model=MemberBalanceResponse,
