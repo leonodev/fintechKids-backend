@@ -547,7 +547,7 @@
         "tags": [
           "4. Metas (Goals)"
         ],
-        "summary": "Crear una nueva meta (Goal)",
+        "summary": "Crear una nueva meta del padre (Goal)",
         "description": "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), `email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
         "operationId": "create_goal_api_v1_goals_post",
         "security": [
@@ -595,7 +595,7 @@
         "tags": [
           "4. Metas (Goals)"
         ],
-        "summary": "Listar metas (Goals) de la familia",
+        "summary": "Listar metas (Goals) creadas por el padre",
         "description": "Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
         "operationId": "list_goals_api_v1_goals_get",
         "security": [
@@ -637,6 +637,116 @@
                     "$ref": "#/components/schemas/GoalResponse"
                   },
                   "title": "Response List Goals Api V1 Goals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/{goal_id}": {
+      "patch": {
+        "tags": [
+          "4. Metas (Goals)"
+        ],
+        "summary": "Editar una meta creada por el padre",
+        "description": "Actualiza parcialmente `name`, `measure_type`, `value` y/o `status` (`active` / `inactive`) de una meta existente perteneciente al padre autenticado (protegido con JWT).",
+        "operationId": "update_goal_api_v1_goals__goal_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Goal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "4. Metas (Goals)"
+        ],
+        "summary": "Eliminar una meta creada por el padre",
+        "description": "Elimina permanentemente una meta de la base de datos buscando por su `goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_goal_api_v1_goals__goal_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Goal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalDeleteResponse"
                 }
               }
             }
@@ -1629,6 +1739,32 @@
         ],
         "title": "GoalCreate"
       },
+      "GoalDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Meta eliminada correctamente."
+            ]
+          },
+          "goal_id": {
+            "type": "integer",
+            "title": "Goal Id",
+            "description": "ID de la meta eliminada",
+            "examples": [
+              1
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "goal_id"
+        ],
+        "title": "GoalDeleteResponse"
+      },
       "GoalResponse": {
         "properties": {
           "id": {
@@ -1700,6 +1836,76 @@
           "inactive"
         ],
         "title": "GoalStatusEnum"
+      },
+      "GoalUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Nuevo nombre descriptivo de la meta",
+            "examples": [
+              "Lectura nocturna"
+            ]
+          },
+          "measure_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measure Type",
+            "description": "Nuevo tipo de medida de la meta",
+            "examples": [
+              "minutes"
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Nuevo valor numérico objetivo de la meta",
+            "examples": [
+              45
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GoalStatusEnum"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nuevo estado de la meta (`active` o `inactive`)",
+            "examples": [
+              "inactive"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "GoalUpdate"
       },
       "HTTPValidationError": {
         "properties": {

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -43,6 +44,34 @@ class GoalCreate(BaseModel):
     )
 
 
+class GoalUpdate(BaseModel):
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        description="Nuevo nombre descriptivo de la meta",
+        examples=["Lectura nocturna"],
+    )
+    measure_type: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+        description="Nuevo tipo de medida de la meta",
+        examples=["minutes"],
+    )
+    value: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Nuevo valor numérico objetivo de la meta",
+        examples=[45],
+    )
+    status: Optional[GoalStatusEnum] = Field(
+        default=None,
+        description="Nuevo estado de la meta (`active` o `inactive`)",
+        examples=["inactive"],
+    )
+
+
 class GoalResponse(BaseModel):
     id: int = Field(..., description="ID único de la meta en base de datos")
     created_at: datetime = Field(..., description="Fecha y hora de creación auto-generada por el backend en UTC")
@@ -55,3 +84,12 @@ class GoalResponse(BaseModel):
     updated_at: datetime = Field(..., description="Última actualización en UTC")
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class GoalDeleteResponse(BaseModel):
+    message: str = Field(
+        ...,
+        description="Mensaje de confirmación de eliminación",
+        examples=["Meta eliminada correctamente."],
+    )
+    goal_id: int = Field(..., description="ID de la meta eliminada", examples=[1])

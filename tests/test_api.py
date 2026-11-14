@@ -203,6 +203,32 @@ def test_full_auth_and_crud_flow():
     assert list_goals_res.status_code == 200
     assert len(list_goals_res.json()) == 1
 
+    # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
+    goal_id = goal_data["id"]
+    patch_goal_res = client.patch(
+        f"/api/v1/goals/{goal_id}",
+        headers=headers,
+        json={
+            "name": "Lectura nocturna",
+            "value": 45,
+            "status": "inactive",
+        },
+    )
+    assert patch_goal_res.status_code == 200
+    patched_goal = patch_goal_res.json()
+    assert patched_goal["name"] == "Lectura nocturna"
+    assert patched_goal["value"] == 45
+    assert patched_goal["status"] == "inactive"
+
+    # 3.8 Eliminar meta del padre (DELETE /api/v1/goals/{goal_id})
+    del_goal_res = client.delete(f"/api/v1/goals/{goal_id}", headers=headers)
+    assert del_goal_res.status_code == 200
+    assert del_goal_res.json()["goal_id"] == goal_id
+
+    list_goals_after_del = client.get("/api/v1/goals", headers=headers)
+    assert list_goals_after_del.status_code == 200
+    assert len(list_goals_after_del.json()) == 0
+
     # 4. Crear un elemento persistido en BD
     create_item_res = client.post(
         "/api/v1/items",
