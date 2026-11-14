@@ -164,3 +164,50 @@ def test_full_auth_and_crud_flow():
     # 8. Eliminar elemento
     del_res = client.delete(f"/api/v1/items/{item_id}", headers=headers)
     assert del_res.status_code == 204
+
+
+def test_password_recovery_flow():
+    # 1. Solicitar código temporal de 6 dígitos con email_parent
+    forgot_res = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "fredy@fhk.app"},
+    )
+    assert forgot_res.status_code == 200
+    forgot_data = forgot_res.json()
+    recovery_code = forgot_data["debug_recovery_code"]
+    assert len(recovery_code) == 6
+    assert recovery_code.isdigit()
+
+    # 2. Confirmar el código de 6 dígitos y establecer el nuevo password encriptado desde la app
+    new_encrypted_password = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    reset_res = client.post(
+        "/api/v1/auth/reset-password",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "recovery_code": recovery_code,
+            "new_password": new_encrypted_password,
+        },
+    )
+    assert reset_res.status_code == 200
+
+    # 3. Verificar que el código de 6 dígitos ya no se pueda reutilizar una segunda vez
+    reuse_res = client.post(
+        "/api/v1/auth/reset-password",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "recovery_code": recovery_code,
+            "new_password": new_encrypted_password,
+        },
+    )
+    assert reuse_res.status_code == 400
+
+    # 4. Iniciar sesión con el nuevo password encriptado
+    login_new_res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "password": new_encrypted_password,
+        },
+    )
+    assert login_new_res.status_code == 200
+    assert "access_token" in login_new_res.json()

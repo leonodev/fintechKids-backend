@@ -114,6 +114,90 @@
         }
       }
     },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "1. Autenticación"
+        ],
+        "summary": "Recuperar contraseña - Paso 1: Solicitar código de 6 dígitos",
+        "description": "Recibe `email_parent`, genera un código temporal de 6 dígitos válido por 15 minutos y lo persiste en la base de datos para enviarlo al correo del padre.",
+        "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "1. Autenticación"
+        ],
+        "summary": "Recuperar contraseña - Paso 2: Confirmar código y actualizar password",
+        "description": "Recibe `email_parent`, `recovery_code` (6 dígitos) y el nuevo `new_password` encriptado desde la app. Valida que el código sea correcto y no haya expirado, actualiza la contraseña en BD e invalida el código.",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/refresh": {
       "post": {
         "tags": [
@@ -894,6 +978,69 @@
         ],
         "title": "AppVersionConfigUpdate"
       },
+      "ForgotPasswordRequest": {
+        "properties": {
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor para recibir el código temporal de 6 dígitos",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email_parent"
+        ],
+        "title": "ForgotPasswordRequest"
+      },
+      "ForgotPasswordResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación para mostrar al usuario en la app",
+            "examples": [
+              "Se ha generado y enviado un código de verificación de 6 dígitos al correo registrado."
+            ]
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo al cual se envió el código"
+          },
+          "expires_in_minutes": {
+            "type": "integer",
+            "title": "Expires In Minutes",
+            "description": "Minutos de validez del código de 6 dígitos"
+          },
+          "debug_recovery_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debug Recovery Code",
+            "description": "Código de 6 dígitos expuesto únicamente en entorno `development` para facilitar pruebas desde la app o Swagger",
+            "examples": [
+              "482910"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "email_parent",
+          "expires_in_minutes"
+        ],
+        "title": "ForgotPasswordResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1118,6 +1265,75 @@
           "refresh_token"
         ],
         "title": "RefreshTokenRequest"
+      },
+      "ResetPasswordRequest": {
+        "properties": {
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "recovery_code": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 6,
+            "title": "Recovery Code",
+            "description": "Código temporal de 6 dígitos recibido por correo",
+            "examples": [
+              "482910"
+            ]
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 4,
+            "title": "New Password",
+            "description": "Nueva contraseña encriptada desde la app",
+            "examples": [
+              "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email_parent",
+          "recovery_code",
+          "new_password"
+        ],
+        "title": "ResetPasswordRequest"
+      },
+      "ResetPasswordResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Confirmación del cambio de contraseña",
+            "examples": [
+              "La contraseña se ha actualizado correctamente. Ya puedes iniciar sesión."
+            ]
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "email_parent",
+          "updated_at"
+        ],
+        "title": "ResetPasswordResponse"
       },
       "TokenResponse": {
         "properties": {
