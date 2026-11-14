@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import List, Optional
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -8,7 +10,12 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.user import User
-from app.schemas.family_member import FamilyMemberCreate, FamilyMemberResponse
+from app.schemas.family_member import (
+    FamilyMemberCreate,
+    FamilyMemberDeleteResponse,
+    FamilyMemberResponse,
+    FamilyMemberUpdate,
+)
 
 router = APIRouter()
 
@@ -86,3 +93,83 @@ def list_family_members(
     if email_parent:
         query = query.filter(FamilyMember.email_parent == email_parent.lower())
     return query.order_by(FamilyMember.created_at.asc()).all()
+
+
+@router.patch(
+    "/{identification_uuid}",
+    response_model=FamilyMemberResponse,
+    summary="Editar nombre o avatar de un miembro de la familia",
+    description=(
+        "Actualiza el nombre (`member_name`) y/o el avatar (`avatar_name`) de un miembro de la familia "
+        "identificado por su `identification_uuid` (protegido con JWT)."
+    ),
+)
+def update_family_member(
+    identification_uuid: UUID,
+    member_in: FamilyMemberUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> FamilyMember:
+    uuid_str = str(identification_uuid)
+    member = (
+        db.query(FamilyMember)
+        .filter(
+            FamilyMember.identification_uuid == uuid_str,
+            FamilyMember.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ningún miembro de tu familia con el `identification_uuid` proporcionado.",
+        )
+
+    if member_in.member_name is not None:
+        member.member_name = member_in.member_name
+    if member_in.avatar_name is not None:
+        member.avatar_name = member_in.avatar_name
+
+    member.updated_at = datetime.now(timezone.utc)
+    db.add(member)
+    db.commit()
+    db.refresh(member)
+    return member
+
+
+@router.delete(
+    "/{identification_uuid}",
+    response_model=FamilyMemberDeleteResponse,
+    summary="Eliminar un miembro de la familia",
+    description=(
+        "Elimina permanentemente un miembro de la familia de la base de datos buscando por su "
+        "`identification_uuid` y verificando que pertenezca al padre autenticado (protegido con JWT)."
+    ),
+)
+def delete_family_member(
+    identification_uuid: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> FamilyMemberDeleteResponse:
+    uuid_str = str(identification_uuid)
+    member = (
+        db.query(FamilyMember)
+        .filter(
+            FamilyMember.identification_uuid == uuid_str,
+            FamilyMember.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ningún miembro de tu familia con el `identification_uuid` proporcionado.",
+        )
+
+    db.delete(member)
+    db.commit()
+
+    return FamilyMemberDeleteResponse(
+        message="Miembro de la familia eliminado correctamente.",
+        identification_uuid=identification_uuid,
+    )

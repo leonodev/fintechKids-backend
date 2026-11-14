@@ -150,6 +150,32 @@ def test_full_auth_and_crud_flow():
     assert list_members_res.status_code == 200
     assert len(list_members_res.json()) == 1
 
+    # 3.3 Editar nombre y avatar de un miembro de la familia por su identification_uuid
+    patch_member_res = client.patch(
+        f"/api/v1/family-members/{member_uuid}",
+        headers=headers,
+        json={
+            "member_name": "Mateo León Editado",
+            "avatar_name": "avatar_tiger_02",
+        },
+    )
+    assert patch_member_res.status_code == 200
+    patched_member = patch_member_res.json()
+    assert patched_member["member_name"] == "Mateo León Editado"
+    assert patched_member["avatar_name"] == "avatar_tiger_02"
+
+    # 3.4 Eliminar miembro de la familia por su identification_uuid
+    delete_member_res = client.delete(
+        f"/api/v1/family-members/{member_uuid}",
+        headers=headers,
+    )
+    assert delete_member_res.status_code == 200
+    assert delete_member_res.json()["identification_uuid"] == member_uuid
+
+    list_after_del = client.get("/api/v1/family-members", headers=headers)
+    assert list_after_del.status_code == 200
+    assert len(list_after_del.json()) == 0
+
     # 4. Crear un elemento persistido en BD
     create_item_res = client.post(
         "/api/v1/items",

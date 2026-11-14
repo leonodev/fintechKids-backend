@@ -430,6 +430,118 @@
         }
       }
     },
+    "/api/v1/family-members/{identification_uuid}": {
+      "patch": {
+        "tags": [
+          "3. Miembros de la Familia"
+        ],
+        "summary": "Editar nombre o avatar de un miembro de la familia",
+        "description": "Actualiza el nombre (`member_name`) y/o el avatar (`avatar_name`) de un miembro de la familia identificado por su `identification_uuid` (protegido con JWT).",
+        "operationId": "update_family_member_api_v1_family_members__identification_uuid__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "identification_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identification Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyMemberUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyMemberResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "3. Miembros de la Familia"
+        ],
+        "summary": "Eliminar un miembro de la familia",
+        "description": "Elimina permanentemente un miembro de la familia de la base de datos buscando por su `identification_uuid` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_family_member_api_v1_family_members__identification_uuid__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "identification_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identification Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyMemberDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
@@ -1151,6 +1263,33 @@
         ],
         "title": "FamilyMemberCreate"
       },
+      "FamilyMemberDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Miembro de la familia eliminado correctamente."
+            ]
+          },
+          "identification_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Identification Uuid",
+            "description": "UUID del miembro que fue eliminado",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "identification_uuid"
+        ],
+        "title": "FamilyMemberDeleteResponse"
+      },
       "FamilyMemberResponse": {
         "properties": {
           "id": {
@@ -1216,6 +1355,46 @@
           "updated_at"
         ],
         "title": "FamilyMemberResponse"
+      },
+      "FamilyMemberUpdate": {
+        "properties": {
+          "member_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Name",
+            "description": "Nuevo nombre del miembro de la familia",
+            "examples": [
+              "Mateo León"
+            ]
+          },
+          "avatar_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Name",
+            "description": "Nuevo nombre o identificador del avatar",
+            "examples": [
+              "avatar_tiger_02"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "FamilyMemberUpdate"
       },
       "ForgotPasswordRequest": {
         "properties": {
