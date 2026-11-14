@@ -1,0 +1,1360 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FHK Backend API",
+    "description": "Backend REST API con autenticación JWT, seguridad, persistencia en base de datos y documentación interactiva OpenAPI/Swagger auto-generada.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "0. Estado del Servidor"
+        ],
+        "summary": "Health Check del Backend",
+        "description": "Verifica que el servidor esté activo y listo para recibir peticiones.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Check Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "1. Autenticación"
+        ],
+        "summary": "Registrar un nuevo usuario",
+        "description": "Crea una nueva cuenta de usuario con contraseña encriptada mediante bcrypt.",
+        "operationId": "register_user_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "1. Autenticación"
+        ],
+        "summary": "Iniciar sesión desde la App (JSON)",
+        "description": "Recibe email y contraseña en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
+        "operationId": "login_json_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "1. Autenticación"
+        ],
+        "summary": "Renovar Access Token usando Refresh Token",
+        "description": "Permite a la app móvil obtener un nuevo `access_token` sin obligar al usuario a iniciar sesión nuevamente.",
+        "operationId": "refresh_access_token_api_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": [
+          "2. Usuarios"
+        ],
+        "summary": "Obtener perfil del usuario autenticado",
+        "description": "Devuelve la información del usuario propietario del token JWT actual.",
+        "operationId": "read_current_user_api_v1_users_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "2. Usuarios"
+        ],
+        "summary": "Actualizar perfil del usuario autenticado",
+        "description": "Permite actualizar el nombre completo o la contraseña del usuario autenticado.",
+        "operationId": "update_current_user_api_v1_users_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/app-version/check": {
+      "get": {
+        "tags": [
+          "3. Versión de la App (Tiendas)"
+        ],
+        "summary": "Verificar si la App tiene la última versión de tiendas",
+        "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
+        "operationId": "check_app_version_api_v1_app_version_check_get",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PlatformEnum",
+              "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)",
+              "examples": [
+                "IOS"
+              ]
+            },
+            "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)"
+          },
+          {
+            "name": "current_version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30,
+              "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)",
+              "examples": [
+                "1.0.0"
+              ],
+              "title": "Current Version"
+            },
+            "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppVersionCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-version": {
+      "get": {
+        "tags": [
+          "3. Versión de la App (Tiendas)"
+        ],
+        "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
+        "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
+        "operationId": "list_store_versions_api_v1_app_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppVersionConfigResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Store Versions Api V1 App Version Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-version/{platform}": {
+      "put": {
+        "tags": [
+          "3. Versión de la App (Tiendas)"
+        ],
+        "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
+        "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
+        "operationId": "update_store_version_api_v1_app_version__platform__put",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PlatformEnum"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppVersionConfigUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppVersionConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/items": {
+      "get": {
+        "tags": [
+          "4. Elementos (CRUD Ejemplo)"
+        ],
+        "summary": "Listar elementos del usuario",
+        "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
+        "operationId": "list_items_api_v1_items_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Número de registros a omitir",
+              "default": 0,
+              "title": "Skip"
+            },
+            "description": "Número de registros a omitir"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Máximo de registros a devolver",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Máximo de registros a devolver"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponse"
+                  },
+                  "title": "Response List Items Api V1 Items Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "4. Elementos (CRUD Ejemplo)"
+        ],
+        "summary": "Crear un nuevo elemento",
+        "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
+        "operationId": "create_item_api_v1_items_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/items/{item_id}": {
+      "get": {
+        "tags": [
+          "4. Elementos (CRUD Ejemplo)"
+        ],
+        "summary": "Obtener detalle de un elemento",
+        "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
+        "operationId": "get_item_api_v1_items__item_id__get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "4. Elementos (CRUD Ejemplo)"
+        ],
+        "summary": "Actualizar un elemento",
+        "description": "Actualiza parcialmente los campos de un elemento existente.",
+        "operationId": "update_item_api_v1_items__item_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "4. Elementos (CRUD Ejemplo)"
+        ],
+        "summary": "Eliminar un elemento",
+        "description": "Elimina de forma permanente un elemento de la base de datos.",
+        "operationId": "delete_item_api_v1_items__item_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppVersionCheckResponse": {
+        "properties": {
+          "platform": {
+            "$ref": "#/components/schemas/PlatformEnum",
+            "description": "Plataforma consultada (`IOS` para Apple App Store, `AND` para Google Play Store)",
+            "examples": [
+              "IOS"
+            ]
+          },
+          "current_version": {
+            "type": "string",
+            "title": "Current Version",
+            "description": "Versión instalada actualmente en el dispositivo del usuario",
+            "examples": [
+              "1.0.0"
+            ]
+          },
+          "latest_version": {
+            "type": "string",
+            "title": "Latest Version",
+            "description": "Última versión disponible en la tienda correspondiente",
+            "examples": [
+              "1.2.0"
+            ]
+          },
+          "min_required_version": {
+            "type": "string",
+            "title": "Min Required Version",
+            "description": "Versión mínima permitida para seguir usando la app sin actualizar",
+            "examples": [
+              "1.0.0"
+            ]
+          },
+          "is_up_to_date": {
+            "type": "boolean",
+            "title": "Is Up To Date",
+            "description": "`true` si la app ya tiene instalada la última versión (o superior) de la tienda",
+            "examples": [
+              false
+            ]
+          },
+          "update_available": {
+            "type": "boolean",
+            "title": "Update Available",
+            "description": "`true` si existe una versión más reciente publicada en la tienda",
+            "examples": [
+              true
+            ]
+          },
+          "force_update": {
+            "type": "boolean",
+            "title": "Force Update",
+            "description": "`true` si la actualización es obligatoria (bloqueante) para continuar usando la app",
+            "examples": [
+              false
+            ]
+          },
+          "store_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Url",
+            "description": "Enlace directo a la tienda (App Store / Google Play) para descargar la actualización",
+            "examples": [
+              "https://apps.apple.com/app/id000000000"
+            ]
+          },
+          "release_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Notes",
+            "description": "Notas de la versión con las novedades disponibles en tienda",
+            "examples": [
+              "Mejoras de rendimiento y nuevas funcionalidades de seguridad."
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje descriptivo listo para mostrar al usuario o registrar en logs",
+            "examples": [
+              "Hay una nueva versión (1.2.0) disponible en la tienda."
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "platform",
+          "current_version",
+          "latest_version",
+          "min_required_version",
+          "is_up_to_date",
+          "update_available",
+          "force_update",
+          "message"
+        ],
+        "title": "AppVersionCheckResponse"
+      },
+      "AppVersionConfigResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/PlatformEnum"
+          },
+          "latest_version": {
+            "type": "string",
+            "title": "Latest Version"
+          },
+          "min_required_version": {
+            "type": "string",
+            "title": "Min Required Version"
+          },
+          "force_update": {
+            "type": "boolean",
+            "title": "Force Update"
+          },
+          "store_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Url"
+          },
+          "release_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Notes"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "platform",
+          "latest_version",
+          "min_required_version",
+          "force_update",
+          "updated_at"
+        ],
+        "title": "AppVersionConfigResponse"
+      },
+      "AppVersionConfigUpdate": {
+        "properties": {
+          "latest_version": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Latest Version",
+            "description": "Última versión publicada en la tienda (formato semántico ej. 1.2.0)",
+            "examples": [
+              "1.3.0"
+            ]
+          },
+          "min_required_version": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Min Required Version",
+            "description": "Versión mínima obligatoria (clientes con versión menor verán force_update=true)",
+            "examples": [
+              "1.1.0"
+            ]
+          },
+          "force_update": {
+            "type": "boolean",
+            "title": "Force Update",
+            "description": "Si es `true`, fuerza la actualización a todos los usuarios que no estén en `latest_version`",
+            "default": false
+          },
+          "store_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Url",
+            "description": "URL oficial de la app en App Store o Google Play",
+            "examples": [
+              "https://apps.apple.com/app/id000000000"
+            ]
+          },
+          "release_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Notes",
+            "description": "Notas de lanzamiento de la versión actual",
+            "examples": [
+              "Corrección de errores y mejoras de estabilidad."
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "latest_version",
+          "min_required_version"
+        ],
+        "title": "AppVersionConfigUpdate"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ItemCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "description": "Título del elemento",
+            "examples": [
+              "Suscripción Premium"
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Descripción detallada del elemento",
+            "examples": [
+              "Acceso completo a todos los servicios desde la app móvil"
+            ]
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Price",
+            "description": "Precio o valor numérico asociado",
+            "default": 0.0,
+            "examples": [
+              19.99
+            ]
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed",
+            "description": "Estado de completado del elemento",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "ItemCreate"
+      },
+      "ItemResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único del elemento"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed"
+          },
+          "owner_id": {
+            "type": "integer",
+            "title": "Owner Id",
+            "description": "ID del usuario propietario"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "price",
+          "is_completed",
+          "owner_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ItemResponse"
+      },
+      "ItemUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "is_completed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Completed"
+          }
+        },
+        "type": "object",
+        "title": "ItemUpdate"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Correo electrónico registrado del usuario",
+            "examples": [
+              "usuario@fhk.app"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "title": "Password",
+            "description": "Contraseña del usuario",
+            "examples": [
+              "MiPasswordSeguro123!"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "PlatformEnum": {
+        "type": "string",
+        "enum": [
+          "IOS",
+          "AND"
+        ],
+        "title": "PlatformEnum"
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token",
+            "description": "Refresh token obtenido durante el login para renovar el access token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshTokenRequest"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "JWT Access Token para enviar en Authorization: Bearer <token>"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token",
+            "description": "JWT Refresh Token para renovar sesión sin pedir contraseña"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "description": "Tipo de token de autorización",
+            "default": "bearer"
+          },
+          "expires_in_minutes": {
+            "type": "integer",
+            "title": "Expires In Minutes",
+            "description": "Tiempo de expiración del access token en minutos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "expires_in_minutes"
+        ],
+        "title": "TokenResponse"
+      },
+      "UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Correo electrónico único del usuario",
+            "examples": [
+              "usuario@fhk.app"
+            ]
+          },
+          "full_name": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 2,
+            "title": "Full Name",
+            "description": "Nombre completo del usuario",
+            "examples": [
+              "Fredy León"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "description": "Contraseña (mínimo 8 caracteres)",
+            "examples": [
+              "MiPasswordSeguro123!"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "full_name",
+          "password"
+        ],
+        "title": "UserCreate"
+      },
+      "UserResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único del usuario"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "Correo electrónico del usuario"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name",
+            "description": "Nombre completo"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Indica si la cuenta está activa"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Rol del usuario (user, admin)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha de registro en UTC"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "is_active",
+          "role",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "UserResponse"
+      },
+      "UserUpdate": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 150,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name",
+            "description": "Nuevo nombre completo del usuario"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password",
+            "description": "Nueva contraseña (opcional)"
+          }
+        },
+        "type": "object",
+        "title": "UserUpdate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2Password": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/v1/auth/token"
+          }
+        }
+      },
+      "BearerJWT": {
+        "type": "http",
+        "description": "Pega aquí tu `access_token` JWT obtenido en `/api/v1/auth/login`",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "0. Estado del Servidor",
+      "description": "Verificación de salud y disponibilidad del servicio."
+    },
+    {
+      "name": "1. Autenticación",
+      "description": "Registro de usuarios, inicio de sesión y renovación de tokens JWT (`access_token` y `refresh_token`)."
+    },
+    {
+      "name": "2. Usuarios",
+      "description": "Consulta y actualización del perfil del usuario autenticado."
+    },
+    {
+      "name": "3. Versión de la App (Tiendas)",
+      "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
+    },
+    {
+      "name": "4. Elementos (CRUD Ejemplo)",
+      "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
+    }
+  ]
+}
