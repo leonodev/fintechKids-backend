@@ -36,7 +36,7 @@
           "1. Autenticación"
         ],
         "summary": "Registrar nueva familia / padre",
-        "description": "Registra una familia en la base de datos recibiendo `name_family`, `email_parent` y `approve_pin`. El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC.",
+        "description": "Registra una familia en la base de datos recibiendo `name_family`, `email_parent`, `password` (encriptado desde la app) y `approve_pin`. El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC.",
         "operationId": "register_user_api_v1_auth_register_post",
         "requestBody": {
           "content": {
@@ -78,7 +78,7 @@
           "1. Autenticación"
         ],
         "summary": "Iniciar sesión desde la App (JSON)",
-        "description": "Recibe `email_parent` y `approve_pin` en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
+        "description": "Recibe `email_parent` y `password` (el mismo password encriptado enviado desde la app en el registro) y devuelve un `access_token` y `refresh_token` JWT.",
         "operationId": "login_json_api_v1_auth_login_post",
         "requestBody": {
           "content": {
@@ -189,8 +189,8 @@
         "tags": [
           "2. Usuarios"
         ],
-        "summary": "Actualizar nombre de familia o PIN del padre autenticado",
-        "description": "Permite actualizar `name_family` o `approve_pin` de la cuenta autenticada.",
+        "summary": "Actualizar datos de la familia / padre autenticado",
+        "description": "Permite actualizar `name_family`, `password` o `approve_pin` de la cuenta autenticada.",
         "operationId": "update_current_user_api_v1_users_me_patch",
         "requestBody": {
           "content": {
@@ -1079,20 +1079,21 @@
               "padre@fhk.app"
             ]
           },
-          "approve_pin": {
+          "password": {
             "type": "string",
+            "maxLength": 512,
             "minLength": 4,
-            "title": "Approve Pin",
-            "description": "PIN de aprobación configurado en el registro",
+            "title": "Password",
+            "description": "Contraseña encriptada desde la app (la misma enviada durante el registro)",
             "examples": [
-              "1234"
+              "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             ]
           }
         },
         "type": "object",
         "required": [
           "email_parent",
-          "approve_pin"
+          "password"
         ],
         "title": "LoginRequest"
       },
@@ -1128,7 +1129,7 @@
           "refresh_token": {
             "type": "string",
             "title": "Refresh Token",
-            "description": "JWT Refresh Token para renovar sesión sin pedir PIN nuevamente"
+            "description": "JWT Refresh Token para renovar sesión sin pedir contraseña nuevamente"
           },
           "token_type": {
             "type": "string",
@@ -1171,12 +1172,22 @@
               "padre@fhk.app"
             ]
           },
+          "password": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 4,
+            "title": "Password",
+            "description": "Contraseña encriptada desde la app (el mismo valor se enviará en `/auth/login`)",
+            "examples": [
+              "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            ]
+          },
           "approve_pin": {
             "type": "string",
             "maxLength": 50,
             "minLength": 4,
             "title": "Approve Pin",
-            "description": "PIN de aprobación del padre/madre",
+            "description": "PIN de aprobación parental",
             "examples": [
               "1234"
             ]
@@ -1186,6 +1197,7 @@
         "required": [
           "name_family",
           "email_parent",
+          "password",
           "approve_pin"
         ],
         "title": "UserCreate"
@@ -1217,7 +1229,7 @@
           "approve_pin": {
             "type": "string",
             "title": "Approve Pin",
-            "description": "PIN de aprobación"
+            "description": "PIN de aprobación parental"
           },
           "is_active": {
             "type": "boolean",
@@ -1259,6 +1271,20 @@
             "title": "Name Family",
             "description": "Nuevo nombre de la familia"
           },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512,
+                "minLength": 4
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password",
+            "description": "Nueva contraseña encriptada desde la app"
+          },
           "approve_pin": {
             "anyOf": [
               {
@@ -1271,7 +1297,7 @@
               }
             ],
             "title": "Approve Pin",
-            "description": "Nuevo PIN de aprobación"
+            "description": "Nuevo PIN de aprobación parental"
           }
         },
         "type": "object",

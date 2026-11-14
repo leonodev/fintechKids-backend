@@ -9,11 +9,12 @@ class LoginRequest(BaseModel):
         description="Correo electrónico registrado del padre/tutor",
         examples=["padre@fhk.app"],
     )
-    approve_pin: str = Field(
+    password: str = Field(
         ...,
         min_length=4,
-        description="PIN de aprobación configurado en el registro",
-        examples=["1234"],
+        max_length=512,
+        description="Contraseña encriptada desde la app (la misma enviada durante el registro)",
+        examples=["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
     )
 
 
@@ -26,6 +27,6 @@ class RefreshTokenRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str = Field(..., description="JWT Access Token para enviar en Authorization: Bearer <token>")
-    refresh_token: str = Field(..., description="JWT Refresh Token para renovar sesión sin pedir PIN nuevamente")
+    refresh_token: str = Field(..., description="JWT Refresh Token para renovar sesión sin pedir contraseña nuevamente")
     token_type: str = Field(default="bearer", description="Tipo de token de autorización")
     expires_in_minutes: int = Field(..., description="Tiempo de expiración del access token en minutos")

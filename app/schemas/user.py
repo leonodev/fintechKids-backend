@@ -18,11 +18,18 @@ class UserCreate(BaseModel):
         description="Correo electrónico del padre/madre o tutor",
         examples=["padre@fhk.app"],
     )
+    password: str = Field(
+        ...,
+        min_length=4,
+        max_length=512,
+        description="Contraseña encriptada desde la app (el mismo valor se enviará en `/auth/login`)",
+        examples=["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
+    )
     approve_pin: str = Field(
         ...,
         min_length=4,
         max_length=50,
-        description="PIN de aprobación del padre/madre",
+        description="PIN de aprobación parental",
         examples=["1234"],
     )
 
@@ -34,11 +41,17 @@ class UserUpdate(BaseModel):
         max_length=255,
         description="Nuevo nombre de la familia",
     )
+    password: Optional[str] = Field(
+        default=None,
+        min_length=4,
+        max_length=512,
+        description="Nueva contraseña encriptada desde la app",
+    )
     approve_pin: Optional[str] = Field(
         default=None,
         min_length=4,
         max_length=50,
-        description="Nuevo PIN de aprobación",
+        description="Nuevo PIN de aprobación parental",
     )
 
 
@@ -47,7 +60,7 @@ class UserResponse(BaseModel):
     created_at: datetime = Field(..., description="Fecha y hora de registro auto-generada por el backend en UTC")
     name_family: str = Field(..., description="Nombre de la familia")
     email_parent: EmailStr = Field(..., description="Correo electrónico del padre/tutor")
-    approve_pin: str = Field(..., description="PIN de aprobación")
+    approve_pin: str = Field(..., description="PIN de aprobación parental")
     is_active: bool = Field(..., description="Indica si la cuenta está activa")
     updated_at: datetime = Field(..., description="Última actualización en UTC")
 
