@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    created_at: datetime = Field(
-        ...,
-        description="Timestamp de creación en hora UTC (ej. `2026-11-14T18:00:00Z`)",
-        examples=["2026-11-14T18:00:00Z"],
-    )
     name_family: str = Field(
         ...,
         min_length=1,
@@ -31,14 +26,6 @@ class UserCreate(BaseModel):
         examples=["1234"],
     )
 
-    @field_validator("created_at", mode="after")
-    @classmethod
-    def ensure_utc(cls, value: datetime) -> datetime:
-        """Garantiza que el timestamp quede normalizado en zona horaria UTC."""
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
-
 
 class UserUpdate(BaseModel):
     name_family: Optional[str] = Field(
@@ -57,7 +44,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int = Field(..., description="ID único del registro en base de datos")
-    created_at: datetime = Field(..., description="Fecha y hora de registro en UTC")
+    created_at: datetime = Field(..., description="Fecha y hora de registro auto-generada por el backend en UTC")
     name_family: str = Field(..., description="Nombre de la familia")
     email_parent: EmailStr = Field(..., description="Correo electrónico del padre/tutor")
     approve_pin: str = Field(..., description="PIN de aprobación")

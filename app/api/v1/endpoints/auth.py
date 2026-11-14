@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -27,8 +28,8 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     summary="Registrar nueva familia / padre",
     description=(
-        "Registra una familia en la base de datos recibiendo `created_at` (timestamp en hora UTC), "
-        "`name_family`, `email_parent` y `approve_pin`."
+        "Registra una familia en la base de datos recibiendo `name_family`, `email_parent` y `approve_pin`. "
+        "El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC."
     ),
 )
 def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
@@ -40,7 +41,7 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
         )
 
     user = User(
-        created_at=user_in.created_at,
+        created_at=datetime.now(timezone.utc),
         name_family=user_in.name_family,
         email_parent=user_in.email_parent.lower(),
         approve_pin=user_in.approve_pin,

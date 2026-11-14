@@ -85,11 +85,10 @@ def test_app_version_check_endpoint():
 
 
 def test_full_auth_and_crud_flow():
-    # 1. Registrar familia / padre con los 4 campos requeridos
+    # 1. Registrar familia / padre (created_at se asigna automáticamente en el backend en UTC)
     register_res = client.post(
         "/api/v1/auth/register",
         json={
-            "created_at": "2026-11-14T18:00:00Z",
             "name_family": "Familia León",
             "email_parent": "fredy@fhk.app",
             "approve_pin": "1234",
@@ -100,7 +99,7 @@ def test_full_auth_and_crud_flow():
     assert user_data["name_family"] == "Familia León"
     assert user_data["email_parent"] == "fredy@fhk.app"
     assert user_data["approve_pin"] == "1234"
-    assert user_data["created_at"].startswith("2026-11-14T18:00:00")
+    assert "created_at" in user_data and user_data["created_at"] is not None
 
     # 2. Iniciar sesión (Login) con email_parent y approve_pin
     login_res = client.post(

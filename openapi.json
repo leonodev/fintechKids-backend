@@ -36,7 +36,7 @@
           "1. Autenticación"
         ],
         "summary": "Registrar nueva familia / padre",
-        "description": "Registra una familia en la base de datos recibiendo `created_at` (timestamp en hora UTC), `name_family`, `email_parent` y `approve_pin`.",
+        "description": "Registra una familia en la base de datos recibiendo `name_family`, `email_parent` y `approve_pin`. El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC.",
         "operationId": "register_user_api_v1_auth_register_post",
         "requestBody": {
           "content": {
@@ -1152,15 +1152,6 @@
       },
       "UserCreate": {
         "properties": {
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At",
-            "description": "Timestamp de creación en hora UTC (ej. `2026-11-14T18:00:00Z`)",
-            "examples": [
-              "2026-11-14T18:00:00Z"
-            ]
-          },
           "name_family": {
             "type": "string",
             "maxLength": 255,
@@ -1193,7 +1184,6 @@
         },
         "type": "object",
         "required": [
-          "created_at",
           "name_family",
           "email_parent",
           "approve_pin"
@@ -1211,7 +1201,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de registro en UTC"
+            "description": "Fecha y hora de registro auto-generada por el backend en UTC"
           },
           "name_family": {
             "type": "string",
