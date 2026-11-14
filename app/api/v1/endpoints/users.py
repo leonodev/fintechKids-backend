@@ -35,6 +35,9 @@ def update_current_user(
 ) -> User:
     if user_in.name_family is not None:
         current_user.name_family = user_in.name_family
+        # Mantener sincronizado name_family en todos los miembros de la familia asociados
+        for member in current_user.family_members:
+            member.name_family = user_in.name_family
     if user_in.password is not None:
         current_user.hashed_password = get_password_hash(user_in.password)
     if user_in.approve_pin is not None:

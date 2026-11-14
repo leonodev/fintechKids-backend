@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.family_member import FamilyMember
     from app.models.item import Item
 
 
@@ -35,6 +36,13 @@ class User(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
+    )
+
+    # Relación con Miembros de la Familia (1 Padre/Familia -> N Miembros)
+    family_members: Mapped[List["FamilyMember"]] = relationship(
+        "FamilyMember",
+        back_populates="parent",
+        cascade="all, delete-orphan",
     )
 
     # Relación con Items creados por el usuario

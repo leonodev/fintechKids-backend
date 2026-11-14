@@ -22,15 +22,19 @@ openapi_tags = [
         "description": "Registro de usuarios, inicio de sesión y renovación de tokens JWT (`access_token` y `refresh_token`).",
     },
     {
-        "name": "2. Usuarios",
-        "description": "Consulta y actualización del perfil del usuario autenticado.",
+        "name": "2. Usuarios / Familia",
+        "description": "Consulta y actualización de los datos de la familia / padre autenticado.",
     },
     {
-        "name": "3. Versión de la App (Tiendas)",
+        "name": "3. Miembros de la Familia",
+        "description": "Creación y consulta de miembros de la familia vinculados a la cuenta del padre.",
+    },
+    {
+        "name": "4. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "4. Elementos (CRUD Ejemplo)",
+        "name": "5. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]

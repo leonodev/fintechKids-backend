@@ -243,7 +243,7 @@
     "/api/v1/users/me": {
       "get": {
         "tags": [
-          "2. Usuarios"
+          "2. Usuarios / Familia"
         ],
         "summary": "Obtener datos de la familia / padre autenticado",
         "description": "Devuelve la información registrada de la familia propietaria del token JWT actual.",
@@ -271,7 +271,7 @@
       },
       "patch": {
         "tags": [
-          "2. Usuarios"
+          "2. Usuarios / Familia"
         ],
         "summary": "Actualizar datos de la familia / padre autenticado",
         "description": "Permite actualizar `name_family`, `password` o `approve_pin` de la cuenta autenticada.",
@@ -318,10 +318,122 @@
         ]
       }
     },
+    "/api/v1/family-members": {
+      "post": {
+        "tags": [
+          "3. Miembros de la Familia"
+        ],
+        "summary": "Crear un nuevo miembro de la familia",
+        "description": "Registra un nuevo miembro en la familia recibiendo `email_parent`, `identification_uuid` (UUID), `member_name`, `avatar_name` y `name_family`. Se vincula por llave foránea (`parent_id`) con la cuenta del padre registrada en `users` (protegido con JWT).",
+        "operationId": "create_family_member_api_v1_family_members_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyMemberCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyMemberResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "3. Miembros de la Familia"
+        ],
+        "summary": "Listar miembros de la familia",
+        "description": "Obtiene todos los miembros registrados de la familia del padre autenticado.",
+        "operationId": "list_family_members_api_v1_family_members_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtro opcional por `email_parent` (por defecto usa el del token JWT actual)",
+              "title": "Email Parent"
+            },
+            "description": "Filtro opcional por `email_parent` (por defecto usa el del token JWT actual)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FamilyMemberResponse"
+                  },
+                  "title": "Response List Family Members Api V1 Family Members Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "3. Versión de la App (Tiendas)"
+          "4. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -384,7 +496,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "3. Versión de la App (Tiendas)"
+          "4. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -410,7 +522,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "3. Versión de la App (Tiendas)"
+          "4. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -470,7 +582,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "4. Elementos (CRUD Ejemplo)"
+          "5. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -541,7 +653,7 @@
       },
       "post": {
         "tags": [
-          "4. Elementos (CRUD Ejemplo)"
+          "5. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -591,7 +703,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "4. Elementos (CRUD Ejemplo)"
+          "5. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -640,7 +752,7 @@
       },
       "patch": {
         "tags": [
-          "4. Elementos (CRUD Ejemplo)"
+          "5. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -699,7 +811,7 @@
       },
       "delete": {
         "tags": [
-          "4. Elementos (CRUD Ejemplo)"
+          "5. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -977,6 +1089,133 @@
           "min_required_version"
         ],
         "title": "AppVersionConfigUpdate"
+      },
+      "FamilyMemberCreate": {
+        "properties": {
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor registrado al que pertenece el miembro",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "identification_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Identification Uuid",
+            "description": "Identificador único UUID del miembro de la familia generado desde la app",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "member_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Member Name",
+            "description": "Nombre del miembro de la familia",
+            "examples": [
+              "Mateo"
+            ]
+          },
+          "avatar_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Avatar Name",
+            "description": "Nombre o identificador del avatar seleccionado en la app",
+            "examples": [
+              "avatar_lion_01"
+            ]
+          },
+          "name_family": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name Family",
+            "description": "Nombre de la familia (mismo `name_family` del registro / `users/me`)",
+            "examples": [
+              "Familia León"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email_parent",
+          "identification_uuid",
+          "member_name",
+          "avatar_name",
+          "name_family"
+        ],
+        "title": "FamilyMemberCreate"
+      },
+      "FamilyMemberResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID numérico interno del miembro en base de datos"
+          },
+          "identification_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Identification Uuid",
+            "description": "UUID único de identificación del miembro"
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo del padre/tutor"
+          },
+          "name_family": {
+            "type": "string",
+            "title": "Name Family",
+            "description": "Nombre de la familia"
+          },
+          "member_name": {
+            "type": "string",
+            "title": "Member Name",
+            "description": "Nombre del miembro"
+          },
+          "avatar_name": {
+            "type": "string",
+            "title": "Avatar Name",
+            "description": "Avatar asignado"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha de creación en UTC"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "identification_uuid",
+          "email_parent",
+          "name_family",
+          "member_name",
+          "avatar_name",
+          "parent_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "FamilyMemberResponse"
       },
       "ForgotPasswordRequest": {
         "properties": {
@@ -1587,15 +1826,19 @@
       "description": "Registro de usuarios, inicio de sesión y renovación de tokens JWT (`access_token` y `refresh_token`)."
     },
     {
-      "name": "2. Usuarios",
-      "description": "Consulta y actualización del perfil del usuario autenticado."
+      "name": "2. Usuarios / Familia",
+      "description": "Consulta y actualización de los datos de la familia / padre autenticado."
     },
     {
-      "name": "3. Versión de la App (Tiendas)",
+      "name": "3. Miembros de la Familia",
+      "description": "Creación y consulta de miembros de la familia vinculados a la cuenta del padre."
+    },
+    {
+      "name": "4. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "4. Elementos (CRUD Ejemplo)",
+      "name": "5. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]

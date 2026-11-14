@@ -125,6 +125,31 @@ def test_full_auth_and_crud_flow():
     assert me_res.status_code == 200
     assert me_res.json()["name_family"] == "Familia León"
 
+    # 3.1 Crear un miembro de la familia vinculado al padre y a su name_family
+    member_uuid = "550e8400-e29b-41d4-a716-446655440000"
+    create_member_res = client.post(
+        "/api/v1/family-members",
+        headers=headers,
+        json={
+            "email_parent": "fredy@fhk.app",
+            "identification_uuid": member_uuid,
+            "member_name": "Mateo León",
+            "avatar_name": "avatar_lion_01",
+            "name_family": me_res.json()["name_family"],
+        },
+    )
+    assert create_member_res.status_code == 201
+    member_data = create_member_res.json()
+    assert member_data["identification_uuid"] == member_uuid
+    assert member_data["member_name"] == "Mateo León"
+    assert member_data["name_family"] == "Familia León"
+    assert member_data["parent_id"] == user_data["id"]
+
+    # 3.2 Listar miembros de la familia
+    list_members_res = client.get("/api/v1/family-members", headers=headers)
+    assert list_members_res.status_code == 200
+    assert len(list_members_res.json()) == 1
+
     # 4. Crear un elemento persistido en BD
     create_item_res = client.post(
         "/api/v1/items",
