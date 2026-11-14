@@ -4,5 +4,14 @@ from app.models.app_version import AppVersion
 from app.models.family_member import FamilyMember
 from app.models.goal import Goal
 from app.models.member_goal import MemberGoal
+from app.models.member_balance import MemberBalance
 
-__all__ = ["User", "Item", "AppVersion", "FamilyMember", "Goal", "MemberGoal"]
+__all__ = [
+    "User",
+    "Item",
+    "AppVersion",
+    "FamilyMember",
+    "Goal",
+    "MemberGoal",
+    "MemberBalance",
+]

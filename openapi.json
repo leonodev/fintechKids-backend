@@ -1005,10 +1005,185 @@
         }
       }
     },
+    "/api/v1/member-balances": {
+      "post": {
+        "tags": [
+          "6. Balance de los Miembros (Member Balances)"
+        ],
+        "summary": "Registrar / Crear el balance de un miembro de la familia",
+        "description": "Registra el balance de monedas (`coins_obtained`) y tiempo (`time_obtained`) de un miembro identificado por `member_id` (UUID). El campo `created_at` se asigna automáticamente en UTC. Si el miembro ya tenía un balance registrado, actualiza sus valores y devuelve el registro (protegido con JWT).",
+        "operationId": "create_member_balance_api_v1_member_balances_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberBalanceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "6. Balance de los Miembros (Member Balances)"
+        ],
+        "summary": "Listar balances de los miembros de la familia",
+        "description": "Obtiene los balances de monedas y tiempo de todos los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID).",
+        "operationId": "list_member_balances_api_v1_member_balances_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "title": "Member Id"
+            },
+            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberBalanceResponse"
+                  },
+                  "title": "Response List Member Balances Api V1 Member Balances Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member-balances/{member_id}": {
+      "patch": {
+        "tags": [
+          "6. Balance de los Miembros (Member Balances)"
+        ],
+        "summary": "Actualizar el balance de un miembro por su UUID",
+        "description": "Actualiza `coins_obtained` y/o `time_obtained` del balance de un miembro identificado por su `member_id` (UUID) (protegido con JWT).",
+        "operationId": "update_member_balance_api_v1_member_balances__member_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberBalanceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "6. Versión de la App (Tiendas)"
+          "7. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -1071,7 +1246,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "6. Versión de la App (Tiendas)"
+          "7. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -1097,7 +1272,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "6. Versión de la App (Tiendas)"
+          "7. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -1157,7 +1332,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "7. Elementos (CRUD Ejemplo)"
+          "8. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -1228,7 +1403,7 @@
       },
       "post": {
         "tags": [
-          "7. Elementos (CRUD Ejemplo)"
+          "8. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -1278,7 +1453,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "7. Elementos (CRUD Ejemplo)"
+          "8. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -1327,7 +1502,7 @@
       },
       "patch": {
         "tags": [
-          "7. Elementos (CRUD Ejemplo)"
+          "8. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -1386,7 +1561,7 @@
       },
       "delete": {
         "tags": [
-          "7. Elementos (CRUD Ejemplo)"
+          "8. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -2351,6 +2526,137 @@
         ],
         "title": "LoginRequest"
       },
+      "MemberBalanceCreate": {
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "coins_obtained": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Coins Obtained",
+            "description": "Cantidad de monedas obtenidas por el miembro",
+            "examples": [
+              150
+            ]
+          },
+          "time_obtained": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Time Obtained",
+            "description": "Tiempo obtenido por el miembro (ej. `01:30:00` o `90m`)",
+            "examples": [
+              "01:30:00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "member_id",
+          "coins_obtained",
+          "time_obtained"
+        ],
+        "title": "MemberBalanceCreate"
+      },
+      "MemberBalanceResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único del registro de balance en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia"
+          },
+          "coins_obtained": {
+            "type": "integer",
+            "title": "Coins Obtained",
+            "description": "Cantidad de monedas obtenidas"
+          },
+          "time_obtained": {
+            "type": "string",
+            "title": "Time Obtained",
+            "description": "Tiempo obtenido"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "member_id",
+          "coins_obtained",
+          "time_obtained",
+          "parent_id",
+          "updated_at"
+        ],
+        "title": "MemberBalanceResponse"
+      },
+      "MemberBalanceUpdate": {
+        "properties": {
+          "coins_obtained": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coins Obtained",
+            "description": "Nueva cantidad de monedas obtenidas por el miembro",
+            "examples": [
+              200
+            ]
+          },
+          "time_obtained": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Obtained",
+            "description": "Nuevo tiempo obtenido por el miembro",
+            "examples": [
+              "02:00:00"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "MemberBalanceUpdate"
+      },
       "MemberGoalCreate": {
         "properties": {
           "goal_id": {
@@ -2965,11 +3271,15 @@
       "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia."
     },
     {
-      "name": "6. Versión de la App (Tiendas)",
+      "name": "6. Balance de los Miembros (Member Balances)",
+      "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro."
+    },
+    {
+      "name": "7. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "7. Elementos (CRUD Ejemplo)",
+      "name": "8. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]

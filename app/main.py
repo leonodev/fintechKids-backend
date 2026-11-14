@@ -38,11 +38,15 @@ openapi_tags = [
         "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia.",
     },
     {
-        "name": "6. Versión de la App (Tiendas)",
+        "name": "6. Balance de los Miembros (Member Balances)",
+        "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro.",
+    },
+    {
+        "name": "7. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "7. Elementos (CRUD Ejemplo)",
+        "name": "8. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]

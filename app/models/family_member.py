@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.member_balance import MemberBalance
     from app.models.member_goal import MemberGoal
     from app.models.user import User
 
@@ -27,6 +28,11 @@ class FamilyMember(Base, TimestampMixin):
     parent: Mapped["User"] = relationship("User", back_populates="family_members")
     member_goals: Mapped[List["MemberGoal"]] = relationship(
         "MemberGoal",
+        back_populates="member",
+        cascade="all, delete-orphan",
+    )
+    member_balances: Mapped[List["MemberBalance"]] = relationship(
+        "MemberBalance",
         back_populates="member",
         cascade="all, delete-orphan",
     )

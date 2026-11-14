@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models.family_member import FamilyMember
     from app.models.goal import Goal
     from app.models.item import Item
+    from app.models.member_balance import MemberBalance
     from app.models.member_goal import MemberGoal
 
 
@@ -57,6 +58,13 @@ class User(Base):
     # Relación con Metas de los Miembros (1 Padre/Familia -> N Metas de Miembros)
     member_goals: Mapped[List["MemberGoal"]] = relationship(
         "MemberGoal",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+    )
+
+    # Relación con Balances de los Miembros (1 Padre/Familia -> N Balances)
+    member_balances: Mapped[List["MemberBalance"]] = relationship(
+        "MemberBalance",
         back_populates="parent",
         cascade="all, delete-orphan",
     )

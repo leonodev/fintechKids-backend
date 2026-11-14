@@ -276,6 +276,41 @@ def test_full_auth_and_crud_flow():
     assert list_mg_after_del.status_code == 200
     assert len(list_mg_after_del.json()) == 0
 
+    # 3.6.6 Registrar balance del miembro (POST /api/v1/member-balances)
+    create_balance_res = client.post(
+        "/api/v1/member-balances",
+        headers=headers,
+        json={
+            "member_id": member_for_goal_uuid,
+            "coins_obtained": 150,
+            "time_obtained": "01:30:00",
+        },
+    )
+    assert create_balance_res.status_code == 201
+    balance_data = create_balance_res.json()
+    assert balance_data["member_id"] == member_for_goal_uuid
+    assert balance_data["coins_obtained"] == 150
+    assert balance_data["time_obtained"] == "01:30:00"
+    assert "created_at" in balance_data and balance_data["created_at"] is not None
+
+    # 3.6.7 Actualizar balance del miembro (PATCH /api/v1/member-balances/{member_id})
+    patch_balance_res = client.patch(
+        f"/api/v1/member-balances/{member_for_goal_uuid}",
+        headers=headers,
+        json={"coins_obtained": 220, "time_obtained": "02:15:00"},
+    )
+    assert patch_balance_res.status_code == 200
+    assert patch_balance_res.json()["coins_obtained"] == 220
+    assert patch_balance_res.json()["time_obtained"] == "02:15:00"
+
+    # 3.6.8 Listar balances del miembro
+    list_balance_res = client.get(
+        f"/api/v1/member-balances?member_id={member_for_goal_uuid}",
+        headers=headers,
+    )
+    assert list_balance_res.status_code == 200
+    assert len(list_balance_res.json()) == 1
+
     # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",
@@ -387,3 +422,21 @@ def test_password_recovery_flow():
     )
     assert login_new_res.status_code == 200
     assert "access_token" in login_new_res.json()
+
+
+def test_protected_endpoints_reject_without_valid_token():
+    invalid_headers = {"Authorization": "Bearer token-invalido-o-expirado"}
+    protected_gets = [
+        "/api/v1/users/me",
+        "/api/v1/family-members",
+        "/api/v1/goals",
+        "/api/v1/member-goals",
+        "/api/v1/member-balances",
+    ]
+    for path in protected_gets:
+        # Sin token -> 401
+        res_no_token = client.get(path)
+        assert res_no_token.status_code == 401
+        # Con token inválido -> 401
+        res_bad_token = client.get(path, headers=invalid_headers)
+        assert res_bad_token.status_code == 401
