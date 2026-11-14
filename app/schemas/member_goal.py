@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -49,6 +50,35 @@ class MemberGoalCreate(BaseModel):
     )
 
 
+class MemberGoalUpdate(BaseModel):
+    accumulated_value: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Nuevo valor acumulado de progreso en la meta del miembro",
+        examples=[15],
+    )
+    rewards_system_type: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+        description="Nuevo tipo de sistema de recompensa (opcional)",
+        examples=["stars"],
+    )
+    rewards_system_value: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Nuevo valor de la recompensa (opcional)",
+        examples=[20],
+    )
+    name: Optional[str] = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        description="Nuevo nombre de la meta del miembro (opcional)",
+        examples=["Lectura diaria"],
+    )
+
+
 class MemberGoalResponse(BaseModel):
     id: int = Field(..., description="ID único de la meta del miembro en base de datos")
     created_at: datetime = Field(..., description="Fecha y hora de creación auto-generada por el backend en UTC")
@@ -63,3 +93,16 @@ class MemberGoalResponse(BaseModel):
     updated_at: datetime = Field(..., description="Última actualización en UTC")
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MemberGoalDeleteResponse(BaseModel):
+    message: str = Field(
+        ...,
+        description="Mensaje de confirmación de eliminación",
+        examples=["Meta del miembro eliminada correctamente."],
+    )
+    member_goal_id: int = Field(
+        ...,
+        description="ID de la meta del miembro que fue eliminada",
+        examples=[1],
+    )

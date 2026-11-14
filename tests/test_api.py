@@ -251,6 +251,31 @@ def test_full_auth_and_crud_flow():
     assert list_mg_res.status_code == 200
     assert len(list_mg_res.json()) == 1
 
+    # 3.6.4 Actualizar progreso (accumulated_value) de la meta del miembro
+    member_goal_id = mg_data["id"]
+    patch_mg_res = client.patch(
+        f"/api/v1/member-goals/{member_goal_id}",
+        headers=headers,
+        json={"accumulated_value": 25},
+    )
+    assert patch_mg_res.status_code == 200
+    assert patch_mg_res.json()["accumulated_value"] == 25
+
+    # 3.6.5 Eliminar la meta del miembro
+    del_mg_res = client.delete(
+        f"/api/v1/member-goals/{member_goal_id}",
+        headers=headers,
+    )
+    assert del_mg_res.status_code == 200
+    assert del_mg_res.json()["member_goal_id"] == member_goal_id
+
+    list_mg_after_del = client.get(
+        f"/api/v1/member-goals?member_id={member_for_goal_uuid}",
+        headers=headers,
+    )
+    assert list_mg_after_del.status_code == 200
+    assert len(list_mg_after_del.json()) == 0
+
     # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",

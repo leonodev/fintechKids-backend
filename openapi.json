@@ -895,6 +895,116 @@
         }
       }
     },
+    "/api/v1/member-goals/{member_goal_id}": {
+      "patch": {
+        "tags": [
+          "5. Metas de los Miembros (Member Goals)"
+        ],
+        "summary": "Actualizar progreso (accumulated_value) o datos de una meta de un miembro",
+        "description": "Actualiza el progreso (`accumulated_value`) y opcionalmente el nombre o recompensa de la meta de un miembro identificada por `member_goal_id` (protegido con JWT).",
+        "operationId": "update_member_goal_api_v1_member_goals__member_goal_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Member Goal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberGoalUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGoalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "5. Metas de los Miembros (Member Goals)"
+        ],
+        "summary": "Eliminar una meta de un miembro de la familia",
+        "description": "Elimina permanentemente la meta asignada a un miembro de la familia buscando por `member_goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_member_goal_api_v1_member_goals__member_goal_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_goal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Member Goal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGoalDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
@@ -2320,6 +2430,32 @@
         ],
         "title": "MemberGoalCreate"
       },
+      "MemberGoalDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Meta del miembro eliminada correctamente."
+            ]
+          },
+          "member_goal_id": {
+            "type": "integer",
+            "title": "Member Goal Id",
+            "description": "ID de la meta del miembro que fue eliminada",
+            "examples": [
+              1
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "member_goal_id"
+        ],
+        "title": "MemberGoalDeleteResponse"
+      },
       "MemberGoalResponse": {
         "properties": {
           "id": {
@@ -2397,6 +2533,78 @@
           "updated_at"
         ],
         "title": "MemberGoalResponse"
+      },
+      "MemberGoalUpdate": {
+        "properties": {
+          "accumulated_value": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accumulated Value",
+            "description": "Nuevo valor acumulado de progreso en la meta del miembro",
+            "examples": [
+              15
+            ]
+          },
+          "rewards_system_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewards System Type",
+            "description": "Nuevo tipo de sistema de recompensa (opcional)",
+            "examples": [
+              "stars"
+            ]
+          },
+          "rewards_system_value": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewards System Value",
+            "description": "Nuevo valor de la recompensa (opcional)",
+            "examples": [
+              20
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Nuevo nombre de la meta del miembro (opcional)",
+            "examples": [
+              "Lectura diaria"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "MemberGoalUpdate"
       },
       "PlatformEnum": {
         "type": "string",

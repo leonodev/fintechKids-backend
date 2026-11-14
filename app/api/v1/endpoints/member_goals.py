@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -11,7 +12,12 @@ from app.models.family_member import FamilyMember
 from app.models.goal import Goal
 from app.models.member_goal import MemberGoal
 from app.models.user import User
-from app.schemas.member_goal import MemberGoalCreate, MemberGoalResponse
+from app.schemas.member_goal import (
+    MemberGoalCreate,
+    MemberGoalDeleteResponse,
+    MemberGoalResponse,
+    MemberGoalUpdate,
+)
 
 router = APIRouter()
 
@@ -118,3 +124,85 @@ def list_member_goals(
     if goal_id is not None:
         query = query.filter(MemberGoal.goal_id == goal_id)
     return query.order_by(MemberGoal.created_at.desc()).all()
+
+
+@router.patch(
+    "/{member_goal_id}",
+    response_model=MemberGoalResponse,
+    summary="Actualizar progreso (accumulated_value) o datos de una meta de un miembro",
+    description=(
+        "Actualiza el progreso (`accumulated_value`) y opcionalmente el nombre o recompensa "
+        "de la meta de un miembro identificada por `member_goal_id` (protegido con JWT)."
+    ),
+)
+def update_member_goal(
+    member_goal_id: int,
+    member_goal_in: MemberGoalUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MemberGoal:
+    member_goal = (
+        db.query(MemberGoal)
+        .filter(
+            MemberGoal.id == member_goal_id,
+            MemberGoal.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not member_goal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ninguna meta de miembro en tu familia con el `member_goal_id` proporcionado.",
+        )
+
+    if member_goal_in.accumulated_value is not None:
+        member_goal.accumulated_value = member_goal_in.accumulated_value
+    if member_goal_in.rewards_system_type is not None:
+        member_goal.rewards_system_type = member_goal_in.rewards_system_type
+    if member_goal_in.rewards_system_value is not None:
+        member_goal.rewards_system_value = member_goal_in.rewards_system_value
+    if member_goal_in.name is not None:
+        member_goal.name = member_goal_in.name
+
+    member_goal.updated_at = datetime.now(timezone.utc)
+    db.add(member_goal)
+    db.commit()
+    db.refresh(member_goal)
+    return member_goal
+
+
+@router.delete(
+    "/{member_goal_id}",
+    response_model=MemberGoalDeleteResponse,
+    summary="Eliminar una meta de un miembro de la familia",
+    description=(
+        "Elimina permanentemente la meta asignada a un miembro de la familia buscando por `member_goal_id` "
+        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+    ),
+)
+def delete_member_goal(
+    member_goal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MemberGoalDeleteResponse:
+    member_goal = (
+        db.query(MemberGoal)
+        .filter(
+            MemberGoal.id == member_goal_id,
+            MemberGoal.parent_id == current_user.id,
+        )
+        .first()
+    )
+    if not member_goal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ninguna meta de miembro en tu familia con el `member_goal_id` proporcionado.",
+        )
+
+    db.delete(member_goal)
+    db.commit()
+
+    return MemberGoalDeleteResponse(
+        message="Meta del miembro eliminada correctamente.",
+        member_goal_id=member_goal_id,
+    )
