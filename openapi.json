@@ -35,8 +35,8 @@
         "tags": [
           "1. Autenticación"
         ],
-        "summary": "Registrar un nuevo usuario",
-        "description": "Crea una nueva cuenta de usuario con contraseña encriptada mediante bcrypt.",
+        "summary": "Registrar nueva familia / padre",
+        "description": "Registra una familia en la base de datos recibiendo `created_at` (timestamp en hora UTC), `name_family`, `email_parent` y `approve_pin`.",
         "operationId": "register_user_api_v1_auth_register_post",
         "requestBody": {
           "content": {
@@ -78,7 +78,7 @@
           "1. Autenticación"
         ],
         "summary": "Iniciar sesión desde la App (JSON)",
-        "description": "Recibe email y contraseña en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
+        "description": "Recibe `email_parent` y `approve_pin` en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
         "operationId": "login_json_api_v1_auth_login_post",
         "requestBody": {
           "content": {
@@ -161,8 +161,8 @@
         "tags": [
           "2. Usuarios"
         ],
-        "summary": "Obtener perfil del usuario autenticado",
-        "description": "Devuelve la información del usuario propietario del token JWT actual.",
+        "summary": "Obtener datos de la familia / padre autenticado",
+        "description": "Devuelve la información registrada de la familia propietaria del token JWT actual.",
         "operationId": "read_current_user_api_v1_users_me_get",
         "responses": {
           "200": {
@@ -189,8 +189,8 @@
         "tags": [
           "2. Usuarios"
         ],
-        "summary": "Actualizar perfil del usuario autenticado",
-        "description": "Permite actualizar el nombre completo o la contraseña del usuario autenticado.",
+        "summary": "Actualizar nombre de familia o PIN del padre autenticado",
+        "description": "Permite actualizar `name_family` o `approve_pin` de la cuenta autenticada.",
         "operationId": "update_current_user_api_v1_users_me_patch",
         "requestBody": {
           "content": {
@@ -1070,29 +1070,29 @@
       },
       "LoginRequest": {
         "properties": {
-          "email": {
+          "email_parent": {
             "type": "string",
             "format": "email",
-            "title": "Email",
-            "description": "Correo electrónico registrado del usuario",
+            "title": "Email Parent",
+            "description": "Correo electrónico registrado del padre/tutor",
             "examples": [
-              "usuario@fhk.app"
+              "padre@fhk.app"
             ]
           },
-          "password": {
+          "approve_pin": {
             "type": "string",
-            "minLength": 6,
-            "title": "Password",
-            "description": "Contraseña del usuario",
+            "minLength": 4,
+            "title": "Approve Pin",
+            "description": "PIN de aprobación configurado en el registro",
             "examples": [
-              "MiPasswordSeguro123!"
+              "1234"
             ]
           }
         },
         "type": "object",
         "required": [
-          "email",
-          "password"
+          "email_parent",
+          "approve_pin"
         ],
         "title": "LoginRequest"
       },
@@ -1128,7 +1128,7 @@
           "refresh_token": {
             "type": "string",
             "title": "Refresh Token",
-            "description": "JWT Refresh Token para renovar sesión sin pedir contraseña"
+            "description": "JWT Refresh Token para renovar sesión sin pedir PIN nuevamente"
           },
           "token_type": {
             "type": "string",
@@ -1152,41 +1152,51 @@
       },
       "UserCreate": {
         "properties": {
-          "email": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Timestamp de creación en hora UTC (ej. `2026-11-14T18:00:00Z`)",
+            "examples": [
+              "2026-11-14T18:00:00Z"
+            ]
+          },
+          "name_family": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name Family",
+            "description": "Nombre de la familia",
+            "examples": [
+              "Familia León"
+            ]
+          },
+          "email_parent": {
             "type": "string",
             "format": "email",
-            "title": "Email",
-            "description": "Correo electrónico único del usuario",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/madre o tutor",
             "examples": [
-              "usuario@fhk.app"
+              "padre@fhk.app"
             ]
           },
-          "full_name": {
+          "approve_pin": {
             "type": "string",
-            "maxLength": 150,
-            "minLength": 2,
-            "title": "Full Name",
-            "description": "Nombre completo del usuario",
+            "maxLength": 50,
+            "minLength": 4,
+            "title": "Approve Pin",
+            "description": "PIN de aprobación del padre/madre",
             "examples": [
-              "Fredy León"
-            ]
-          },
-          "password": {
-            "type": "string",
-            "maxLength": 128,
-            "minLength": 8,
-            "title": "Password",
-            "description": "Contraseña (mínimo 8 caracteres)",
-            "examples": [
-              "MiPasswordSeguro123!"
+              "1234"
             ]
           }
         },
         "type": "object",
         "required": [
-          "email",
-          "full_name",
-          "password"
+          "created_at",
+          "name_family",
+          "email_parent",
+          "approve_pin"
         ],
         "title": "UserCreate"
       },
@@ -1195,34 +1205,34 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único del usuario"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "title": "Email",
-            "description": "Correo electrónico del usuario"
-          },
-          "full_name": {
-            "type": "string",
-            "title": "Full Name",
-            "description": "Nombre completo"
-          },
-          "is_active": {
-            "type": "boolean",
-            "title": "Is Active",
-            "description": "Indica si la cuenta está activa"
-          },
-          "role": {
-            "type": "string",
-            "title": "Role",
-            "description": "Rol del usuario (user, admin)"
+            "description": "ID único del registro en base de datos"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha de registro en UTC"
+            "description": "Fecha y hora de registro en UTC"
+          },
+          "name_family": {
+            "type": "string",
+            "title": "Name Family",
+            "description": "Nombre de la familia"
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor"
+          },
+          "approve_pin": {
+            "type": "string",
+            "title": "Approve Pin",
+            "description": "PIN de aprobación"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Indica si la cuenta está activa"
           },
           "updated_at": {
             "type": "string",
@@ -1234,44 +1244,44 @@
         "type": "object",
         "required": [
           "id",
-          "email",
-          "full_name",
-          "is_active",
-          "role",
           "created_at",
+          "name_family",
+          "email_parent",
+          "approve_pin",
+          "is_active",
           "updated_at"
         ],
         "title": "UserResponse"
       },
       "UserUpdate": {
         "properties": {
-          "full_name": {
+          "name_family": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 150,
-                "minLength": 2
+                "maxLength": 255,
+                "minLength": 1
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Full Name",
-            "description": "Nuevo nombre completo del usuario"
+            "title": "Name Family",
+            "description": "Nuevo nombre de la familia"
           },
-          "password": {
+          "approve_pin": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 128,
-                "minLength": 8
+                "maxLength": 50,
+                "minLength": 4
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Password",
-            "description": "Nueva contraseña (opcional)"
+            "title": "Approve Pin",
+            "description": "Nuevo PIN de aprobación"
           }
         },
         "type": "object",

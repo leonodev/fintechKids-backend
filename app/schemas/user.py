@@ -1,54 +1,67 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class UserCreate(BaseModel):
-    email: EmailStr = Field(
+    created_at: datetime = Field(
         ...,
-        description="Correo electrónico único del usuario",
-        examples=["usuario@fhk.app"],
+        description="Timestamp de creación en hora UTC (ej. `2026-11-14T18:00:00Z`)",
+        examples=["2026-11-14T18:00:00Z"],
     )
-    full_name: str = Field(
+    name_family: str = Field(
         ...,
-        min_length=2,
-        max_length=150,
-        description="Nombre completo del usuario",
-        examples=["Fredy León"],
+        min_length=1,
+        max_length=255,
+        description="Nombre de la familia",
+        examples=["Familia León"],
     )
-    password: str = Field(
+    email_parent: EmailStr = Field(
         ...,
-        min_length=8,
-        max_length=128,
-        description="Contraseña (mínimo 8 caracteres)",
-        examples=["MiPasswordSeguro123!"],
+        description="Correo electrónico del padre/madre o tutor",
+        examples=["padre@fhk.app"],
     )
+    approve_pin: str = Field(
+        ...,
+        min_length=4,
+        max_length=50,
+        description="PIN de aprobación del padre/madre",
+        examples=["1234"],
+    )
+
+    @field_validator("created_at", mode="after")
+    @classmethod
+    def ensure_utc(cls, value: datetime) -> datetime:
+        """Garantiza que el timestamp quede normalizado en zona horaria UTC."""
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
 
 
 class UserUpdate(BaseModel):
-    full_name: Optional[str] = Field(
+    name_family: Optional[str] = Field(
         default=None,
-        min_length=2,
-        max_length=150,
-        description="Nuevo nombre completo del usuario",
+        min_length=1,
+        max_length=255,
+        description="Nuevo nombre de la familia",
     )
-    password: Optional[str] = Field(
+    approve_pin: Optional[str] = Field(
         default=None,
-        min_length=8,
-        max_length=128,
-        description="Nueva contraseña (opcional)",
+        min_length=4,
+        max_length=50,
+        description="Nuevo PIN de aprobación",
     )
 
 
 class UserResponse(BaseModel):
-    id: int = Field(..., description="ID único del usuario")
-    email: EmailStr = Field(..., description="Correo electrónico del usuario")
-    full_name: str = Field(..., description="Nombre completo")
+    id: int = Field(..., description="ID único del registro en base de datos")
+    created_at: datetime = Field(..., description="Fecha y hora de registro en UTC")
+    name_family: str = Field(..., description="Nombre de la familia")
+    email_parent: EmailStr = Field(..., description="Correo electrónico del padre/tutor")
+    approve_pin: str = Field(..., description="PIN de aprobación")
     is_active: bool = Field(..., description="Indica si la cuenta está activa")
-    role: str = Field(..., description="Rol del usuario (user, admin)")
-    created_at: datetime = Field(..., description="Fecha de registro en UTC")
     updated_at: datetime = Field(..., description="Última actualización en UTC")
 
     model_config = ConfigDict(from_attributes=True)

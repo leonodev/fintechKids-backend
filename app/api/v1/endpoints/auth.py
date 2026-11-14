@@ -25,23 +25,28 @@ router = APIRouter()
     "/register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Registrar un nuevo usuario",
-    description="Crea una nueva cuenta de usuario con contraseña encriptada mediante bcrypt.",
+    summary="Registrar nueva familia / padre",
+    description=(
+        "Registra una familia en la base de datos recibiendo `created_at` (timestamp en hora UTC), "
+        "`name_family`, `email_parent` y `approve_pin`."
+    ),
 )
 def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
-    existing_user = db.query(User).filter(User.email == user_in.email.lower()).first()
+    existing_user = db.query(User).filter(User.email_parent == user_in.email_parent.lower()).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe un usuario registrado con este correo electrónico.",
+            detail="Ya existe una familia registrada con este correo electrónico (email_parent).",
         )
 
     user = User(
-        email=user_in.email.lower(),
-        full_name=user_in.full_name,
-        hashed_password=get_password_hash(user_in.password),
+        created_at=user_in.created_at,
+        name_family=user_in.name_family,
+        email_parent=user_in.email_parent.lower(),
+        approve_pin=user_in.approve_pin,
+        hashed_pin=get_password_hash(user_in.approve_pin),
         is_active=True,
-        role="user",
+        role="parent",
     )
     db.add(user)
     db.commit()
@@ -53,23 +58,26 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
     "/login",
     response_model=TokenResponse,
     summary="Iniciar sesión desde la App (JSON)",
-    description="Recibe email y contraseña en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
+    description="Recibe `email_parent` y `approve_pin` en formato JSON y devuelve un `access_token` y `refresh_token` JWT.",
 )
 def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    user = db.query(User).filter(User.email == credentials.email.lower()).first()
-    if not user or not verify_password(credentials.password, user.hashed_password):
+    user = db.query(User).filter(User.email_parent == credentials.email_parent.lower()).first()
+    if not user or not verify_password(credentials.approve_pin, user.hashed_pin):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo electrónico o contraseña incorrectos.",
+            detail="Correo del padre (email_parent) o PIN (approve_pin) incorrectos.",
         )
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="La cuenta de usuario está desactivada.",
+            detail="La cuenta se encuentra desactivada.",
         )
 
     return TokenResponse(
-        access_token=create_access_token(user.id, extra_claims={"email": user.email, "role": user.role}),
+        access_token=create_access_token(
+            user.id,
+            extra_claims={"email_parent": user.email_parent, "name_family": user.name_family, "role": user.role},
+        ),
         refresh_token=create_refresh_token(user.id),
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -85,15 +93,18 @@ def login_oauth2_form(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ) -> TokenResponse:
-    """Endpoint compatible con el formulario interactivo 'Authorize' de Swagger UI."""
-    user = db.query(User).filter(User.email == form_data.username.lower()).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    """Endpoint compatible con el formulario interactivo 'Authorize' de Swagger UI (username=email_parent, password=approve_pin)."""
+    user = db.query(User).filter(User.email_parent == form_data.username.lower()).first()
+    if not user or not verify_password(form_data.password, user.hashed_pin):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo electrónico o contraseña incorrectos.",
+            detail="Correo del padre o PIN incorrectos.",
         )
     return TokenResponse(
-        access_token=create_access_token(user.id, extra_claims={"email": user.email, "role": user.role}),
+        access_token=create_access_token(
+            user.id,
+            extra_claims={"email_parent": user.email_parent, "name_family": user.name_family, "role": user.role},
+        ),
         refresh_token=create_refresh_token(user.id),
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -129,7 +140,10 @@ def refresh_access_token(body: RefreshTokenRequest, db: Session = Depends(get_db
         )
 
     return TokenResponse(
-        access_token=create_access_token(user.id, extra_claims={"email": user.email, "role": user.role}),
+        access_token=create_access_token(
+            user.id,
+            extra_claims={"email_parent": user.email_parent, "name_family": user.name_family, "role": user.role},
+        ),
         refresh_token=create_refresh_token(user.id),
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,

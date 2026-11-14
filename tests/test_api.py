@@ -85,26 +85,29 @@ def test_app_version_check_endpoint():
 
 
 def test_full_auth_and_crud_flow():
-    # 1. Registrar usuario
+    # 1. Registrar familia / padre con los 4 campos requeridos
     register_res = client.post(
         "/api/v1/auth/register",
         json={
-            "email": "fredy@fhk.app",
-            "full_name": "Fredy León",
-            "password": "PasswordSeguro123!",
+            "created_at": "2026-11-14T18:00:00Z",
+            "name_family": "Familia León",
+            "email_parent": "fredy@fhk.app",
+            "approve_pin": "1234",
         },
     )
     assert register_res.status_code == 201
     user_data = register_res.json()
-    assert user_data["email"] == "fredy@fhk.app"
-    assert "hashed_password" not in user_data
+    assert user_data["name_family"] == "Familia León"
+    assert user_data["email_parent"] == "fredy@fhk.app"
+    assert user_data["approve_pin"] == "1234"
+    assert user_data["created_at"].startswith("2026-11-14T18:00:00")
 
-    # 2. Iniciar sesión (Login)
+    # 2. Iniciar sesión (Login) con email_parent y approve_pin
     login_res = client.post(
         "/api/v1/auth/login",
         json={
-            "email": "fredy@fhk.app",
-            "password": "PasswordSeguro123!",
+            "email_parent": "fredy@fhk.app",
+            "approve_pin": "1234",
         },
     )
     assert login_res.status_code == 200
@@ -116,7 +119,7 @@ def test_full_auth_and_crud_flow():
     # 3. Acceder a ruta protegida (/users/me)
     me_res = client.get("/api/v1/users/me", headers=headers)
     assert me_res.status_code == 200
-    assert me_res.json()["full_name"] == "Fredy León"
+    assert me_res.json()["name_family"] == "Familia León"
 
     # 4. Crear un elemento persistido en BD
     create_item_res = client.post(
