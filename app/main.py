@@ -30,15 +30,19 @@ openapi_tags = [
         "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre.",
     },
     {
-        "name": "4. Metas (Goals)",
-        "description": "Creación y gestión de metas (goals) asociadas a la familia del padre.",
+        "name": "4. Metas del Padre (Goals)",
+        "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia.",
     },
     {
-        "name": "5. Versión de la App (Tiendas)",
+        "name": "5. Metas de los Miembros (Member Goals)",
+        "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia.",
+    },
+    {
+        "name": "6. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "6. Elementos (CRUD Ejemplo)",
+        "name": "7. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]

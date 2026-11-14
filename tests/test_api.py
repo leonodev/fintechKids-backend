@@ -203,8 +203,55 @@ def test_full_auth_and_crud_flow():
     assert list_goals_res.status_code == 200
     assert len(list_goals_res.json()) == 1
 
-    # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
+    # 3.6.1 Crear nuevamente un miembro para asignarle la meta creada por el padre
+    member_for_goal_uuid = "660e8400-e29b-41d4-a716-446655440111"
+    client.post(
+        "/api/v1/family-members",
+        headers=headers,
+        json={
+            "email_parent": "fredy@fhk.app",
+            "identification_uuid": member_for_goal_uuid,
+            "member_name": "Sofía León",
+            "avatar_name": "avatar_unicorn_01",
+            "name_family": "Familia León",
+        },
+    )
+
+    # 3.6.2 Asignar / Crear una meta para un miembro de la familia (POST /api/v1/member-goals)
     goal_id = goal_data["id"]
+    create_member_goal_res = client.post(
+        "/api/v1/member-goals",
+        headers=headers,
+        json={
+            "goal_id": goal_id,
+            "member_id": member_for_goal_uuid,
+            "rewards_system_type": "stars",
+            "rewards_system_value": 10,
+            "accumulated_value": 0,
+            "parent_email": "fredy@fhk.app",
+            "name": "Lectura diaria",
+        },
+    )
+    assert create_member_goal_res.status_code == 201
+    mg_data = create_member_goal_res.json()
+    assert mg_data["goal_id"] == goal_id
+    assert mg_data["member_id"] == member_for_goal_uuid
+    assert mg_data["rewards_system_type"] == "stars"
+    assert mg_data["rewards_system_value"] == 10
+    assert mg_data["accumulated_value"] == 0
+    assert mg_data["parent_email"] == "fredy@fhk.app"
+    assert mg_data["name"] == "Lectura diaria"
+    assert "created_at" in mg_data and mg_data["created_at"] is not None
+
+    # 3.6.3 Consultar metas del miembro
+    list_mg_res = client.get(
+        f"/api/v1/member-goals?member_id={member_for_goal_uuid}",
+        headers=headers,
+    )
+    assert list_mg_res.status_code == 200
+    assert len(list_mg_res.json()) == 1
+
+    # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",
         headers=headers,

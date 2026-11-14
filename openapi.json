@@ -545,7 +545,7 @@
     "/api/v1/goals": {
       "post": {
         "tags": [
-          "4. Metas (Goals)"
+          "4. Metas del Padre (Goals)"
         ],
         "summary": "Crear una nueva meta del padre (Goal)",
         "description": "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), `email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
@@ -593,7 +593,7 @@
       },
       "get": {
         "tags": [
-          "4. Metas (Goals)"
+          "4. Metas del Padre (Goals)"
         ],
         "summary": "Listar metas (Goals) creadas por el padre",
         "description": "Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
@@ -657,7 +657,7 @@
     "/api/v1/goals/{goal_id}": {
       "patch": {
         "tags": [
-          "4. Metas (Goals)"
+          "4. Metas del Padre (Goals)"
         ],
         "summary": "Editar una meta creada por el padre",
         "description": "Actualiza parcialmente `name`, `measure_type`, `value` y/o `status` (`active` / `inactive`) de una meta existente perteneciente al padre autenticado (protegido con JWT).",
@@ -716,7 +716,7 @@
       },
       "delete": {
         "tags": [
-          "4. Metas (Goals)"
+          "4. Metas del Padre (Goals)"
         ],
         "summary": "Eliminar una meta creada por el padre",
         "description": "Elimina permanentemente una meta de la base de datos buscando por su `goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
@@ -764,10 +764,141 @@
         }
       }
     },
+    "/api/v1/member-goals": {
+      "post": {
+        "tags": [
+          "5. Metas de los Miembros (Member Goals)"
+        ],
+        "summary": "Asignar / Crear una meta para un miembro de la familia",
+        "description": "Registra una meta seleccionada por un miembro de la familia a partir de una meta creada por el padre. Recibe `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, `accumulated_value`, `parent_email` y `name`. El campo `created_at` se genera automáticamente en UTC y se valida la integridad relacional con el padre, la meta base y el miembro (protegido con JWT).",
+        "operationId": "create_member_goal_api_v1_member_goals_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberGoalCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGoalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "5. Metas de los Miembros (Member Goals)"
+        ],
+        "summary": "Listar metas de los miembros de la familia",
+        "description": "Obtiene todas las metas asignadas a los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID) o `goal_id`.",
+        "operationId": "list_member_goals_api_v1_member_goals_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "title": "Member Id"
+            },
+            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+          },
+          {
+            "name": "goal_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por el ID de la meta del padre",
+              "title": "Goal Id"
+            },
+            "description": "Filtrar opcionalmente por el ID de la meta del padre"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberGoalResponse"
+                  },
+                  "title": "Response List Member Goals Api V1 Member Goals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "5. Versión de la App (Tiendas)"
+          "6. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -830,7 +961,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "5. Versión de la App (Tiendas)"
+          "6. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -856,7 +987,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "5. Versión de la App (Tiendas)"
+          "6. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -916,7 +1047,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "6. Elementos (CRUD Ejemplo)"
+          "7. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -987,7 +1118,7 @@
       },
       "post": {
         "tags": [
-          "6. Elementos (CRUD Ejemplo)"
+          "7. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -1037,7 +1168,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "6. Elementos (CRUD Ejemplo)"
+          "7. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -1086,7 +1217,7 @@
       },
       "patch": {
         "tags": [
-          "6. Elementos (CRUD Ejemplo)"
+          "7. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -1145,7 +1276,7 @@
       },
       "delete": {
         "tags": [
-          "6. Elementos (CRUD Ejemplo)"
+          "7. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -2110,6 +2241,163 @@
         ],
         "title": "LoginRequest"
       },
+      "MemberGoalCreate": {
+        "properties": {
+          "goal_id": {
+            "type": "integer",
+            "title": "Goal Id",
+            "description": "ID de la meta creada por el padre en `/api/v1/goals`",
+            "examples": [
+              1
+            ]
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "rewards_system_type": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Rewards System Type",
+            "description": "Tipo de sistema de recompensa seleccionado (ej. `points`, `stars`, `coins`, `allowance`)",
+            "examples": [
+              "stars"
+            ]
+          },
+          "rewards_system_value": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Rewards System Value",
+            "description": "Valor de la recompensa asignada al completar la meta",
+            "examples": [
+              10
+            ]
+          },
+          "accumulated_value": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Accumulated Value",
+            "description": "Valor acumulado hasta el momento en la meta del miembro",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "parent_email": {
+            "type": "string",
+            "format": "email",
+            "title": "Parent Email",
+            "description": "Correo electrónico del padre/tutor registrado (misma relación que con las tablas anteriores)",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Nombre de la meta para el miembro",
+            "examples": [
+              "Lectura diaria"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "goal_id",
+          "member_id",
+          "rewards_system_type",
+          "rewards_system_value",
+          "parent_email",
+          "name"
+        ],
+        "title": "MemberGoalCreate"
+      },
+      "MemberGoalResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único de la meta del miembro en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+          },
+          "goal_id": {
+            "type": "integer",
+            "title": "Goal Id",
+            "description": "ID de la meta base creada por el padre"
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia"
+          },
+          "rewards_system_type": {
+            "type": "string",
+            "title": "Rewards System Type",
+            "description": "Tipo de sistema de recompensa"
+          },
+          "rewards_system_value": {
+            "type": "integer",
+            "title": "Rewards System Value",
+            "description": "Valor de la recompensa"
+          },
+          "accumulated_value": {
+            "type": "integer",
+            "title": "Accumulated Value",
+            "description": "Valor acumulado actual"
+          },
+          "parent_email": {
+            "type": "string",
+            "format": "email",
+            "title": "Parent Email",
+            "description": "Correo del padre/tutor"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Nombre de la meta del miembro"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "goal_id",
+          "member_id",
+          "rewards_system_type",
+          "rewards_system_value",
+          "accumulated_value",
+          "parent_email",
+          "name",
+          "parent_id",
+          "updated_at"
+        ],
+        "title": "MemberGoalResponse"
+      },
       "PlatformEnum": {
         "type": "string",
         "enum": [
@@ -2461,15 +2749,19 @@
       "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre."
     },
     {
-      "name": "4. Metas (Goals)",
-      "description": "Creación y gestión de metas (goals) asociadas a la familia del padre."
+      "name": "4. Metas del Padre (Goals)",
+      "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia."
     },
     {
-      "name": "5. Versión de la App (Tiendas)",
+      "name": "5. Metas de los Miembros (Member Goals)",
+      "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia."
+    },
+    {
+      "name": "6. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "6. Elementos (CRUD Ejemplo)",
+      "name": "7. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]
