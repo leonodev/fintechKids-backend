@@ -176,6 +176,33 @@ def test_full_auth_and_crud_flow():
     assert list_after_del.status_code == 200
     assert len(list_after_del.json()) == 0
 
+    # 3.5 Crear una meta (Goal) vinculada al padre
+    create_goal_res = client.post(
+        "/api/v1/goals",
+        headers=headers,
+        json={
+            "measure_type": "minutes",
+            "status": "active",
+            "email_parent": "fredy@fhk.app",
+            "name": "Lectura diaria",
+            "value": 30,
+        },
+    )
+    assert create_goal_res.status_code == 201
+    goal_data = create_goal_res.json()
+    assert goal_data["measure_type"] == "minutes"
+    assert goal_data["status"] == "active"
+    assert goal_data["email_parent"] == "fredy@fhk.app"
+    assert goal_data["name"] == "Lectura diaria"
+    assert goal_data["value"] == 30
+    assert goal_data["parent_id"] == user_data["id"]
+    assert "created_at" in goal_data and goal_data["created_at"] is not None
+
+    # 3.6 Listar metas
+    list_goals_res = client.get("/api/v1/goals?status=active", headers=headers)
+    assert list_goals_res.status_code == 200
+    assert len(list_goals_res.json()) == 1
+
     # 4. Crear un elemento persistido en BD
     create_item_res = client.post(
         "/api/v1/items",

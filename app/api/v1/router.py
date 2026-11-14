@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import app_version, auth, family_members, items, users
+from app.api.v1.endpoints import app_version, auth, family_members, goals, items, users
 
 api_router = APIRouter()
 
@@ -12,8 +12,13 @@ api_router.include_router(
     tags=["3. Miembros de la Familia"],
 )
 api_router.include_router(
+    goals.router,
+    prefix="/goals",
+    tags=["4. Metas (Goals)"],
+)
+api_router.include_router(
     app_version.router,
     prefix="/app-version",
-    tags=["4. Versión de la App (Tiendas)"],
+    tags=["5. Versión de la App (Tiendas)"],
 )
-api_router.include_router(items.router, prefix="/items", tags=["5. Elementos (CRUD Ejemplo)"])
+api_router.include_router(items.router, prefix="/items", tags=["6. Elementos (CRUD Ejemplo)"])

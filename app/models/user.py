@@ -9,6 +9,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.family_member import FamilyMember
+    from app.models.goal import Goal
     from app.models.item import Item
 
 
@@ -41,6 +42,13 @@ class User(Base):
     # Relación con Miembros de la Familia (1 Padre/Familia -> N Miembros)
     family_members: Mapped[List["FamilyMember"]] = relationship(
         "FamilyMember",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+    )
+
+    # Relación con Metas / Goals (1 Padre/Familia -> N Metas)
+    goals: Mapped[List["Goal"]] = relationship(
+        "Goal",
         back_populates="parent",
         cascade="all, delete-orphan",
     )

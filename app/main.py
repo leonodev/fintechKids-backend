@@ -27,14 +27,18 @@ openapi_tags = [
     },
     {
         "name": "3. Miembros de la Familia",
-        "description": "Creación y consulta de miembros de la familia vinculados a la cuenta del padre.",
+        "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre.",
     },
     {
-        "name": "4. Versión de la App (Tiendas)",
+        "name": "4. Metas (Goals)",
+        "description": "Creación y gestión de metas (goals) asociadas a la familia del padre.",
+    },
+    {
+        "name": "5. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "5. Elementos (CRUD Ejemplo)",
+        "name": "6. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]

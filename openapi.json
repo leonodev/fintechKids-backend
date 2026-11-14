@@ -542,10 +542,122 @@
         }
       }
     },
+    "/api/v1/goals": {
+      "post": {
+        "tags": [
+          "4. Metas (Goals)"
+        ],
+        "summary": "Crear una nueva meta (Goal)",
+        "description": "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), `email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
+        "operationId": "create_goal_api_v1_goals_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoalCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "4. Metas (Goals)"
+        ],
+        "summary": "Listar metas (Goals) de la familia",
+        "description": "Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
+        "operationId": "list_goals_api_v1_goals_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/GoalStatusEnum"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por estado (`active` o `inactive`)",
+              "title": "Status"
+            },
+            "description": "Filtrar opcionalmente por estado (`active` o `inactive`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GoalResponse"
+                  },
+                  "title": "Response List Goals Api V1 Goals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "4. Versión de la App (Tiendas)"
+          "5. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -608,7 +720,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "4. Versión de la App (Tiendas)"
+          "5. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -634,7 +746,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "4. Versión de la App (Tiendas)"
+          "5. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -694,7 +806,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "5. Elementos (CRUD Ejemplo)"
+          "6. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -765,7 +877,7 @@
       },
       "post": {
         "tags": [
-          "5. Elementos (CRUD Ejemplo)"
+          "6. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -815,7 +927,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "5. Elementos (CRUD Ejemplo)"
+          "6. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -864,7 +976,7 @@
       },
       "patch": {
         "tags": [
-          "5. Elementos (CRUD Ejemplo)"
+          "6. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -923,7 +1035,7 @@
       },
       "delete": {
         "tags": [
-          "5. Elementos (CRUD Ejemplo)"
+          "6. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -1458,6 +1570,136 @@
           "expires_in_minutes"
         ],
         "title": "ForgotPasswordResponse"
+      },
+      "GoalCreate": {
+        "properties": {
+          "measure_type": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Measure Type",
+            "description": "Tipo de medida de la meta (ej. `minutes`, `hours`, `points`, `tasks`)",
+            "examples": [
+              "minutes"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/GoalStatusEnum",
+            "description": "Estado de la meta (`active` o `inactive`)",
+            "default": "active",
+            "examples": [
+              "active"
+            ]
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor propietario de la meta",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Nombre descriptivo de la meta",
+            "examples": [
+              "Lectura diaria"
+            ]
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Value",
+            "description": "Valor numérico objetivo de la meta",
+            "examples": [
+              30
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "measure_type",
+          "email_parent",
+          "name",
+          "value"
+        ],
+        "title": "GoalCreate"
+      },
+      "GoalResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único de la meta en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+          },
+          "measure_type": {
+            "type": "string",
+            "title": "Measure Type",
+            "description": "Tipo de medida de la meta"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GoalStatusEnum",
+            "description": "Estado actual de la meta (`active` o `inactive`)"
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo del padre/tutor"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Nombre de la meta"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value",
+            "description": "Valor numérico de la meta"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "measure_type",
+          "status",
+          "email_parent",
+          "name",
+          "value",
+          "parent_id",
+          "updated_at"
+        ],
+        "title": "GoalResponse"
+      },
+      "GoalStatusEnum": {
+        "type": "string",
+        "enum": [
+          "active",
+          "inactive"
+        ],
+        "title": "GoalStatusEnum"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2010,14 +2252,18 @@
     },
     {
       "name": "3. Miembros de la Familia",
-      "description": "Creación y consulta de miembros de la familia vinculados a la cuenta del padre."
+      "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre."
     },
     {
-      "name": "4. Versión de la App (Tiendas)",
+      "name": "4. Metas (Goals)",
+      "description": "Creación y gestión de metas (goals) asociadas a la familia del padre."
+    },
+    {
+      "name": "5. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "5. Elementos (CRUD Ejemplo)",
+      "name": "6. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]
