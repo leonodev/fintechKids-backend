@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 860" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="layer1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="layer2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="layer3Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="layer4Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="layer5Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ec4899" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.08"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; fill: #f8fafc; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; fill: #cbd5e1; }
+      .layer-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.6px; }
+      .layer-sub { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; fill: #94a3b8; }
+      .box-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #f1f5f9; }
+      .box-desc { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #94a3b8; }
+      .box-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 10.5px; fill: #38bdf8; }
+      .badge { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 10px; font-weight: 600; fill: #e2e8f0; }
+    </style>
+  </defs>
+
+  <!-- Main Canvas Background -->
+  <rect width="1100" height="860" rx="16" fill="url(#bgGrad)" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Top Header Banner -->
+  <rect x="30" y="22" width="1040" height="64" rx="12" fill="url(#headerGrad)"/>
+  <text x="550" y="50" text-anchor="middle" class="title">FHKBackend — Layered Architecture &amp; Request Flow</text>
+  <text x="550" y="72" text-anchor="middle" class="subtitle">FastAPI • Pydantic v2 • SQLAlchemy 2.0 • JWT Security • Automated Audit Trail</text>
+
+  <!-- ==================== LAYER 0: CLIENTS ==================== -->
+  <g transform="translate(30, 104)">
+    <rect x="0" y="0" width="1040" height="68" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
+    <text x="20" y="26" class="layer-title" fill="#e2e8f0">EXTERNAL CLIENTS</text>
+    <text x="20" y="46" class="layer-sub">HTTPS / JSON REST Payloads</text>
+
+    <rect x="260" y="12" width="230" height="44" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+    <text x="375" y="31" text-anchor="middle" class="box-title">iOS Mobile App (FintechKids)</text>
+    <text x="375" y="47" text-anchor="middle" class="box-desc">Bearer JWT • Encrypted Passwords</text>
+
+    <rect x="515" y="12" width="230" height="44" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+    <text x="630" y="31" text-anchor="middle" class="box-title">Android Mobile App (FintechKids)</text>
+    <text x="630" y="47" text-anchor="middle" class="box-desc">Bearer JWT • Encrypted Passwords</text>
+
+    <rect x="770" y="12" width="245" height="44" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+    <text x="892" y="31" text-anchor="middle" class="box-title">Swagger UI / ReDoc / Postman</text>
+    <text x="892" y="47" text-anchor="middle" class="box-desc">/docs • /redoc • openapi.json</text>
+  </g>
+
+  <!-- Arrow 0 -> 1 -->
+  <line x1="550" y1="172" x2="550" y2="194" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== LAYER 1: EDGE & MIDDLEWARE ==================== -->
+  <g transform="translate(30, 198)">
+    <rect x="0" y="0" width="1040" height="86" rx="10" fill="url(#layer1Grad)" stroke="#0ea5e9" stroke-width="1.2"/>
+    <text x="20" y="28" class="layer-title" fill="#38bdf8">1. EDGE &amp; SECURITY MIDDLEWARE LAYER</text>
+    <text x="20" y="48" class="layer-sub">app/main.py</text>
+    <text x="20" y="66" class="layer-sub">app/core/security.py</text>
+
+    <rect x="260" y="14" width="240" height="58" rx="8" fill="#0f172a" stroke="#0284c7" stroke-width="1"/>
+    <text x="380" y="35" text-anchor="middle" class="box-title">CORSMiddleware</text>
+    <text x="380" y="51" text-anchor="middle" class="box-desc">Origin validation, allowed methods,</text>
+    <text x="380" y="64" text-anchor="middle" class="box-desc">&amp; credential headers policy</text>
+
+    <rect x="520" y="14" width="245" height="58" rx="8" fill="#0f172a" stroke="#0284c7" stroke-width="1"/>
+    <text x="642" y="35" text-anchor="middle" class="box-title">SecurityHeadersMiddleware</text>
+    <text x="642" y="51" text-anchor="middle" class="box-desc">HSTS, X-Frame-Options: DENY,</text>
+    <text x="642" y="64" text-anchor="middle" class="box-desc">X-Content-Type-Options: nosniff</text>
+
+    <rect x="785" y="14" width="230" height="58" rx="8" fill="#0f172a" stroke="#0284c7" stroke-width="1"/>
+    <text x="900" y="35" text-anchor="middle" class="box-title">OpenAPI 3.1 Engine</text>
+    <text x="900" y="51" text-anchor="middle" class="box-desc">12 Ordered Module Tags</text>
+    <text x="900" y="64" text-anchor="middle" class="box-code">/api/v1/openapi.json</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="550" y1="284" x2="550" y2="306" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== LAYER 2: PRESENTATION & API ROUTING ==================== -->
+  <g transform="translate(30, 310)">
+    <rect x="0" y="0" width="1040" height="145" rx="10" fill="url(#layer2Grad)" stroke="#8b5cf6" stroke-width="1.2"/>
+    <text x="20" y="28" class="layer-title" fill="#c084fc">2. API ROUTING &amp; CONTROLLER LAYER</text>
+    <text x="20" y="48" class="layer-sub">app/api/v1/router.py</text>
+    <text x="20" y="66" class="layer-sub">app/api/v1/endpoints/*</text>
+    <text x="20" y="84" class="layer-sub">app/api/deps.py</text>
+
+    <!-- Row 1 of Endpoint Modules -->
+    <rect x="260" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="350" y="34" text-anchor="middle" class="box-title">1-2. System &amp; Stores</text>
+    <text x="350" y="52" text-anchor="middle" class="box-code">/health • /app-version</text>
+
+    <rect x="452" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="542" y="34" text-anchor="middle" class="box-title">3-4. Auth &amp; Family</text>
+    <text x="542" y="52" text-anchor="middle" class="box-code">/auth/* • /users/me</text>
+
+    <rect x="644" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="734" y="34" text-anchor="middle" class="box-title">5-6. Members &amp; Tasks</text>
+    <text x="734" y="52" text-anchor="middle" class="box-code">/family-members • /tasks</text>
+
+    <rect x="836" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="926" y="34" text-anchor="middle" class="box-title">7-8. Parent Catalog</text>
+    <text x="926" y="52" text-anchor="middle" class="box-code">/goals • /rewards</text>
+
+    <!-- Row 2 of Endpoint Modules -->
+    <rect x="260" y="78" width="245" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="382" y="98" text-anchor="middle" class="box-title">9-10. Member Progress &amp; Claims</text>
+    <text x="382" y="116" text-anchor="middle" class="box-code">/member-goals • /member-rewards</text>
+
+    <rect x="518" y="78" width="245" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="640" y="98" text-anchor="middle" class="box-title">11. Member Wallets / Balances</text>
+    <text x="640" y="116" text-anchor="middle" class="box-code">/member-balances</text>
+
+    <rect x="776" y="78" width="240" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
+    <text x="896" y="98" text-anchor="middle" class="box-title">12. Enterprise Audit Trail</text>
+    <text x="896" y="116" text-anchor="middle" class="box-code">/activity-logs</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="550" y1="455" x2="550" y2="477" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== LAYER 3: VALIDATION, SECURITY & CROSS-CUTTING ==================== -->
+  <g transform="translate(30, 481)">
+    <rect x="0" y="0" width="1040" height="96" rx="10" fill="url(#layer3Grad)" stroke="#10b981" stroke-width="1.2"/>
+    <text x="20" y="28" class="layer-title" fill="#34d399">3. DTO VALIDATION &amp; CROSS-CUTTING CORE SERVICES</text>
+    <text x="20" y="48" class="layer-sub">app/schemas/*</text>
+    <text x="20" y="66" class="layer-sub">app/core/security.py</text>
+    <text x="20" y="84" class="layer-sub">app/core/audit.py</text>
+
+    <rect x="260" y="15" width="245" height="66" rx="8" fill="#0f172a" stroke="#059669" stroke-width="1"/>
+    <text x="382" y="36" text-anchor="middle" class="box-title">Pydantic v2 Schemas (DTOs)</text>
+    <text x="382" y="52" text-anchor="middle" class="box-desc">Strict payload validation, Enums</text>
+    <text x="382" y="67" text-anchor="middle" class="box-desc">(PENDING/COLLECTED, enable/disable)</text>
+
+    <rect x="520" y="15" width="245" height="66" rx="8" fill="#0f172a" stroke="#059669" stroke-width="1"/>
+    <text x="642" y="36" text-anchor="middle" class="box-title">Auth &amp; Crypto Service</text>
+    <text x="642" y="52" text-anchor="middle" class="box-desc">Depends(get_current_user) JWT Guard</text>
+    <text x="642" y="67" text-anchor="middle" class="box-desc">SHA-256 Pre-hash + bcrypt Salting</text>
+
+    <rect x="780" y="15" width="235" height="66" rx="8" fill="#0f172a" stroke="#059669" stroke-width="1"/>
+    <text x="897" y="36" text-anchor="middle" class="box-title">Audit Recorder Service</text>
+    <text x="897" y="52" text-anchor="middle" class="box-desc">record_activity() in same</text>
+    <text x="897" y="67" text-anchor="middle" class="box-desc">unit-of-work DB transaction</text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="550" y1="577" x2="550" y2="599" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== LAYER 4: DATA ACCESS & ORM ==================== -->
+  <g transform="translate(30, 603)">
+    <rect x="0" y="0" width="1040" height="104" rx="10" fill="url(#layer4Grad)" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="20" y="28" class="layer-title" fill="#fbbf24">4. DATA ACCESS &amp; DOMAIN MODELS LAYER (SQLAlchemy 2.0 ORM)</text>
+    <text x="20" y="48" class="layer-sub">app/db/session.py</text>
+    <text x="20" y="66" class="layer-sub">app/db/base.py</text>
+    <text x="20" y="84" class="layer-sub">app/models/*</text>
+
+    <rect x="260" y="16" width="755" height="72" rx="8" fill="#0f172a" stroke="#d97706" stroke-width="1"/>
+    <text x="637" y="38" text-anchor="middle" class="box-title">10 Relational Domain Entities (DeclarativeBase + SessionLocal Dependency Injection)</text>
+    <text x="637" y="58" text-anchor="middle" class="box-code">User (users) • AppVersion (app_versions) • FamilyMember (family_members) • Task (tasks) • Goal (goals)</text>
+    <text x="637" y="75" text-anchor="middle" class="box-code">Reward (rewards) • MemberGoal (member_goals) • MemberReward (member_rewards) • MemberBalance • ActivityLog</text>
+  </g>
+
+  <!-- Arrow 4 -> 5 -->
+  <line x1="550" y1="707" x2="550" y2="729" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ==================== LAYER 5: PERSISTENCE ==================== -->
+  <g transform="translate(30, 733)">
+    <rect x="0" y="0" width="1040" height="96" rx="10" fill="url(#layer5Grad)" stroke="#ec4899" stroke-width="1.2"/>
+    <text x="20" y="30" class="layer-title" fill="#f472b6">5. DATABASE &amp; PERSISTENCE LAYER</text>
+    <text x="20" y="50" class="layer-sub">app/core/config.py</text>
+    <text x="20" y="68" class="layer-sub">DATABASE_URL (.env)</text>
+
+    <rect x="260" y="16" width="365" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="442" y="38" text-anchor="middle" class="box-title">Local / Development Environment</text>
+    <text x="442" y="56" text-anchor="middle" class="box-code">SQLite 3 (sqlite:///./fhk.db)</text>
+    <text x="442" y="71" text-anchor="middle" class="box-desc">Zero-config embedded relational storage</text>
+
+    <rect x="650" y="16" width="365" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="832" y="38" text-anchor="middle" class="box-title">Staging / Production Environment</text>
+    <text x="832" y="56" text-anchor="middle" class="box-code">PostgreSQL (postgresql://...)</text>
+    <text x="832" y="71" text-anchor="middle" class="box-desc">Connection pooling with pool_pre_ping=True</text>
+  </g>
+</svg>
