@@ -9,7 +9,7 @@
     "/health": {
       "get": {
         "tags": [
-          "0. Estado del Servidor"
+          "1. Estado del servidor"
         ],
         "summary": "Health Check del Backend",
         "description": "Verifica que el servidor esté activo y listo para recibir peticiones.",
@@ -30,10 +30,159 @@
         }
       }
     },
+    "/api/v1/app-version/check": {
+      "get": {
+        "tags": [
+          "2. Versión de la App (Tiendas)"
+        ],
+        "summary": "Verificar si la App tiene la última versión de tiendas",
+        "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
+        "operationId": "check_app_version_api_v1_app_version_check_get",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PlatformEnum",
+              "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)",
+              "examples": [
+                "IOS"
+              ]
+            },
+            "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)"
+          },
+          {
+            "name": "current_version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30,
+              "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)",
+              "examples": [
+                "1.0.0"
+              ],
+              "title": "Current Version"
+            },
+            "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppVersionCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-version": {
+      "get": {
+        "tags": [
+          "2. Versión de la App (Tiendas)"
+        ],
+        "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
+        "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
+        "operationId": "list_store_versions_api_v1_app_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppVersionConfigResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Store Versions Api V1 App Version Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/app-version/{platform}": {
+      "put": {
+        "tags": [
+          "2. Versión de la App (Tiendas)"
+        ],
+        "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
+        "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
+        "operationId": "update_store_version_api_v1_app_version__platform__put",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PlatformEnum"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppVersionConfigUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppVersionConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "tags": [
-          "1. Autenticación"
+          "3. Autenticación"
         ],
         "summary": "Registrar nueva familia / padre",
         "description": "Registra una familia en la base de datos recibiendo `name_family`, `email_parent`, `password` (encriptado desde la app) y `approve_pin`. El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC.",
@@ -75,7 +224,7 @@
     "/api/v1/auth/login": {
       "post": {
         "tags": [
-          "1. Autenticación"
+          "3. Autenticación"
         ],
         "summary": "Iniciar sesión desde la App (JSON)",
         "description": "Recibe `email_parent` y `password` (el mismo password encriptado enviado desde la app en el registro) y devuelve un `access_token` y `refresh_token` JWT.",
@@ -117,7 +266,7 @@
     "/api/v1/auth/forgot-password": {
       "post": {
         "tags": [
-          "1. Autenticación"
+          "3. Autenticación"
         ],
         "summary": "Recuperar contraseña - Paso 1: Solicitar código de 6 dígitos",
         "description": "Recibe `email_parent`, genera un código temporal de 6 dígitos válido por 15 minutos y lo persiste en la base de datos para enviarlo al correo del padre.",
@@ -159,7 +308,7 @@
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
-          "1. Autenticación"
+          "3. Autenticación"
         ],
         "summary": "Recuperar contraseña - Paso 2: Confirmar código y actualizar password",
         "description": "Recibe `email_parent`, `recovery_code` (6 dígitos) y el nuevo `new_password` encriptado desde la app. Valida que el código sea correcto y no haya expirado, actualiza la contraseña en BD e invalida el código.",
@@ -201,7 +350,7 @@
     "/api/v1/auth/refresh": {
       "post": {
         "tags": [
-          "1. Autenticación"
+          "3. Autenticación"
         ],
         "summary": "Renovar Access Token usando Refresh Token",
         "description": "Permite a la app móvil obtener un nuevo `access_token` sin obligar al usuario a iniciar sesión nuevamente.",
@@ -243,7 +392,7 @@
     "/api/v1/users/me": {
       "get": {
         "tags": [
-          "2. Usuarios / Familia"
+          "4. Usuarios / Familia"
         ],
         "summary": "Obtener datos de la familia / padre autenticado",
         "description": "Devuelve la información registrada de la familia propietaria del token JWT actual.",
@@ -271,7 +420,7 @@
       },
       "patch": {
         "tags": [
-          "2. Usuarios / Familia"
+          "4. Usuarios / Familia"
         ],
         "summary": "Actualizar datos de la familia / padre autenticado",
         "description": "Permite actualizar `name_family`, `password` o `approve_pin` de la cuenta autenticada.",
@@ -321,7 +470,7 @@
     "/api/v1/family-members": {
       "post": {
         "tags": [
-          "3. Miembros de la Familia"
+          "5. Miembros de la Familia"
         ],
         "summary": "Crear un nuevo miembro de la familia",
         "description": "Registra un nuevo miembro en la familia recibiendo `email_parent`, `identification_uuid` (UUID), `member_name`, `avatar_name` y `name_family`. Se vincula por llave foránea (`parent_id`) con la cuenta del padre registrada en `users` (protegido con JWT).",
@@ -369,7 +518,7 @@
       },
       "get": {
         "tags": [
-          "3. Miembros de la Familia"
+          "5. Miembros de la Familia"
         ],
         "summary": "Listar miembros de la familia",
         "description": "Obtiene todos los miembros registrados de la familia del padre autenticado.",
@@ -433,7 +582,7 @@
     "/api/v1/family-members/{identification_uuid}": {
       "patch": {
         "tags": [
-          "3. Miembros de la Familia"
+          "5. Miembros de la Familia"
         ],
         "summary": "Editar nombre o avatar de un miembro de la familia",
         "description": "Actualiza el nombre (`member_name`) y/o el avatar (`avatar_name`) de un miembro de la familia identificado por su `identification_uuid` (protegido con JWT).",
@@ -493,7 +642,7 @@
       },
       "delete": {
         "tags": [
-          "3. Miembros de la Familia"
+          "5. Miembros de la Familia"
         ],
         "summary": "Eliminar un miembro de la familia",
         "description": "Elimina permanentemente un miembro de la familia de la base de datos buscando por su `identification_uuid` y verificando que pertenezca al padre autenticado (protegido con JWT).",
@@ -542,10 +691,302 @@
         }
       }
     },
+    "/api/v1/tasks": {
+      "post": {
+        "tags": [
+          "6. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "1. Crear una nueva tarea para la familia (por el padre)",
+        "description": "Registra una nueva tarea para la familia recibiendo `name`, `time_granted`, `coins_granted`, `email_parent`, `description` y `status` (por defecto se asigna `enable` automáticamente). El campo `created_at` se genera automáticamente en UTC (protegido con JWT).",
+        "operationId": "create_task_api_v1_tasks_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "6. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "3. Listar todas las tareas de una familia (con cualquier estado)",
+        "description": "Devuelve todas las tareas pertenecientes exclusivamente a la familia del padre autenticado sin importar su estado (`enable` y `disable`) (protegido con JWT).",
+        "operationId": "list_all_family_tasks_api_v1_tasks_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  },
+                  "title": "Response List All Family Tasks Api V1 Tasks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}": {
+      "patch": {
+        "tags": [
+          "6. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "2. Editar una tarea de la familia (incluyendo habilitar/deshabilitar status)",
+        "description": "Permite al padre editar cualquier campo de una tarea (`name`, `time_granted`, `coins_granted`, `description`) e incluso cambiar su `status` entre `enable` y `disable` (protegido con JWT).",
+        "operationId": "update_task_api_v1_tasks__task_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "6. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "5. Eliminar una tarea de una familia",
+        "description": "Elimina permanentemente una tarea de la base de datos buscando por `task_id` y verificando que pertenezca a la familia del padre autenticado (protegido con JWT).",
+        "operationId": "delete_task_api_v1_tasks__task_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/enabled": {
+      "get": {
+        "tags": [
+          "6. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "4. Listar tareas de una familia solo con estado 'enable'",
+        "description": "Devuelve únicamente las tareas habilitadas (`status = 'enable'`) pertenecientes a la familia del padre autenticado (protegido con JWT).",
+        "operationId": "list_enabled_family_tasks_api_v1_tasks_enabled_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  },
+                  "title": "Response List Enabled Family Tasks Api V1 Tasks Enabled Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/goals": {
       "post": {
         "tags": [
-          "4. Metas del Padre (Goals)"
+          "7. Metas del Padre (Goals)"
         ],
         "summary": "Crear una nueva meta del padre (Goal)",
         "description": "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), `email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
@@ -593,7 +1034,7 @@
       },
       "get": {
         "tags": [
-          "4. Metas del Padre (Goals)"
+          "7. Metas del Padre (Goals)"
         ],
         "summary": "Listar metas (Goals) creadas por el padre",
         "description": "Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
@@ -657,7 +1098,7 @@
     "/api/v1/goals/{goal_id}": {
       "patch": {
         "tags": [
-          "4. Metas del Padre (Goals)"
+          "7. Metas del Padre (Goals)"
         ],
         "summary": "Editar una meta creada por el padre",
         "description": "Actualiza parcialmente `name`, `measure_type`, `value` y/o `status` (`active` / `inactive`) de una meta existente perteneciente al padre autenticado (protegido con JWT).",
@@ -716,7 +1157,7 @@
       },
       "delete": {
         "tags": [
-          "4. Metas del Padre (Goals)"
+          "7. Metas del Padre (Goals)"
         ],
         "summary": "Eliminar una meta creada por el padre",
         "description": "Elimina permanentemente una meta de la base de datos buscando por su `goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
@@ -764,10 +1205,202 @@
         }
       }
     },
+    "/api/v1/rewards": {
+      "get": {
+        "tags": [
+          "8. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Listar recompensas (Rewards) creadas por el padre",
+        "description": "Obtiene todas las recompensas registradas por el padre autenticado (protegido con JWT).",
+        "operationId": "list_rewards_api_v1_rewards_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RewardResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Rewards Api V1 Rewards Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "8. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Crear una nueva recompensa del padre (Reward)",
+        "description": "Registra una nueva recompensa creada por el padre recibiendo `name`, `time_required` (también acepta `time_requiered`), `coins_required` y `email_parent`. El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
+        "operationId": "create_reward_api_v1_rewards_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RewardCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/rewards/{reward_id}": {
+      "patch": {
+        "tags": [
+          "8. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Editar una recompensa creada por el padre",
+        "description": "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa existente perteneciente al padre autenticado (protegido con JWT).",
+        "operationId": "update_reward_api_v1_rewards__reward_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Reward Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RewardUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "8. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Eliminar una recompensa creada por el padre",
+        "description": "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_reward_api_v1_rewards__reward_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Reward Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/member-goals": {
       "post": {
         "tags": [
-          "5. Metas de los Miembros (Member Goals)"
+          "9. Metas de los Miembros (Member Goals)"
         ],
         "summary": "Asignar / Crear una meta para un miembro de la familia",
         "description": "Registra una meta seleccionada por un miembro de la familia a partir de una meta creada por el padre. Recibe `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, `accumulated_value`, `parent_email` y `name`. El campo `created_at` se genera automáticamente en UTC y se valida la integridad relacional con el padre, la meta base y el miembro (protegido con JWT).",
@@ -815,7 +1448,7 @@
       },
       "get": {
         "tags": [
-          "5. Metas de los Miembros (Member Goals)"
+          "9. Metas de los Miembros (Member Goals)"
         ],
         "summary": "Listar metas de los miembros de la familia",
         "description": "Obtiene todas las metas asignadas a los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID) o `goal_id`.",
@@ -898,7 +1531,7 @@
     "/api/v1/member-goals/{member_goal_id}": {
       "patch": {
         "tags": [
-          "5. Metas de los Miembros (Member Goals)"
+          "9. Metas de los Miembros (Member Goals)"
         ],
         "summary": "Actualizar progreso (accumulated_value) o datos de una meta de un miembro",
         "description": "Actualiza el progreso (`accumulated_value`) y opcionalmente el nombre o recompensa de la meta de un miembro identificada por `member_goal_id` (protegido con JWT).",
@@ -957,7 +1590,7 @@
       },
       "delete": {
         "tags": [
-          "5. Metas de los Miembros (Member Goals)"
+          "9. Metas de los Miembros (Member Goals)"
         ],
         "summary": "Eliminar una meta de un miembro de la familia",
         "description": "Elimina permanentemente la meta asignada a un miembro de la familia buscando por `member_goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
@@ -1005,448 +1638,10 @@
         }
       }
     },
-    "/api/v1/member-balances": {
-      "post": {
-        "tags": [
-          "6. Balance de los Miembros (Member Balances)"
-        ],
-        "summary": "Registrar / Crear el balance de un miembro de la familia",
-        "description": "Registra el balance de monedas (`coins_obtained`) y tiempo (`time_obtained`) de un miembro identificado por `member_id` (UUID). El campo `created_at` se asigna automáticamente en UTC. Si el miembro ya tenía un balance registrado, actualiza sus valores y devuelve el registro (protegido con JWT).",
-        "operationId": "create_member_balance_api_v1_member_balances_post",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MemberBalanceCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MemberBalanceResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "6. Balance de los Miembros (Member Balances)"
-        ],
-        "summary": "Listar balances de los miembros de la familia",
-        "description": "Obtiene los balances de monedas y tiempo de todos los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID).",
-        "operationId": "list_member_balances_api_v1_member_balances_get",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "member_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
-              "title": "Member Id"
-            },
-            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MemberBalanceResponse"
-                  },
-                  "title": "Response List Member Balances Api V1 Member Balances Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/member-balances/{member_id}": {
-      "get": {
-        "tags": [
-          "6. Balance de los Miembros (Member Balances)"
-        ],
-        "summary": "Obtener el saldo (balance) de un miembro en concreto",
-        "description": "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, inicializa y retorna su balance en `0` monedas y `00:00:00`.",
-        "operationId": "get_member_balance_api_v1_member_balances__member_id__get",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "member_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Member Id"
-            }
-          },
-          {
-            "name": "email_parent",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
-              "examples": [
-                "padre@fhk.app"
-              ],
-              "title": "Email Parent"
-            },
-            "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MemberBalanceResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "6. Balance de los Miembros (Member Balances)"
-        ],
-        "summary": "Actualizar el balance de un miembro por su UUID",
-        "description": "Actualiza `coins_obtained` y/o `time_obtained` del balance de un miembro identificado por su `member_id` (UUID) (protegido con JWT).",
-        "operationId": "update_member_balance_api_v1_member_balances__member_id__patch",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "member_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Member Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MemberBalanceUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MemberBalanceResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/rewards": {
-      "get": {
-        "tags": [
-          "7. Recompensas del Padre (Rewards)"
-        ],
-        "summary": "Listar recompensas (Rewards) creadas por el padre",
-        "description": "Obtiene todas las recompensas registradas por el padre autenticado (protegido con JWT).",
-        "operationId": "list_rewards_api_v1_rewards_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RewardResponse"
-                  },
-                  "type": "array",
-                  "title": "Response List Rewards Api V1 Rewards Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "7. Recompensas del Padre (Rewards)"
-        ],
-        "summary": "Crear una nueva recompensa del padre (Reward)",
-        "description": "Registra una nueva recompensa creada por el padre recibiendo `name`, `time_required` (también acepta `time_requiered`), `coins_required` y `email_parent`. El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
-        "operationId": "create_reward_api_v1_rewards_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RewardCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RewardResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ]
-      }
-    },
-    "/api/v1/rewards/{reward_id}": {
-      "patch": {
-        "tags": [
-          "7. Recompensas del Padre (Rewards)"
-        ],
-        "summary": "Editar una recompensa creada por el padre",
-        "description": "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa existente perteneciente al padre autenticado (protegido con JWT).",
-        "operationId": "update_reward_api_v1_rewards__reward_id__patch",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "reward_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Reward Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RewardUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RewardResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "7. Recompensas del Padre (Rewards)"
-        ],
-        "summary": "Eliminar una recompensa creada por el padre",
-        "description": "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
-        "operationId": "delete_reward_api_v1_rewards__reward_id__delete",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "reward_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Reward Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RewardDeleteResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/member-rewards": {
       "post": {
         "tags": [
-          "8. Recompensas de los Miembros (Member Rewards)"
+          "10. Recompensas de los Miembros (Member Rewards)"
         ],
         "summary": "Registrar una recompensa reclamada por un miembro de la familia",
         "description": "Registra una recompensa seleccionada por un miembro de la familia con estado inicial `PENDING`. Puedes enviar `reward_id` para que el backend resuelva automáticamente `name_reward` cruzándolo con la tabla `rewards` del padre, o enviar `name_reward` directamente (protegido con JWT).",
@@ -1494,7 +1689,7 @@
       },
       "get": {
         "tags": [
-          "8. Recompensas de los Miembros (Member Rewards)"
+          "10. Recompensas de los Miembros (Member Rewards)"
         ],
         "summary": "Listar recompensas reclamadas/cobradas por los miembros",
         "description": "Obtiene las recompensas reclamadas por los miembros de la familia, con filtros opcionales por `member_id` (UUID) y `state` (`PENDING` o `COLLECTED`) (protegido con JWT).",
@@ -1577,7 +1772,7 @@
     "/api/v1/member-rewards/{member_reward_id}": {
       "patch": {
         "tags": [
-          "8. Recompensas de los Miembros (Member Rewards)"
+          "10. Recompensas de los Miembros (Member Rewards)"
         ],
         "summary": "Cambiar estado de la recompensa (de PENDING a COLLECTED)",
         "description": "Permite al padre cambiar el `state` de una recompensa reclamada (por ejemplo, de `PENDING` a `COLLECTED` cuando ya entregó la recompensa al miembro) (protegido con JWT).",
@@ -1636,7 +1831,7 @@
       },
       "delete": {
         "tags": [
-          "8. Recompensas de los Miembros (Member Rewards)"
+          "10. Recompensas de los Miembros (Member Rewards)"
         ],
         "summary": "Eliminar una recompensa reclamada/cobrada de un miembro",
         "description": "Elimina permanentemente una recompensa reclamada/cobrada buscando por `member_reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
@@ -1684,14 +1879,14 @@
         }
       }
     },
-    "/api/v1/tasks": {
+    "/api/v1/member-balances": {
       "post": {
         "tags": [
-          "9. Tareas de la Familia (Tasks)"
+          "11. Balance de los Miembros (Member Balances)"
         ],
-        "summary": "1. Crear una nueva tarea para la familia (por el padre)",
-        "description": "Registra una nueva tarea para la familia recibiendo `name`, `time_granted`, `coins_granted`, `email_parent`, `description` y `status` (por defecto se asigna `enable` automáticamente). El campo `created_at` se genera automáticamente en UTC (protegido con JWT).",
-        "operationId": "create_task_api_v1_tasks_post",
+        "summary": "Registrar / Crear el balance de un miembro de la familia",
+        "description": "Registra el balance de monedas (`coins_obtained`) y tiempo (`time_obtained`) de un miembro identificado por `member_id` (UUID). El campo `created_at` se asigna automáticamente en UTC. Si el miembro ya tenía un balance registrado, actualiza sus valores y devuelve el registro (protegido con JWT).",
+        "operationId": "create_member_balance_api_v1_member_balances_post",
         "security": [
           {
             "OAuth2Password": []
@@ -1705,7 +1900,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TaskCreate"
+                "$ref": "#/components/schemas/MemberBalanceCreate"
               }
             }
           }
@@ -1716,7 +1911,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
                 }
               }
             }
@@ -1735,11 +1930,11 @@
       },
       "get": {
         "tags": [
-          "9. Tareas de la Familia (Tasks)"
+          "11. Balance de los Miembros (Member Balances)"
         ],
-        "summary": "3. Listar todas las tareas de una familia (con cualquier estado)",
-        "description": "Devuelve todas las tareas pertenecientes exclusivamente a la familia del padre autenticado sin importar su estado (`enable` y `disable`) (protegido con JWT).",
-        "operationId": "list_all_family_tasks_api_v1_tasks_get",
+        "summary": "Listar balances de los miembros de la familia",
+        "description": "Obtiene los balances de monedas y tiempo de todos los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID).",
+        "operationId": "list_member_balances_api_v1_member_balances_get",
         "security": [
           {
             "OAuth2Password": []
@@ -1750,25 +1945,23 @@
         ],
         "parameters": [
           {
-            "name": "email_parent",
+            "name": "member_id",
             "in": "query",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "format": "uuid"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
-              "examples": [
-                "padre@fhk.app"
-              ],
-              "title": "Email Parent"
+              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "title": "Member Id"
             },
-            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
           }
         ],
         "responses": {
@@ -1779,9 +1972,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TaskResponse"
+                    "$ref": "#/components/schemas/MemberBalanceResponse"
                   },
-                  "title": "Response List All Family Tasks Api V1 Tasks Get"
+                  "title": "Response List Member Balances Api V1 Member Balances Get"
                 }
               }
             }
@@ -1799,14 +1992,14 @@
         }
       }
     },
-    "/api/v1/tasks/{task_id}": {
-      "patch": {
+    "/api/v1/member-balances/{member_id}": {
+      "get": {
         "tags": [
-          "9. Tareas de la Familia (Tasks)"
+          "11. Balance de los Miembros (Member Balances)"
         ],
-        "summary": "2. Editar una tarea de la familia (incluyendo habilitar/deshabilitar status)",
-        "description": "Permite al padre editar cualquier campo de una tarea (`name`, `time_granted`, `coins_granted`, `description`) e incluso cambiar su `status` entre `enable` y `disable` (protegido con JWT).",
-        "operationId": "update_task_api_v1_tasks__task_id__patch",
+        "summary": "Obtener el saldo (balance) de un miembro en concreto",
+        "description": "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, inicializa y retorna su balance en `0` monedas y `00:00:00`.",
+        "operationId": "get_member_balance_api_v1_member_balances__member_id__get",
         "security": [
           {
             "OAuth2Password": []
@@ -1817,12 +2010,84 @@
         ],
         "parameters": [
           {
-            "name": "task_id",
+            "name": "member_id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "title": "Task Id"
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
+            }
+          },
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "11. Balance de los Miembros (Member Balances)"
+        ],
+        "summary": "Actualizar el balance de un miembro por su UUID",
+        "description": "Actualiza `coins_obtained` y/o `time_obtained` del balance de un miembro identificado por su `member_id` (UUID) (protegido con JWT).",
+        "operationId": "update_member_balance_api_v1_member_balances__member_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
             }
           }
         ],
@@ -1831,7 +2096,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TaskUpdate"
+                "$ref": "#/components/schemas/MemberBalanceUpdate"
               }
             }
           }
@@ -1842,123 +2107,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "9. Tareas de la Familia (Tasks)"
-        ],
-        "summary": "5. Eliminar una tarea de una familia",
-        "description": "Elimina permanentemente una tarea de la base de datos buscando por `task_id` y verificando que pertenezca a la familia del padre autenticado (protegido con JWT).",
-        "operationId": "delete_task_api_v1_tasks__task_id__delete",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "task_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Task Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TaskDeleteResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/tasks/enabled": {
-      "get": {
-        "tags": [
-          "9. Tareas de la Familia (Tasks)"
-        ],
-        "summary": "4. Listar tareas de una familia solo con estado 'enable'",
-        "description": "Devuelve únicamente las tareas habilitadas (`status = 'enable'`) pertenecientes a la familia del padre autenticado (protegido con JWT).",
-        "operationId": "list_enabled_family_tasks_api_v1_tasks_enabled_get",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "email_parent",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
-              "examples": [
-                "padre@fhk.app"
-              ],
-              "title": "Email Parent"
-            },
-            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TaskResponse"
-                  },
-                  "title": "Response List Enabled Family Tasks Api V1 Tasks Enabled Get"
+                  "$ref": "#/components/schemas/MemberBalanceResponse"
                 }
               }
             }
@@ -1979,7 +2128,7 @@
     "/api/v1/activity-logs": {
       "get": {
         "tags": [
-          "10. Historial de Actividad (Audit Logs)"
+          "12. Historial de Actividad (Audit Logs)"
         ],
         "summary": "Consultar el historial de actividad (Audit Log) de la familia",
         "description": "Devuelve la bitácora histórica de acciones registradas automáticamente en el backend para la familia del padre autenticado, ordenada de la más reciente a la más antigua. Permite filtrar opcionalmente por `member_id`, `entity_type` o `action` (protegido con JWT).",
@@ -2073,155 +2222,6 @@
                     "$ref": "#/components/schemas/ActivityLogResponse"
                   },
                   "title": "Response List Activity Logs Api V1 Activity Logs Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/app-version/check": {
-      "get": {
-        "tags": [
-          "11. Versión de la App (Tiendas)"
-        ],
-        "summary": "Verificar si la App tiene la última versión de tiendas",
-        "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
-        "operationId": "check_app_version_api_v1_app_version_check_get",
-        "parameters": [
-          {
-            "name": "platform",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/PlatformEnum",
-              "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)",
-              "examples": [
-                "IOS"
-              ]
-            },
-            "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)"
-          },
-          {
-            "name": "current_version",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 30,
-              "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)",
-              "examples": [
-                "1.0.0"
-              ],
-              "title": "Current Version"
-            },
-            "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppVersionCheckResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/app-version": {
-      "get": {
-        "tags": [
-          "11. Versión de la App (Tiendas)"
-        ],
-        "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
-        "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
-        "operationId": "list_store_versions_api_v1_app_version_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/AppVersionConfigResponse"
-                  },
-                  "type": "array",
-                  "title": "Response List Store Versions Api V1 App Version Get"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/app-version/{platform}": {
-      "put": {
-        "tags": [
-          "11. Versión de la App (Tiendas)"
-        ],
-        "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
-        "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
-        "operationId": "update_store_version_api_v1_app_version__platform__put",
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "platform",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/PlatformEnum"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AppVersionConfigUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppVersionConfigResponse"
                 }
               }
             }
@@ -4480,52 +4480,52 @@
   },
   "tags": [
     {
-      "name": "0. Estado del Servidor",
+      "name": "1. Estado del servidor",
       "description": "Verificación de salud y disponibilidad del servicio."
     },
     {
-      "name": "1. Autenticación",
-      "description": "Registro de usuarios, inicio de sesión y renovación de tokens JWT (`access_token` y `refresh_token`)."
+      "name": "2. Versión de la App (Tiendas)",
+      "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "2. Usuarios / Familia",
+      "name": "3. Autenticación",
+      "description": "Registro de usuarios, inicio de sesión, recuperación de contraseña y renovación de tokens JWT (`access_token` y `refresh_token`)."
+    },
+    {
+      "name": "4. Usuarios / Familia",
       "description": "Consulta y actualización de los datos de la familia / padre autenticado."
     },
     {
-      "name": "3. Miembros de la Familia",
+      "name": "5. Miembros de la Familia",
       "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre."
     },
     {
-      "name": "4. Metas del Padre (Goals)",
-      "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia."
-    },
-    {
-      "name": "5. Metas de los Miembros (Member Goals)",
-      "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia."
-    },
-    {
-      "name": "6. Balance de los Miembros (Member Balances)",
-      "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro."
-    },
-    {
-      "name": "7. Recompensas del Padre (Rewards)",
-      "description": "Creación y consulta de recompensas (`rewards`) configuradas por el padre/tutor de la familia."
-    },
-    {
-      "name": "8. Recompensas de los Miembros (Member Rewards)",
-      "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros."
-    },
-    {
-      "name": "9. Tareas de la Familia (Tasks)",
+      "name": "6. Tareas de la Familia (Tasks)",
       "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre."
     },
     {
-      "name": "10. Historial de Actividad (Audit Logs)",
-      "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia."
+      "name": "7. Metas del Padre (Goals)",
+      "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia."
     },
     {
-      "name": "11. Versión de la App (Tiendas)",
-      "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
+      "name": "8. Recompensas del Padre (Rewards)",
+      "description": "Creación y gestión de recompensas (`rewards`) configuradas por el padre/tutor de la familia."
+    },
+    {
+      "name": "9. Metas de los Miembros (Member Goals)",
+      "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia."
+    },
+    {
+      "name": "10. Recompensas de los Miembros (Member Rewards)",
+      "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros."
+    },
+    {
+      "name": "11. Balance de los Miembros (Member Balances)",
+      "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro."
+    },
+    {
+      "name": "12. Historial de Actividad (Audit Logs)",
+      "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia."
     }
   ]
 }

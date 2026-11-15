@@ -14,52 +14,52 @@ import app.models  # noqa: F401 - Registra los modelos en el metadata de SQLAlch
 
 openapi_tags = [
     {
-        "name": "0. Estado del Servidor",
+        "name": "1. Estado del servidor",
         "description": "Verificación de salud y disponibilidad del servicio.",
     },
     {
-        "name": "1. Autenticación",
-        "description": "Registro de usuarios, inicio de sesión y renovación de tokens JWT (`access_token` y `refresh_token`).",
+        "name": "2. Versión de la App (Tiendas)",
+        "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "2. Usuarios / Familia",
+        "name": "3. Autenticación",
+        "description": "Registro de usuarios, inicio de sesión, recuperación de contraseña y renovación de tokens JWT (`access_token` y `refresh_token`).",
+    },
+    {
+        "name": "4. Usuarios / Familia",
         "description": "Consulta y actualización de los datos de la familia / padre autenticado.",
     },
     {
-        "name": "3. Miembros de la Familia",
+        "name": "5. Miembros de la Familia",
         "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre.",
     },
     {
-        "name": "4. Metas del Padre (Goals)",
-        "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia.",
-    },
-    {
-        "name": "5. Metas de los Miembros (Member Goals)",
-        "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia.",
-    },
-    {
-        "name": "6. Balance de los Miembros (Member Balances)",
-        "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro.",
-    },
-    {
-        "name": "7. Recompensas del Padre (Rewards)",
-        "description": "Creación y consulta de recompensas (`rewards`) configuradas por el padre/tutor de la familia.",
-    },
-    {
-        "name": "8. Recompensas de los Miembros (Member Rewards)",
-        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros.",
-    },
-    {
-        "name": "9. Tareas de la Familia (Tasks)",
+        "name": "6. Tareas de la Familia (Tasks)",
         "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre.",
     },
     {
-        "name": "10. Historial de Actividad (Audit Logs)",
-        "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia.",
+        "name": "7. Metas del Padre (Goals)",
+        "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia.",
     },
     {
-        "name": "11. Versión de la App (Tiendas)",
-        "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
+        "name": "8. Recompensas del Padre (Rewards)",
+        "description": "Creación y gestión de recompensas (`rewards`) configuradas por el padre/tutor de la familia.",
+    },
+    {
+        "name": "9. Metas de los Miembros (Member Goals)",
+        "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia.",
+    },
+    {
+        "name": "10. Recompensas de los Miembros (Member Rewards)",
+        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros.",
+    },
+    {
+        "name": "11. Balance de los Miembros (Member Balances)",
+        "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro.",
+    },
+    {
+        "name": "12. Historial de Actividad (Audit Logs)",
+        "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia.",
     },
 ]
 
@@ -97,7 +97,7 @@ app.add_middleware(
 
 @app.get(
     "/health",
-    tags=["0. Estado del Servidor"],
+    tags=["1. Estado del servidor"],
     summary="Health Check del Backend",
     description="Verifica que el servidor esté activo y listo para recibir peticiones.",
 )
