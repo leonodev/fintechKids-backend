@@ -1,12 +1,19 @@
 # FintechKids Backend API (`FHKBackend`)
 
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00)](https://www.sqlalchemy.org/)
-[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063)](https://docs.pydantic.dev/)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B%20%7C%203.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0%2B-D71F00)](https://www.sqlalchemy.org/)
+[![PostgreSQL (Neon)](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-4169E1?logo=postgresql&logoColor=white)](https://neon.tech/)
+[![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?logo=render&logoColor=black)](https://fintechkids-backend.onrender.com/docs)
 [![OpenAPI 3.1](https://img.shields.io/badge/OpenAPI-3.1-6BA539?logo=openapiinitiative&logoColor=white)](./openapi.json)
 
-Enterprise-grade RESTful API backend for **FintechKids (FHK)** — a family financial education, task management, goal tracking, and reward system platform. Built with **FastAPI**, **SQLAlchemy 2.0**, **Pydantic v2**, **JWT (Access + Refresh Tokens)**, **SHA-256 + `bcrypt` password hashing**, and an **automated enterprise audit trail**.
+Enterprise-grade RESTful API backend for **FintechKids (FHK)** — a family financial education, task management, goal tracking, and reward system platform. Built with **FastAPI**, **SQLAlchemy 2.0**, **Pydantic v2**, **JWT (Access + Refresh Tokens)**, **SHA-256 + `bcrypt` password hashing**, and an **automated enterprise audit trail**. Deployed in the cloud on **Render** and backed by **Neon Serverless PostgreSQL**.
+
+### 🌐 Live Cloud Endpoints (Render + Neon PostgreSQL)
+- **Interactive Swagger UI**: https://fintechkids-backend.onrender.com/docs
+- **ReDoc Documentation**: https://fintechkids-backend.onrender.com/redoc
+- **Health Check**: https://fintechkids-backend.onrender.com/health
+- **OpenAPI 3.1 JSON**: https://fintechkids-backend.onrender.com/api/v1/openapi.json
 
 ---
 
@@ -17,10 +24,11 @@ Enterprise-grade RESTful API backend for **FintechKids (FHK)** — a family fina
 3. [Domain Model & Entity Relationships](#3-domain-model--entity-relationships)
 4. [API Modules Catalog (Swagger / OpenAPI 3.1)](#4-api-modules-catalog-swagger--openapi-31)
 5. [Project Directory Structure](#5-project-directory-structure)
-6. [Getting Started & Local Development](#6-getting-started--local-development)
-7. [Automated Test Suite](#7-automated-test-suite)
-8. [OpenAPI Specification Export](#8-openapi-specification-export)
-9. [Production Configuration (PostgreSQL)](#9-production-configuration-postgresql)
+6. [Required Libraries & Dependencies](#6-required-libraries--dependencies)
+7. [Getting Started & Local Development](#7-getting-started--local-development)
+8. [Automated Test Suite](#8-automated-test-suite)
+9. [OpenAPI, Postman & Mockoon Exports](#9-openapi-postman--mockoon-exports)
+10. [Cloud Deployment: Render + Neon Serverless PostgreSQL](#10-cloud-deployment-render--neon-serverless-postgresql)
 
 ---
 
@@ -40,7 +48,7 @@ The backend is structured around a strict **5-layer separation of concerns** so 
 | **2. API Routing & Controllers** | Organizes 12 versioned feature routers under `/api/v1`, handles HTTP status codes, query filtering, and orchestrates request execution. | `app/api/v1/router.py`<br>`app/api/v1/endpoints/*.py`<br>`app/api/deps.py` |
 | **3. DTO Validation & Core Services** | Validates incoming/outgoing payloads using **Pydantic v2** Data Transfer Objects (DTOs), enforces strict enums, verifies JWTs, and records audit events. | `app/schemas/*.py`<br>`app/core/security.py`<br>`app/core/audit.py` |
 | **4. Data Access & ORM Models** | Maps domain entities to relational tables using **SQLAlchemy 2.0** declarative mappings, foreign keys, cascades, and indexed lookups. | `app/db/base.py`<br>`app/db/session.py`<br>`app/models/*.py` |
-| **5. Persistence Engine** | Abstracts the underlying relational database engine: embedded **SQLite** for local development/CI and **PostgreSQL** with connection pooling in production. | `app/core/config.py`<br>`.env` |
+| **5. Persistence Engine** | Abstracts the underlying relational database engine: embedded **SQLite** (`sqlite:///./fhk.db`) for local development/CI and **Neon Serverless PostgreSQL** (`postgresql+psycopg2://...`) in cloud production on **Render**. | `app/core/config.py`<br>`app/db/session.py`<br>`render.yaml` |
 
 ---
 
@@ -270,15 +278,37 @@ FHKBackend/
 │   └── test_api.py                  # End-to-end integration & security test suite (pytest)
 ├── openapi.json                     # Auto-generated OpenAPI 3.1 contract
 ├── pytest.ini                       # Pytest configuration
-└── requirements.txt                 # Pinned Python dependencies
+├── render.yaml                      # Render Cloud Blueprint configuration
+└── requirements.txt                 # Pinned Python dependencies (including psycopg2-binary)
 ```
 
 ---
 
-## 6. Getting Started & Local Development
+## 6. Required Libraries & Dependencies
+
+All project dependencies are defined in [`requirements.txt`](./requirements.txt) and installed automatically via `pip install -r requirements.txt`:
+
+| Library / Package | Version Constraint | Role in the Architecture |
+| :--- | :--- | :--- |
+| **`fastapi`** | `>=0.110.0,<1.0.0` | High-performance ASGI web framework, dependency injection (`Depends`), and automatic OpenAPI 3.1 generation. |
+| **`uvicorn[standard]`** | `>=0.29.0,<1.0.0` | Lightning-fast ASGI web server (`uvloop` + `httptools`) used to serve the FastAPI application locally and on Render. |
+| **`sqlalchemy`** | `>=2.0.29,<3.0.0` | Enterprise ORM (`DeclarativeBase`, `SessionLocal`, relational mappings, foreign keys, and connection pooling). |
+| **`psycopg2-binary`** | `>=2.9.9,<3.0.0` | Native PostgreSQL DBAPI driver (`postgresql+psycopg2://`) required for connecting SQLAlchemy to **Neon Serverless PostgreSQL** on **Render**. |
+| **`pydantic`** | `>=2.7.0,<3.0.0` | Strict data validation, serialization, DTO schemas (`*Create`, `*Update`, `*Response`), and Enum enforcement. |
+| **`pydantic-settings`** | `>=2.2.1,<3.0.0` | Twelve-Factor environment variable management (`app/core/config.py`) loading from `.env` or cloud environment variables. |
+| **`email-validator`** | `>=2.1.1,<3.0.0` | RFC-compliant validation for `EmailStr` fields (`email_parent` and `parent_email`). |
+| **`PyJWT`** | `>=2.8.0,<3.0.0` | Cryptographic signing (`HS256`), decoding, and expiration validation of `access_token` and `refresh_token` JWTs. |
+| **`bcrypt`** | `>=4.1.2,<5.0.0` | Salted password hashing (12 rounds) applied over SHA-256 pre-hashed client passwords. |
+| **`python-multipart`** | `>=0.0.9,<1.0.0` | Form-data parsing required by FastAPI's `OAuth2PasswordBearer` interactive Swagger login flow. |
+| **`httpx`** | `>=0.27.0,<1.0.0` | HTTP client powering FastAPI's `TestClient` for integration testing. |
+| **`pytest`** | `>=8.1.1,<9.0.0` | Automated test runner for executing the end-to-end API and security test suite (`tests/test_api.py`). |
+
+---
+
+## 7. Getting Started & Local Development
 
 ### Prerequisites
-- **Python 3.9+**
+- **Python 3.9+** (or **Python 3.11** in cloud production)
 - **Virtual environment (`venv`)**
 
 ### Installation & Startup
@@ -304,14 +334,14 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ### Interactive Documentation Endpoints
 Once the server is running, open in your browser:
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-- **Live OpenAPI JSON**: `http://localhost:8000/api/v1/openapi.json`
-- **Health Check**: `http://localhost:8000/health`
+- **Local Swagger UI**: `http://localhost:8000/docs`
+- **Cloud Swagger UI (Render)**: `https://fintechkids-backend.onrender.com/docs`
+- **Local Health Check**: `http://localhost:8000/health`
+- **Cloud Health Check (Render)**: `https://fintechkids-backend.onrender.com/health`
 
 ---
 
-## 7. Automated Test Suite
+## 8. Automated Test Suite
 
 The project includes an end-to-end integration test suite (`tests/test_api.py`) using `pytest` and `fastapi.testclient.TestClient` that validates:
 - Health & store version comparison logic (`IOS` & `AND`)
@@ -327,7 +357,7 @@ pytest -v
 
 ---
 
-## 8. OpenAPI, Postman & Mockoon Exports
+## 9. OpenAPI, Postman & Mockoon Exports
 
 Whenever endpoints or Pydantic schemas are modified, you can export the static `openapi.json` file at the root of the repository:
 
@@ -354,14 +384,39 @@ python3 scripts/generate_mockoon.py
 
 ---
 
-## 9. Production Configuration (PostgreSQL)
+## 10. Cloud Deployment: Render + Neon Serverless PostgreSQL
 
-By default, local development uses SQLite (`sqlite:///./fhk.db`). To switch to **PostgreSQL** in staging or production, update `.env`:
+The project is deployed in the cloud using a **100% non-expiring Free Tier architecture** combining **Render** (compute) and **Neon** (serverless PostgreSQL persistence):
+
+```mermaid
+flowchart LR
+    Mobile["iOS / Android App & Postman"] -->|HTTPS REST + Bearer JWT| Render["Render Web Service (FastAPI / Uvicorn)"]
+    Render -->|postgresql+psycopg2:// + SSL| Neon[("Neon Serverless PostgreSQL (10 Tables)")]
+```
+
+### 1. Compute Layer — Render (`render.yaml`)
+- **Service URL**: `https://fintechkids-backend.onrender.com`
+- **Blueprint Configuration**: [`render.yaml`](./render.yaml) configures Python `3.11.9`, runs `pip install -r requirements.txt` during build, starts the ASGI server with `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, and monitors `/health`.
+- **Auto-Deploy**: Connected to the GitHub repository (`leonodev/fintechKids-backend`) so every push to `main` automatically builds and deploys.
+
+### 2. Database Layer — Neon Serverless PostgreSQL (`app/db/session.py`)
+- **Provider**: [Neon (`neon.tech`)](https://neon.tech/) provides a permanent PostgreSQL instance with connection pooling (`-pooler`) and TLS encryption (`sslmode=require&channel_binding=require`).
+- **Automatic Driver Scheme Normalization**: Because SQLAlchemy 2.1+ defaults bare `postgresql://` URLs to `psycopg` (v3), [`app/db/session.py`](./app/db/session.py) automatically normalizes any `postgres://` or `postgresql://` connection string into `postgresql+psycopg2://` so the `psycopg2-binary` driver is always used seamlessly:
+  ```python
+  db_url = settings.DATABASE_URL
+  if db_url.startswith("postgres://"):
+      db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+  elif db_url.startswith("postgresql://"):
+      db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+  ```
+- **Automatic Schema Provisioning**: On application startup, FastAPI's `lifespan` hook in [`app/main.py`](./app/main.py) runs `Base.metadata.create_all(bind=engine)`, automatically creating all 10 tables in the `public` schema of Neon (`users`, `app_versions`, `family_members`, `tasks`, `goals`, `rewards`, `member_goals`, `member_rewards`, `member_balances`, and `activity_logs`) if they do not yet exist.
+
+### 3. Environment Variables Configured in Render
+In **Render Dashboard → `fintechkids-backend` → Environment**:
 
 ```env
-ENVIRONMENT="production"
-SECRET_KEY="replace-with-a-cryptographically-secure-64-byte-secret"
-DATABASE_URL="postgresql://db_user:db_password@db-host:5432/fhk_production"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
+PYTHON_VERSION="3.11.9"
+ENVIRONMENT="development"
+SECRET_KEY="<auto-generated-by-render>"
+DATABASE_URL="postgresql://<user>:<password>@<endpoint>-pooler.<region>.aws.neon.tech/<dbname>?sslmode=require&channel_binding=require"
 ```
