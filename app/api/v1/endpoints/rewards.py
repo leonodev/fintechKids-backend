@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,7 +9,12 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.reward import Reward
 from app.models.user import User
-from app.schemas.reward import RewardCreate, RewardResponse
+from app.schemas.reward import (
+    RewardCreate,
+    RewardDeleteResponse,
+    RewardResponse,
+    RewardUpdate,
+)
 
 router = APIRouter()
 
@@ -71,4 +77,78 @@ def list_rewards(
         .filter(Reward.parent_id == current_user.id)
         .order_by(Reward.created_at.desc())
         .all()
+    )
+
+
+@router.patch(
+    "/{reward_id}",
+    response_model=RewardResponse,
+    summary="Editar una recompensa creada por el padre",
+    description=(
+        "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa "
+        "existente perteneciente al padre autenticado (protegido con JWT)."
+    ),
+)
+def update_reward(
+    reward_id: int,
+    reward_in: RewardUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Reward:
+    reward = (
+        db.query(Reward)
+        .filter(Reward.id == reward_id, Reward.parent_id == current_user.id)
+        .first()
+    )
+    if not reward:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ninguna recompensa en tu familia con el `reward_id` proporcionado.",
+        )
+
+    if reward_in.name is not None:
+        reward.name = reward_in.name
+    if reward_in.time_required is not None:
+        reward.time_required = reward_in.time_required
+    if reward_in.coins_required is not None:
+        reward.coins_required = reward_in.coins_required
+
+    reward.updated_at = datetime.now(timezone.utc)
+    db.add(reward)
+    db.commit()
+    db.refresh(reward)
+    return reward
+
+
+@router.delete(
+    "/{reward_id}",
+    response_model=RewardDeleteResponse,
+    summary="Eliminar una recompensa creada por el padre",
+    description=(
+        "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` "
+        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+    ),
+)
+def delete_reward(
+    reward_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RewardDeleteResponse:
+    reward = (
+        db.query(Reward)
+        .filter(Reward.id == reward_id, Reward.parent_id == current_user.id)
+        .first()
+    )
+    if not reward:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró ninguna recompensa en tu familia con el `reward_id` proporcionado.",
+        )
+
+    db.delete(reward)
+    db.commit()
+
+    return RewardDeleteResponse(
+        message="Recompensa eliminada correctamente.",
+        reward_id=reward_id,
     )

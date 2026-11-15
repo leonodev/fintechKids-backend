@@ -347,6 +347,32 @@ def test_full_auth_and_crud_flow():
     assert list_rewards_res.status_code == 200
     assert len(list_rewards_res.json()) == 1
 
+    # 3.6.11 Editar recompensa del padre (PATCH /api/v1/rewards/{reward_id})
+    reward_id = reward_data["id"]
+    patch_reward_res = client.patch(
+        f"/api/v1/rewards/{reward_id}",
+        headers=headers,
+        json={
+            "name": "2 horas de videojuegos",
+            "time_required": "02:00:00",
+            "coins_required": 180,
+        },
+    )
+    assert patch_reward_res.status_code == 200
+    patched_reward = patch_reward_res.json()
+    assert patched_reward["name"] == "2 horas de videojuegos"
+    assert patched_reward["time_required"] == "02:00:00"
+    assert patched_reward["coins_required"] == 180
+
+    # 3.6.12 Eliminar recompensa del padre (DELETE /api/v1/rewards/{reward_id})
+    del_reward_res = client.delete(f"/api/v1/rewards/{reward_id}", headers=headers)
+    assert del_reward_res.status_code == 200
+    assert del_reward_res.json()["reward_id"] == reward_id
+
+    list_rewards_after_del = client.get("/api/v1/rewards", headers=headers)
+    assert list_rewards_after_del.status_code == 200
+    assert len(list_rewards_after_del.json()) == 0
+
     # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",

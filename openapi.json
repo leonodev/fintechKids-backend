@@ -1333,6 +1333,116 @@
         ]
       }
     },
+    "/api/v1/rewards/{reward_id}": {
+      "patch": {
+        "tags": [
+          "7. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Editar una recompensa creada por el padre",
+        "description": "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa existente perteneciente al padre autenticado (protegido con JWT).",
+        "operationId": "update_reward_api_v1_rewards__reward_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Reward Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RewardUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "7. Recompensas del Padre (Rewards)"
+        ],
+        "summary": "Eliminar una recompensa creada por el padre",
+        "description": "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_reward_api_v1_rewards__reward_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Reward Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
@@ -3206,6 +3316,32 @@
         ],
         "title": "RewardCreate"
       },
+      "RewardDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Recompensa eliminada correctamente."
+            ]
+          },
+          "reward_id": {
+            "type": "integer",
+            "title": "Reward Id",
+            "description": "ID de la recompensa eliminada",
+            "examples": [
+              1
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "reward_id"
+        ],
+        "title": "RewardDeleteResponse"
+      },
       "RewardResponse": {
         "properties": {
           "id": {
@@ -3264,6 +3400,62 @@
           "updated_at"
         ],
         "title": "RewardResponse"
+      },
+      "RewardUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Nuevo nombre de la recompensa",
+            "examples": [
+              "2 horas de videojuegos"
+            ]
+          },
+          "time_required": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Required",
+            "description": "Nuevo tiempo requerido para la recompensa",
+            "examples": [
+              "02:00:00"
+            ]
+          },
+          "coins_required": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coins Required",
+            "description": "Nueva cantidad de monedas requeridas",
+            "examples": [
+              180
+            ]
+          }
+        },
+        "type": "object",
+        "title": "RewardUpdate"
       },
       "TokenResponse": {
         "properties": {
