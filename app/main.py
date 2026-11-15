@@ -46,11 +46,15 @@ openapi_tags = [
         "description": "Creación y consulta de recompensas (`rewards`) configuradas por el padre/tutor de la familia.",
     },
     {
-        "name": "8. Versión de la App (Tiendas)",
+        "name": "8. Recompensas de los Miembros (Member Rewards)",
+        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED` / `COLLETED`) y eliminación de recompensas reclamadas por los miembros.",
+    },
+    {
+        "name": "9. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "9. Elementos (CRUD Ejemplo)",
+        "name": "10. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]

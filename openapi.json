@@ -1443,10 +1443,251 @@
         }
       }
     },
+    "/api/v1/member-rewards": {
+      "post": {
+        "tags": [
+          "8. Recompensas de los Miembros (Member Rewards)"
+        ],
+        "summary": "Registrar una recompensa reclamada por un miembro de la familia",
+        "description": "Registra una recompensa seleccionada por un miembro de la familia con estado inicial `PENDING`. Puedes enviar `reward_id` para que el backend resuelva automáticamente `name_reward` cruzándolo con la tabla `rewards` del padre, o enviar `name_reward` directamente (protegido con JWT).",
+        "operationId": "create_member_reward_api_v1_member_rewards_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRewardCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRewardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "8. Recompensas de los Miembros (Member Rewards)"
+        ],
+        "summary": "Listar recompensas reclamadas/cobradas por los miembros",
+        "description": "Obtiene las recompensas reclamadas por los miembros de la familia, con filtros opcionales por `member_id` (UUID) y `state` (`PENDING`, `COLLECTED` / `COLLETED`) (protegido con JWT).",
+        "operationId": "list_member_rewards_api_v1_member_rewards_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "title": "Member Id"
+            },
+            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MemberRewardStateEnum"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por estado (`PENDING`, `COLLECTED` o `COLLETED`)",
+              "title": "State"
+            },
+            "description": "Filtrar opcionalmente por estado (`PENDING`, `COLLECTED` o `COLLETED`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberRewardResponse"
+                  },
+                  "title": "Response List Member Rewards Api V1 Member Rewards Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/member-rewards/{member_reward_id}": {
+      "patch": {
+        "tags": [
+          "8. Recompensas de los Miembros (Member Rewards)"
+        ],
+        "summary": "Cambiar estado de la recompensa (ej. de PENDING a COLLECTED / COLLETED)",
+        "description": "Permite al padre cambiar el `state` de una recompensa reclamada (por ejemplo, de `PENDING` a `COLLECTED` / `COLLETED` cuando ya entregó la recompensa al miembro) (protegido con JWT).",
+        "operationId": "update_member_reward_state_api_v1_member_rewards__member_reward_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Member Reward Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRewardUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRewardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "8. Recompensas de los Miembros (Member Rewards)"
+        ],
+        "summary": "Eliminar una recompensa reclamada/cobrada de un miembro",
+        "description": "Elimina permanentemente una recompensa reclamada/cobrada buscando por `member_reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "operationId": "delete_member_reward_api_v1_member_rewards__member_reward_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_reward_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Member Reward Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberRewardDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "8. Versión de la App (Tiendas)"
+          "9. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -1509,7 +1750,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "8. Versión de la App (Tiendas)"
+          "9. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -1535,7 +1776,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "8. Versión de la App (Tiendas)"
+          "9. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -1595,7 +1836,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "9. Elementos (CRUD Ejemplo)"
+          "10. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -1666,7 +1907,7 @@
       },
       "post": {
         "tags": [
-          "9. Elementos (CRUD Ejemplo)"
+          "10. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -1716,7 +1957,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "9. Elementos (CRUD Ejemplo)"
+          "10. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -1765,7 +2006,7 @@
       },
       "patch": {
         "tags": [
-          "9. Elementos (CRUD Ejemplo)"
+          "10. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -1824,7 +2065,7 @@
       },
       "delete": {
         "tags": [
-          "9. Elementos (CRUD Ejemplo)"
+          "10. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -3175,6 +3416,227 @@
         "type": "object",
         "title": "MemberGoalUpdate"
       },
+      "MemberRewardCreate": {
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "parent_email": {
+            "type": "string",
+            "format": "email",
+            "title": "Parent Email",
+            "description": "Correo electrónico del padre/tutor registrado (misma relación que en los módulos anteriores)",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "reward_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reward Id",
+            "description": "(Recomendado) ID de la recompensa creada por el padre en `/api/v1/rewards`. Si lo envías, el backend resuelve y guarda automáticamente `name_reward` desde la base de datos.",
+            "examples": [
+              1
+            ]
+          },
+          "name_reward": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Reward",
+            "description": "Nombre de la recompensa. Si envías `reward_id`, este campo es opcional porque el backend lo toma automáticamente de la lista de `rewards` del padre.",
+            "examples": [
+              "1 hora de videojuegos"
+            ]
+          },
+          "claimed_value": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Claimed Value",
+            "description": "Valor reclamado por el miembro (ej. `100 coins` o `01:00:00`)",
+            "examples": [
+              "100 coins"
+            ]
+          },
+          "state": {
+            "$ref": "#/components/schemas/MemberRewardStateEnum",
+            "description": "Estado de la recompensa reclamada: `PENDING` (al seleccionarla el miembro) o `COLLECTED` / `COLLETED` (cuando el padre la marca como entregada/cobrada).",
+            "default": "PENDING",
+            "examples": [
+              "PENDING"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "member_id",
+          "parent_email",
+          "claimed_value"
+        ],
+        "title": "MemberRewardCreate"
+      },
+      "MemberRewardDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Recompensa reclamada eliminada correctamente."
+            ]
+          },
+          "member_reward_id": {
+            "type": "integer",
+            "title": "Member Reward Id",
+            "description": "ID de la recompensa reclamada que fue eliminada",
+            "examples": [
+              1
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "member_reward_id"
+        ],
+        "title": "MemberRewardDeleteResponse"
+      },
+      "MemberRewardResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único de la recompensa reclamada en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+          },
+          "reward_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reward Id",
+            "description": "ID de la recompensa original del padre"
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia"
+          },
+          "parent_email": {
+            "type": "string",
+            "format": "email",
+            "title": "Parent Email",
+            "description": "Correo del padre/tutor"
+          },
+          "name_reward": {
+            "type": "string",
+            "title": "Name Reward",
+            "description": "Nombre de la recompensa"
+          },
+          "claimed_value": {
+            "type": "string",
+            "title": "Claimed Value",
+            "description": "Valor reclamado"
+          },
+          "state": {
+            "$ref": "#/components/schemas/MemberRewardStateEnum",
+            "description": "Estado actual (`PENDING`, `COLLECTED` / `COLLETED`)"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "member_id",
+          "parent_email",
+          "name_reward",
+          "claimed_value",
+          "state",
+          "parent_id",
+          "updated_at"
+        ],
+        "title": "MemberRewardResponse"
+      },
+      "MemberRewardStateEnum": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "COLLECTED",
+          "COLLETED"
+        ],
+        "title": "MemberRewardStateEnum"
+      },
+      "MemberRewardUpdate": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/MemberRewardStateEnum",
+            "description": "Nuevo estado de la recompensa (`PENDING`, `COLLECTED` o `COLLETED`)",
+            "examples": [
+              "COLLECTED"
+            ]
+          },
+          "claimed_value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Value",
+            "description": "Actualizar opcionalmente el valor reclamado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "title": "MemberRewardUpdate"
+      },
       "PlatformEnum": {
         "type": "string",
         "enum": [
@@ -3733,11 +4195,15 @@
       "description": "Creación y consulta de recompensas (`rewards`) configuradas por el padre/tutor de la familia."
     },
     {
-      "name": "8. Versión de la App (Tiendas)",
+      "name": "8. Recompensas de los Miembros (Member Rewards)",
+      "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED` / `COLLETED`) y eliminación de recompensas reclamadas por los miembros."
+    },
+    {
+      "name": "9. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "9. Elementos (CRUD Ejemplo)",
+      "name": "10. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]

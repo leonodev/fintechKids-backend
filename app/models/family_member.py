@@ -9,6 +9,7 @@ from app.db.base import Base, TimestampMixin
 if TYPE_CHECKING:
     from app.models.member_balance import MemberBalance
     from app.models.member_goal import MemberGoal
+    from app.models.member_reward import MemberReward
     from app.models.user import User
 
 
@@ -33,6 +34,11 @@ class FamilyMember(Base, TimestampMixin):
     )
     member_balances: Mapped[List["MemberBalance"]] = relationship(
         "MemberBalance",
+        back_populates="member",
+        cascade="all, delete-orphan",
+    )
+    member_rewards: Mapped[List["MemberReward"]] = relationship(
+        "MemberReward",
         back_populates="member",
         cascade="all, delete-orphan",
     )

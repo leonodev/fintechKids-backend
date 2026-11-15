@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.member_reward import MemberReward
     from app.models.user import User
 
 
@@ -23,3 +24,7 @@ class Reward(Base, TimestampMixin):
     parent_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
     parent: Mapped["User"] = relationship("User", back_populates="rewards")
+    member_rewards: Mapped[List["MemberReward"]] = relationship(
+        "MemberReward",
+        back_populates="reward",
+    )

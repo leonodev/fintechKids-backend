@@ -364,6 +364,43 @@ def test_full_auth_and_crud_flow():
     assert patched_reward["time_required"] == "02:00:00"
     assert patched_reward["coins_required"] == 180
 
+    # 3.6.11b Miembro reclama recompensa enviando reward_id (el backend resuelve name_reward automáticamente)
+    create_mr_res = client.post(
+        "/api/v1/member-rewards",
+        headers=headers,
+        json={
+            "member_id": member_for_goal_uuid,
+            "parent_email": "fredy@fhk.app",
+            "reward_id": reward_id,
+            "claimed_value": "180 coins",
+            "state": "PENDING",
+        },
+    )
+    assert create_mr_res.status_code == 201
+    mr_data = create_mr_res.json()
+    member_reward_id = mr_data["id"]
+    assert mr_data["reward_id"] == reward_id
+    assert mr_data["name_reward"] == "2 horas de videojuegos"
+    assert mr_data["state"] == "PENDING"
+    assert "created_at" in mr_data and mr_data["created_at"] is not None
+
+    # 3.6.11c Padre cambia estado a COLLECTED (o COLLETED) cuando entrega la recompensa
+    patch_mr_res = client.patch(
+        f"/api/v1/member-rewards/{member_reward_id}",
+        headers=headers,
+        json={"state": "COLLECTED"},
+    )
+    assert patch_mr_res.status_code == 200
+    assert patch_mr_res.json()["state"] == "COLLECTED"
+
+    # 3.6.11d Eliminar la recompensa ya cobrada
+    del_mr_res = client.delete(
+        f"/api/v1/member-rewards/{member_reward_id}",
+        headers=headers,
+    )
+    assert del_mr_res.status_code == 200
+    assert del_mr_res.json()["member_reward_id"] == member_reward_id
+
     # 3.6.12 Eliminar recompensa del padre (DELETE /api/v1/rewards/{reward_id})
     del_reward_res = client.delete(f"/api/v1/rewards/{reward_id}", headers=headers)
     assert del_reward_res.status_code == 200
@@ -495,6 +532,7 @@ def test_protected_endpoints_reject_without_valid_token():
         "/api/v1/member-goals",
         "/api/v1/member-balances",
         "/api/v1/rewards",
+        "/api/v1/member-rewards",
     ]
     for path in protected_gets:
         # Sin token -> 401
