@@ -95,11 +95,12 @@ app.add_middleware(
 
 
 @app.get(
-    "/health",
+    f"{settings.API_V1_STR}/health",
     tags=["1. Server Status"],
     summary="Backend Health Check",
     description="Verifies that the server is active and ready to accept requests.",
 )
+@app.get("/health", include_in_schema=False)
 def health_check() -> dict:
     return {
         "status": "ok",

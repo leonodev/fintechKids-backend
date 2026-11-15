@@ -333,7 +333,7 @@ def build_collection(seeded: Dict[str, Any]) -> Dict[str, Any]:
                 make_request_item(
                     name="Health Check",
                     method="GET",
-                    path="/health",
+                    path="/api/v1/health",
                     description="Verifies that the FastAPI server is online and returns the active environment.",
                     public=True,
                 ),

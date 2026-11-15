@@ -1,6 +1,6 @@
 {
   "uuid": "bad50aa0-b06e-584f-a44f-b019c17616df",
-  "lastMigration": 33,
+  "lastMigration": 32,
   "name": "FHKBackend Mock Server (FintechKids)",
   "endpointPrefix": "",
   "latency": 0,
@@ -250,7 +250,7 @@
       "type": "http",
       "documentation": "Backend Health Check — Verifies that the server is active and ready.",
       "method": "get",
-      "endpoint": "health",
+      "endpoint": "api/v1/health",
       "responses": [
         {
           "uuid": "f659d012-3c06-55a1-8517-8ea7b5981ed5",

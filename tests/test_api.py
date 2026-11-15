@@ -34,8 +34,8 @@ client = TestClient(app)
 
 
 def test_health_and_swagger_document():
-    # 1. Health check y cabeceras de seguridad
-    res = client.get("/health")
+    # 1. Versioned health check (/api/v1/health) and security headers
+    res = client.get("/api/v1/health")
     assert res.status_code == 200
     assert res.json()["status"] == "ok"
     assert res.headers["X-Content-Type-Options"] == "nosniff"
@@ -45,6 +45,7 @@ def test_health_and_swagger_document():
     assert openapi_res.status_code == 200
     schema = openapi_res.json()
     assert schema["info"]["title"] == "FHK Backend API"
+    assert "/api/v1/health" in schema["paths"]
     assert "/api/v1/auth/login" in schema["paths"]
     assert "/api/v1/app-version/check" in schema["paths"]
     assert "/api/v1/tasks" in schema["paths"]

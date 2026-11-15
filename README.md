@@ -12,7 +12,7 @@ Enterprise-grade RESTful API backend for **FintechKids (FHK)** — a family fina
 ### 🌐 Live Cloud Endpoints (Render + Neon PostgreSQL)
 - **Interactive Swagger UI**: https://fintechkids-backend.onrender.com/docs
 - **ReDoc Documentation**: https://fintechkids-backend.onrender.com/redoc
-- **Health Check**: https://fintechkids-backend.onrender.com/health
+- **Health Check**: https://fintechkids-backend.onrender.com/api/v1/health
 - **OpenAPI 3.1 JSON**: https://fintechkids-backend.onrender.com/api/v1/openapi.json
 
 ---
@@ -217,7 +217,7 @@ The OpenAPI specification is organized into **12 sequential modules**:
 
 | # | Swagger Tag | Base Path | Endpoints & Operations | Auth |
 | :-: | :--- | :--- | :--- | :-: |
-| **1** | **1. Server Status** | `/health` | `GET /health` — Health check & active environment | Public |
+| **1** | **1. Server Status** | `/api/v1/health` | `GET /api/v1/health` — Health check & active environment | Public |
 | **2** | **2. App Version (Stores)** | `/api/v1/app-version` | `GET /check?platform=IOS\|AND&current_version=...`<br>`GET /` — List store versions<br>`PUT /{platform}` — Upsert store version rule | Public<br>Public<br>JWT |
 | **3** | **3. Authentication** | `/api/v1/auth` | `POST /register` — Register family account<br>`POST /login` — Obtain access & refresh tokens<br>`POST /forgot-password` — Generate 6-digit recovery code<br>`POST /reset-password` — Reset password with code<br>`POST /refresh` — Refresh JWT pair | Public |
 | **4** | **4. Users / Family** | `/api/v1/users` | `GET /me` — Get authenticated parent profile<br>`PATCH /me` — Update family name, PIN, or password | JWT |
@@ -336,8 +336,8 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Once the server is running, open in your browser:
 - **Local Swagger UI**: `http://localhost:8000/docs`
 - **Cloud Swagger UI (Render)**: `https://fintechkids-backend.onrender.com/docs`
-- **Local Health Check**: `http://localhost:8000/health`
-- **Cloud Health Check (Render)**: `https://fintechkids-backend.onrender.com/health`
+- **Local Health Check**: `http://localhost:8000/api/v1/health`
+- **Cloud Health Check (Render)**: `https://fintechkids-backend.onrender.com/api/v1/health`
 
 ---
 

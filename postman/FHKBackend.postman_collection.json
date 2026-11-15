@@ -32,11 +32,13 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/health",
+              "raw": "{{base_url}}/api/v1/health",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "health"
               ]
             },
@@ -1831,12 +1833,12 @@
     },
     {
       "key": "access_token",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc5NzMyNzgyNiwiaWF0IjoxNzk0NzM1ODI2LCJlbWFpbCI6InBhcmVudEBmaGsuYXBwIiwicm9sZSI6InVzZXIifQ.Q8mOqPiQgES_JZfoBjHzVdjSmejSSxG1mPPinblddRI",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc5NzM1MTY2NCwiaWF0IjoxNzk0NzU5NjY0LCJlbWFpbCI6InBhcmVudEBmaGsuYXBwIiwicm9sZSI6InVzZXIifQ.JkUq9RV2zkB3NVYkCVnMdvwDG2g5S7jOsYsUTu0gvoI",
       "type": "string"
     },
     {
       "key": "refresh_token",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3OTUzNDA2MjYsImlhdCI6MTc5NDczNTgyNn0.SBy6dsaxgsq8GRrxBCoQyoMlNGkgjQHPsoTu_4AqukM",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3OTUzNjQ0NjQsImlhdCI6MTc5NDc1OTY2NH0.2qeBa0sxSLecx808Cw8tHnUuxRefJIo2swXo1_uJBxM",
       "type": "string"
     },
     {

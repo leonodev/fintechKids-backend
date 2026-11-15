@@ -271,7 +271,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                 make_route(
                     seed="health.get",
                     method="GET",
-                    endpoint="health",
+                    endpoint="api/v1/health",
                     documentation="Backend Health Check — Verifies that the server is active and ready.",
                     success_status=200,
                     success_label="SUCCESS 200 - Server Online",

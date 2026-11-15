@@ -110,7 +110,7 @@
     <!-- Row 1 of Endpoint Modules -->
     <rect x="260" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
     <text x="350" y="34" text-anchor="middle" class="box-title">1-2. System &amp; Stores</text>
-    <text x="350" y="52" text-anchor="middle" class="box-code">/health • /app-version</text>
+    <text x="350" y="52" text-anchor="middle" class="box-code">/api/v1/health • /app-version</text>
 
     <rect x="452" y="14" width="180" height="52" rx="7" fill="#0f172a" stroke="#7c3aed" stroke-width="1"/>
     <text x="542" y="34" text-anchor="middle" class="box-title">3-4. Auth &amp; Family</text>

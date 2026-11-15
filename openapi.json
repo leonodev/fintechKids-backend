@@ -6,14 +6,14 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/health": {
+    "/api/v1/health": {
       "get": {
         "tags": [
           "1. Server Status"
         ],
         "summary": "Backend Health Check",
         "description": "Verifies that the server is active and ready to accept requests.",
-        "operationId": "health_check_health_get",
+        "operationId": "health_check_api_v1_health_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -22,7 +22,7 @@
                 "schema": {
                   "additionalProperties": true,
                   "type": "object",
-                  "title": "Response Health Check Health Get"
+                  "title": "Response Health Check Api V1 Health Get"
                 }
               }
             }
