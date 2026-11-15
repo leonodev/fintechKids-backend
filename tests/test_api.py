@@ -47,7 +47,8 @@ def test_health_and_swagger_document():
     assert schema["info"]["title"] == "FHK Backend API"
     assert "/api/v1/auth/login" in schema["paths"]
     assert "/api/v1/app-version/check" in schema["paths"]
-    assert "/api/v1/items" in schema["paths"]
+    assert "/api/v1/tasks" in schema["paths"]
+    assert "/api/v1/items" not in schema["paths"]
 
 
 def test_app_version_check_endpoint():
@@ -498,45 +499,13 @@ def test_full_auth_and_crud_flow():
     assert list_goals_after_del.status_code == 200
     assert len(list_goals_after_del.json()) == 0
 
-    # 4. Crear un elemento persistido en BD
-    create_item_res = client.post(
-        "/api/v1/items",
-        headers=headers,
-        json={
-            "title": "Mi primer servicio",
-            "description": "Creado desde la app",
-            "price": 29.99,
-            "is_completed": False,
-        },
-    )
-    assert create_item_res.status_code == 201
-    item_id = create_item_res.json()["id"]
-
-    # 5. Listar elementos
-    list_res = client.get("/api/v1/items", headers=headers)
-    assert list_res.status_code == 200
-    assert len(list_res.json()) == 1
-
-    # 6. Actualizar elemento
-    patch_res = client.patch(
-        f"/api/v1/items/{item_id}",
-        headers=headers,
-        json={"is_completed": True},
-    )
-    assert patch_res.status_code == 200
-    assert patch_res.json()["is_completed"] is True
-
-    # 7. Renovar token con Refresh Token
+    # 4. Renovar token con Refresh Token
     refresh_res = client.post(
         "/api/v1/auth/refresh",
         json={"refresh_token": refresh_token},
     )
     assert refresh_res.status_code == 200
     assert "access_token" in refresh_res.json()
-
-    # 8. Eliminar elemento
-    del_res = client.delete(f"/api/v1/items/{item_id}", headers=headers)
-    assert del_res.status_code == 204
 
 
 def test_password_recovery_flow():

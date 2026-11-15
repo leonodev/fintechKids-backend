@@ -5,7 +5,6 @@ from app.api.v1.endpoints import (
     auth,
     family_members,
     goals,
-    items,
     member_balances,
     member_goals,
     member_rewards,
@@ -58,4 +57,3 @@ api_router.include_router(
     prefix="/app-version",
     tags=["10. Versión de la App (Tiendas)"],
 )
-api_router.include_router(items.router, prefix="/items", tags=["11. Elementos (CRUD Ejemplo)"])

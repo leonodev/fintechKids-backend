@@ -10,7 +10,6 @@ from app.db.base import Base
 if TYPE_CHECKING:
     from app.models.family_member import FamilyMember
     from app.models.goal import Goal
-    from app.models.item import Item
     from app.models.member_balance import MemberBalance
     from app.models.member_goal import MemberGoal
     from app.models.member_reward import MemberReward
@@ -90,12 +89,5 @@ class User(Base):
     tasks: Mapped[List["Task"]] = relationship(
         "Task",
         back_populates="parent",
-        cascade="all, delete-orphan",
-    )
-
-    # Relación con Items creados por el usuario
-    items: Mapped[List["Item"]] = relationship(
-        "Item",
-        back_populates="owner",
         cascade="all, delete-orphan",
     )

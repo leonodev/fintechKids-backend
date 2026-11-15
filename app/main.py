@@ -57,10 +57,6 @@ openapi_tags = [
         "name": "10. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
-    {
-        "name": "11. Elementos (CRUD Ejemplo)",
-        "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
-    },
 ]
 
 
