@@ -114,7 +114,7 @@ def create_member_reward(
     summary="Listar recompensas reclamadas/cobradas por los miembros",
     description=(
         "Obtiene las recompensas reclamadas por los miembros de la familia, con filtros opcionales "
-        "por `member_id` (UUID) y `state` (`PENDING`, `COLLECTED` / `COLLETED`) (protegido con JWT)."
+        "por `member_id` (UUID) y `state` (`PENDING` o `COLLECTED`) (protegido con JWT)."
     ),
 )
 def list_member_rewards(
@@ -124,7 +124,7 @@ def list_member_rewards(
     ),
     state: Optional[MemberRewardStateEnum] = Query(
         default=None,
-        description="Filtrar opcionalmente por estado (`PENDING`, `COLLECTED` o `COLLETED`)",
+        description="Filtrar opcionalmente por estado (`PENDING` o `COLLECTED`)",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -140,10 +140,10 @@ def list_member_rewards(
 @router.patch(
     "/{member_reward_id}",
     response_model=MemberRewardResponse,
-    summary="Cambiar estado de la recompensa (ej. de PENDING a COLLECTED / COLLETED)",
+    summary="Cambiar estado de la recompensa (de PENDING a COLLECTED)",
     description=(
         "Permite al padre cambiar el `state` de una recompensa reclamada (por ejemplo, de `PENDING` a "
-        "`COLLECTED` / `COLLETED` cuando ya entregó la recompensa al miembro) (protegido con JWT)."
+        "`COLLECTED` cuando ya entregó la recompensa al miembro) (protegido con JWT)."
     ),
 )
 def update_member_reward_state(

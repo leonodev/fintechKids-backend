@@ -10,7 +10,6 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 class MemberRewardStateEnum(str, Enum):
     PENDING = "PENDING"
     COLLECTED = "COLLECTED"
-    COLLETED = "COLLETED"
 
 
 class MemberRewardCreate(BaseModel):
@@ -53,7 +52,7 @@ class MemberRewardCreate(BaseModel):
         default=MemberRewardStateEnum.PENDING,
         description=(
             "Estado de la recompensa reclamada: `PENDING` (al seleccionarla el miembro) "
-            "o `COLLECTED` / `COLLETED` (cuando el padre la marca como entregada/cobrada)."
+            "o `COLLECTED` (cuando el padre la marca como entregada/cobrada)."
         ),
         examples=["PENDING"],
     )
@@ -62,7 +61,7 @@ class MemberRewardCreate(BaseModel):
 class MemberRewardUpdate(BaseModel):
     state: MemberRewardStateEnum = Field(
         ...,
-        description="Nuevo estado de la recompensa (`PENDING`, `COLLECTED` o `COLLETED`)",
+        description="Nuevo estado de la recompensa (`PENDING` o `COLLECTED`)",
         examples=["COLLECTED"],
     )
     claimed_value: Optional[str] = Field(
@@ -81,7 +80,7 @@ class MemberRewardResponse(BaseModel):
     parent_email: EmailStr = Field(..., description="Correo del padre/tutor")
     name_reward: str = Field(..., description="Nombre de la recompensa")
     claimed_value: str = Field(..., description="Valor reclamado")
-    state: MemberRewardStateEnum = Field(..., description="Estado actual (`PENDING`, `COLLECTED` / `COLLETED`)")
+    state: MemberRewardStateEnum = Field(..., description="Estado actual (`PENDING` o `COLLECTED`)")
     parent_id: int = Field(..., description="ID de relación (Foreign Key) con la cuenta del padre en `users`")
     updated_at: datetime = Field(..., description="Última actualización en UTC")
 

@@ -47,7 +47,7 @@ openapi_tags = [
     },
     {
         "name": "8. Recompensas de los Miembros (Member Rewards)",
-        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED` / `COLLETED`) y eliminación de recompensas reclamadas por los miembros.",
+        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros.",
     },
     {
         "name": "9. Tareas de la Familia (Tasks)",
