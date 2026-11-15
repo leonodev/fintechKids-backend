@@ -6,10 +6,13 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
 
-# Normalize postgres:// to postgresql:// for SQLAlchemy 2.0 compatibility on cloud providers
+# Normalize postgres:// and postgresql:// to postgresql+psycopg2://
+# because SQLAlchemy 2.1+ defaults bare postgresql:// to psycopg v3 instead of psycopg2
 db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # If using SQLite, check_same_thread=False is required for FastAPI
 connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
