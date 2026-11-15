@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.member_balance import MemberBalance
@@ -79,6 +80,17 @@ def create_member_balance(
     db.add(balance)
     db.commit()
     db.refresh(balance)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=balance.member_id,
+        action="CREATE_MEMBER_BALANCE",
+        entity_type="member_balances",
+        entity_id=balance.member_id,
+        details=f"Balance registrado: coins_obtained={balance.coins_obtained}, time_obtained='{balance.time_obtained}'",
+    )
     return balance
 
 
@@ -209,4 +221,15 @@ def update_member_balance(
     db.add(balance)
     db.commit()
     db.refresh(balance)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=balance.member_id,
+        action="UPDATE_MEMBER_BALANCE",
+        entity_type="member_balances",
+        entity_id=balance.member_id,
+        details=f"Balance actualizado: coins_obtained={balance.coins_obtained}, time_obtained='{balance.time_obtained}'",
+    )
     return balance

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.activity_log import ActivityLog
     from app.models.family_member import FamilyMember
     from app.models.goal import Goal
     from app.models.member_balance import MemberBalance
@@ -88,6 +89,13 @@ class User(Base):
     # Relación con Tareas / Tasks de la Familia (1 Padre/Familia -> N Tasks)
     tasks: Mapped[List["Task"]] = relationship(
         "Task",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+    )
+
+    # Relación con Historial de Actividad / Auditoría (1 Padre/Familia -> N ActivityLogs)
+    activity_logs: Mapped[List["ActivityLog"]] = relationship(
+        "ActivityLog",
         back_populates="parent",
         cascade="all, delete-orphan",
     )

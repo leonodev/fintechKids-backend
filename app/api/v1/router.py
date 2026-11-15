@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    activity_logs,
     app_version,
     auth,
     family_members,
@@ -53,7 +54,12 @@ api_router.include_router(
     tags=["9. Tareas de la Familia (Tasks)"],
 )
 api_router.include_router(
+    activity_logs.router,
+    prefix="/activity-logs",
+    tags=["10. Historial de Actividad (Audit Logs)"],
+)
+api_router.include_router(
     app_version.router,
     prefix="/app-version",
-    tags=["10. Versión de la App (Tiendas)"],
+    tags=["11. Versión de la App (Tiendas)"],
 )

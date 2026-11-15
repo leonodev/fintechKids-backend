@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.goal import Goal
@@ -94,6 +95,17 @@ def create_member_goal(
     db.add(member_goal)
     db.commit()
     db.refresh(member_goal)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member_goal.member_id,
+        action="CREATE_MEMBER_GOAL",
+        entity_type="member_goals",
+        entity_id=member_goal.id,
+        details=f"Meta asignada a miembro: '{member_goal.name}' (accumulated_value={member_goal.accumulated_value})",
+    )
     return member_goal
 
 
@@ -168,6 +180,17 @@ def update_member_goal(
     db.add(member_goal)
     db.commit()
     db.refresh(member_goal)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member_goal.member_id,
+        action="UPDATE_MEMBER_GOAL",
+        entity_type="member_goals",
+        entity_id=member_goal.id,
+        details=f"Progreso de meta actualizado: '{member_goal.name}' (accumulated_value={member_goal.accumulated_value})",
+    )
     return member_goal
 
 
@@ -199,8 +222,21 @@ def delete_member_goal(
             detail="No se encontró ninguna meta de miembro en tu familia con el `member_goal_id` proporcionado.",
         )
 
+    deleted_member_id = member_goal.member_id
+    deleted_goal_name = member_goal.name
     db.delete(member_goal)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=deleted_member_id,
+        action="DELETE_MEMBER_GOAL",
+        entity_type="member_goals",
+        entity_id=member_goal_id,
+        details=f"Meta de miembro eliminada: '{deleted_goal_name}'",
+    )
 
     return MemberGoalDeleteResponse(
         message="Meta del miembro eliminada correctamente.",

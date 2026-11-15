@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from app.core.audit import record_activity
 from app.core.config import settings
 from app.core.security import (
     create_access_token,
@@ -62,6 +63,16 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    record_activity(
+        db,
+        parent_id=user.id,
+        email_parent=user.email_parent,
+        action="REGISTER_FAMILY",
+        entity_type="users",
+        entity_id=user.id,
+        details=f"Registro de familia '{user.name_family}'",
+    )
     return user
 
 
@@ -184,6 +195,16 @@ def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)) ->
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    record_activity(
+        db,
+        parent_id=user.id,
+        email_parent=user.email_parent,
+        action="RESET_PASSWORD",
+        entity_type="users",
+        entity_id=user.id,
+        details="Contraseña restablecida mediante código de verificación de 6 dígitos",
+    )
 
     return ResetPasswordResponse(
         message="La contraseña se ha actualizado correctamente. Ya puedes iniciar sesión.",

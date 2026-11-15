@@ -1976,10 +1976,124 @@
         }
       }
     },
+    "/api/v1/activity-logs": {
+      "get": {
+        "tags": [
+          "10. Historial de Actividad (Audit Logs)"
+        ],
+        "summary": "Consultar el historial de actividad (Audit Log) de la familia",
+        "description": "Devuelve la bitácora histórica de acciones registradas automáticamente en el backend para la familia del padre autenticado, ordenada de la más reciente a la más antigua. Permite filtrar opcionalmente por `member_id`, `entity_type` o `action` (protegido con JWT).",
+        "operationId": "list_activity_logs_api_v1_activity_logs_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar opcionalmente por el UUID de un miembro de la familia",
+              "title": "Member Id"
+            },
+            "description": "Filtrar opcionalmente por el UUID de un miembro de la familia"
+          },
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar por módulo/entidad (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
+              "title": "Entity Type"
+            },
+            "description": "Filtrar por módulo/entidad (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar por tipo de acción (ej. `CREATE_TASK`, `UPDATE_BALANCE`, `CLAIM_REWARD`)",
+              "title": "Action"
+            },
+            "description": "Filtrar por tipo de acción (ej. `CREATE_TASK`, `UPDATE_BALANCE`, `CLAIM_REWARD`)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Cantidad máxima de eventos históricos a devolver",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Cantidad máxima de eventos históricos a devolver"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityLogResponse"
+                  },
+                  "title": "Response List Activity Logs Api V1 Activity Logs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "10. Versión de la App (Tiendas)"
+          "11. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -2042,7 +2156,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "10. Versión de la App (Tiendas)"
+          "11. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -2068,7 +2182,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "10. Versión de la App (Tiendas)"
+          "11. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -2128,6 +2242,94 @@
   },
   "components": {
     "schemas": {
+      "ActivityLogResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único del registro de auditoría en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora exacta del evento en UTC"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de la familia/padre"
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo del padre/tutor"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id",
+            "description": "UUID del miembro de la familia involucrado en la acción (si aplica)"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "description": "Acción ejecutada (ej. `REGISTER_FAMILY`, `CREATE_MEMBER`, `UPDATE_BALANCE`, `CLAIM_REWARD`, `COLLECT_REWARD`, `CREATE_TASK`)",
+            "examples": [
+              "UPDATE_BALANCE"
+            ]
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type",
+            "description": "Tabla o entidad afectada (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
+            "examples": [
+              "member_balances"
+            ]
+          },
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id",
+            "description": "ID o UUID del registro afectado",
+            "examples": [
+              "550e8400-e29b-41d4-a716-446655440000"
+            ]
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details",
+            "description": "Detalle descriptivo de los cambios realizados",
+            "examples": [
+              "Balance actualizado: coins_obtained=220, time_obtained=02:15:00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "parent_id",
+          "email_parent",
+          "action",
+          "entity_type",
+          "entity_id"
+        ],
+        "title": "ActivityLogResponse"
+      },
       "AppVersionCheckResponse": {
         "properties": {
           "platform": {
@@ -4318,7 +4520,11 @@
       "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre."
     },
     {
-      "name": "10. Versión de la App (Tiendas)",
+      "name": "10. Historial de Actividad (Audit Logs)",
+      "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia."
+    },
+    {
+      "name": "11. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     }
   ]

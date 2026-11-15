@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.member_reward import MemberReward
@@ -105,6 +106,17 @@ def create_member_reward(
     db.add(member_reward)
     db.commit()
     db.refresh(member_reward)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member_reward.member_id,
+        action="CLAIM_MEMBER_REWARD",
+        entity_type="member_rewards",
+        entity_id=member_reward.id,
+        details=f"Recompensa reclamada: '{member_reward.name_reward}' (claimed_value='{member_reward.claimed_value}', state={member_reward.state})",
+    )
     return member_reward
 
 
@@ -174,6 +186,17 @@ def update_member_reward_state(
     db.add(member_reward)
     db.commit()
     db.refresh(member_reward)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member_reward.member_id,
+        action="UPDATE_MEMBER_REWARD_STATE",
+        entity_type="member_rewards",
+        entity_id=member_reward.id,
+        details=f"Estado de recompensa '{member_reward.name_reward}' cambiado a {member_reward.state}",
+    )
     return member_reward
 
 
@@ -205,8 +228,21 @@ def delete_member_reward(
             detail="No se encontró ninguna recompensa reclamada con el `member_reward_id` proporcionado.",
         )
 
+    deleted_member_id = member_reward.member_id
+    deleted_reward_name = member_reward.name_reward
     db.delete(member_reward)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=deleted_member_id,
+        action="DELETE_MEMBER_REWARD",
+        entity_type="member_rewards",
+        entity_id=member_reward_id,
+        details=f"Recompensa reclamada eliminada: '{deleted_reward_name}'",
+    )
 
     return MemberRewardDeleteResponse(
         message="Recompensa reclamada eliminada correctamente.",

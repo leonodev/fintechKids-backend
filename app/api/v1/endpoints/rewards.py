@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.reward import Reward
 from app.models.user import User
@@ -59,6 +60,16 @@ def create_reward(
     db.add(reward)
     db.commit()
     db.refresh(reward)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="CREATE_REWARD",
+        entity_type="rewards",
+        entity_id=reward.id,
+        details=f"Recompensa creada: '{reward.name}' (coins_required={reward.coins_required}, time_required='{reward.time_required}')",
+    )
     return reward
 
 
@@ -117,6 +128,16 @@ def update_reward(
     db.add(reward)
     db.commit()
     db.refresh(reward)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="UPDATE_REWARD",
+        entity_type="rewards",
+        entity_id=reward.id,
+        details=f"Recompensa actualizada: '{reward.name}' (coins_required={reward.coins_required}, time_required='{reward.time_required}')",
+    )
     return reward
 
 
@@ -145,8 +166,19 @@ def delete_reward(
             detail="No se encontró ninguna recompensa en tu familia con el `reward_id` proporcionado.",
         )
 
+    deleted_reward_name = reward.name
     db.delete(reward)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="DELETE_REWARD",
+        entity_type="rewards",
+        entity_id=reward_id,
+        details=f"Recompensa eliminada: '{deleted_reward_name}'",
+    )
 
     return RewardDeleteResponse(
         message="Recompensa eliminada correctamente.",

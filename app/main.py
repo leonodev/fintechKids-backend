@@ -54,7 +54,11 @@ openapi_tags = [
         "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre.",
     },
     {
-        "name": "10. Versión de la App (Tiendas)",
+        "name": "10. Historial de Actividad (Audit Logs)",
+        "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia.",
+    },
+    {
+        "name": "11. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
 ]

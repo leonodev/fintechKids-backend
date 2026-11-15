@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.user import User
@@ -72,6 +73,17 @@ def create_family_member(
     db.add(member)
     db.commit()
     db.refresh(member)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member.identification_uuid,
+        action="CREATE_MEMBER",
+        entity_type="family_members",
+        entity_id=member.identification_uuid,
+        details=f"Miembro creado: '{member.member_name}' (avatar='{member.avatar_name}')",
+    )
     return member
 
 
@@ -134,6 +146,17 @@ def update_family_member(
     db.add(member)
     db.commit()
     db.refresh(member)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=member.identification_uuid,
+        action="UPDATE_MEMBER",
+        entity_type="family_members",
+        entity_id=member.identification_uuid,
+        details=f"Miembro actualizado: '{member.member_name}' (avatar='{member.avatar_name}')",
+    )
     return member
 
 
@@ -166,8 +189,20 @@ def delete_family_member(
             detail="No se encontró ningún miembro de tu familia con el `identification_uuid` proporcionado.",
         )
 
+    deleted_name = member.member_name
     db.delete(member)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        member_id=uuid_str,
+        action="DELETE_MEMBER",
+        entity_type="family_members",
+        entity_id=uuid_str,
+        details=f"Miembro eliminado: '{deleted_name}'",
+    )
 
     return FamilyMemberDeleteResponse(
         message="Miembro de la familia eliminado correctamente.",

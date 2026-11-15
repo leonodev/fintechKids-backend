@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.core.security import get_password_hash
 from app.db.session import get_db
 from app.models.user import User
@@ -46,4 +47,14 @@ def update_current_user(
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="UPDATE_FAMILY_PROFILE",
+        entity_type="users",
+        entity_id=current_user.id,
+        details=f"Perfil familiar actualizado (name_family='{current_user.name_family}')",
+    )
     return current_user

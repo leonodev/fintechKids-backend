@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.goal import Goal
 from app.models.user import User
@@ -60,6 +61,16 @@ def create_goal(
     db.add(goal)
     db.commit()
     db.refresh(goal)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="CREATE_GOAL",
+        entity_type="goals",
+        entity_id=goal.id,
+        details=f"Meta creada: '{goal.name}' ({goal.value} {goal.measure_type}, status={goal.status})",
+    )
     return goal
 
 
@@ -123,6 +134,16 @@ def update_goal(
     db.add(goal)
     db.commit()
     db.refresh(goal)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="UPDATE_GOAL",
+        entity_type="goals",
+        entity_id=goal.id,
+        details=f"Meta actualizada: '{goal.name}' ({goal.value} {goal.measure_type}, status={goal.status})",
+    )
     return goal
 
 
@@ -151,8 +172,19 @@ def delete_goal(
             detail="No se encontró ninguna meta de tu familia con el `goal_id` proporcionado.",
         )
 
+    deleted_goal_name = goal.name
     db.delete(goal)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="DELETE_GOAL",
+        entity_type="goals",
+        entity_id=goal_id,
+        details=f"Meta eliminada: '{deleted_goal_name}'",
+    )
 
     return GoalDeleteResponse(
         message="Meta eliminada correctamente.",

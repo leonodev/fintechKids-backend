@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.audit import record_activity
 from app.db.session import get_db
 from app.models.task import Task
 from app.models.user import User
@@ -61,6 +62,16 @@ def create_task(
     db.add(task)
     db.commit()
     db.refresh(task)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="CREATE_TASK",
+        entity_type="tasks",
+        entity_id=task.id,
+        details=f"Tarea creada: '{task.name}' (status={task.status}, coins_granted={task.coins_granted})",
+    )
     return task
 
 
@@ -105,6 +116,16 @@ def update_task(
     db.add(task)
     db.commit()
     db.refresh(task)
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="UPDATE_TASK",
+        entity_type="tasks",
+        entity_id=task.id,
+        details=f"Tarea actualizada: '{task.name}' (status={task.status}, coins_granted={task.coins_granted})",
+    )
     return task
 
 
@@ -200,8 +221,19 @@ def delete_task(
             detail="No se encontró ninguna tarea en tu familia con el `task_id` proporcionado.",
         )
 
+    deleted_task_name = task.name
     db.delete(task)
     db.commit()
+
+    record_activity(
+        db,
+        parent_id=current_user.id,
+        email_parent=current_user.email_parent,
+        action="DELETE_TASK",
+        entity_type="tasks",
+        entity_id=task_id,
+        details=f"Tarea eliminada: '{deleted_task_name}'",
+    )
 
     return TaskDeleteResponse(
         message="Tarea eliminada correctamente.",

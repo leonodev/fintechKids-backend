@@ -499,6 +499,20 @@ def test_full_auth_and_crud_flow():
     assert list_goals_after_del.status_code == 200
     assert len(list_goals_after_del.json()) == 0
 
+    # 3.9 Verificar que el historial de actividad (Audit Log) registró automáticamente las acciones
+    logs_res = client.get("/api/v1/activity-logs", headers=headers)
+    assert logs_res.status_code == 200
+    logs = logs_res.json()
+    assert len(logs) >= 10
+    recorded_actions = {entry["action"] for entry in logs}
+    assert "REGISTER_FAMILY" in recorded_actions
+    assert "CREATE_MEMBER" in recorded_actions
+    assert "CREATE_GOAL" in recorded_actions
+    assert "CREATE_MEMBER_BALANCE" in recorded_actions
+    assert "CLAIM_MEMBER_REWARD" in recorded_actions
+    assert "UPDATE_MEMBER_REWARD_STATE" in recorded_actions
+    assert "CREATE_TASK" in recorded_actions
+
     # 4. Renovar token con Refresh Token
     refresh_res = client.post(
         "/api/v1/auth/refresh",
@@ -567,6 +581,7 @@ def test_protected_endpoints_reject_without_valid_token():
         "/api/v1/member-rewards",
         "/api/v1/tasks",
         "/api/v1/tasks/enabled",
+        "/api/v1/activity-logs",
     ]
     for path in protected_gets:
         # Sin token -> 401
