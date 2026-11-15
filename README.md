@@ -257,11 +257,14 @@ FHKBackend/
 │   └── schemas/                     # Pydantic v2 request/response DTOs & Enums
 ├── docs/
 │   └── architecture.svg             # Layered architecture vector diagram
+├── mockoon/
+│   └── FHKBackend.mockoon.json      # Mockoon Desktop environment (12 folders, 41 routes, 3000ms delay)
 ├── postman/
 │   ├── FHKBackend.postman_collection.json   # Ready-to-import Postman v2.1 Collection (12 modules)
 │   └── FHKBackend.postman_environment.json  # Ready-to-import Postman Environment variables
 ├── scripts/
 │   ├── export_openapi.py            # CLI utility to export openapi.json
+│   ├── generate_mockoon.py          # CLI utility to generate Mockoon environment JSON
 │   └── generate_postman.py          # CLI utility to generate Postman files & seed demo data
 ├── tests/
 │   └── test_api.py                  # End-to-end integration & security test suite (pytest)
@@ -324,7 +327,7 @@ pytest -v
 
 ---
 
-## 8. OpenAPI & Postman Collection Export
+## 8. OpenAPI, Postman & Mockoon Exports
 
 Whenever endpoints or Pydantic schemas are modified, you can export the static `openapi.json` file at the root of the repository:
 
@@ -337,10 +340,16 @@ A ready-to-import Postman v2.1 Collection and Environment with pre-configured Be
 - [`postman/FHKBackend.postman_collection.json`](./postman/FHKBackend.postman_collection.json)
 - [`postman/FHKBackend.postman_environment.json`](./postman/FHKBackend.postman_environment.json)
 
-To regenerate the Postman files and seed the local demo account at any time:
-
 ```bash
 python3 scripts/generate_postman.py
+```
+
+### Mockoon Desktop Environment (`mockoon/`)
+A complete Mockoon Desktop environment covering all 12 modules and 41 routes with a `3000 ms` loader delay and pre-built scenarios for Success (`200`/`201`), Errors (`400`, `401`, `403`, `404`, `422`, `500`), and Timeouts (`408` at `15000 ms` and `504` at `35000 ms`) is included in the `mockoon/` directory:
+- [`mockoon/FHKBackend.mockoon.json`](./mockoon/FHKBackend.mockoon.json)
+
+```bash
+python3 scripts/generate_mockoon.py
 ```
 
 ---

@@ -114,6 +114,7 @@ def health_check() -> dict:
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 POSTMAN_DIR = Path(__file__).resolve().parent.parent / "postman"
+MOCKOON_DIR = Path(__file__).resolve().parent.parent / "mockoon"
 
 
 @app.get("/postman/collection.json", include_in_schema=False)
@@ -131,4 +132,13 @@ def download_postman_environment() -> FileResponse:
         path=POSTMAN_DIR / "FHKBackend.postman_environment.json",
         media_type="application/json",
         filename="FHKBackend.postman_environment.json",
+    )
+
+
+@app.get("/mockoon/environment.json", include_in_schema=False)
+def download_mockoon_environment() -> FileResponse:
+    return FileResponse(
+        path=MOCKOON_DIR / "FHKBackend.mockoon.json",
+        media_type="application/json",
+        filename="FHKBackend.mockoon.json",
     )
