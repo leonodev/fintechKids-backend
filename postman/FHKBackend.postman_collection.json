@@ -1,0 +1,1898 @@
+{
+  "info": {
+    "_postman_id": "f8a1e7d0-9b4a-4c3e-8d1a-2f5b6c7d8e9f",
+    "name": "FHKBackend API (Complete 12-Module Collection)",
+    "description": "Ready-to-use Postman Collection for FintechKids Backend (`FHKBackend`).\n\n- **Pre-configured Bearer JWT (`{{access_token}}`)** at collection level.\n- **Auto-updating Variables**: Running `Login`, `Register`, `Refresh`, or any `POST` creation endpoint automatically updates `{{access_token}}`, `{{member_id}}`, `{{task_id}}`, `{{goal_id}}`, `{{reward_id}}`, `{{member_goal_id}}`, and `{{member_reward_id}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Server Status",
+      "description": "Endpoints to verify that the API service is online and responding properly.",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Verifies that the FastAPI server is online and returns the active environment.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. App Version (Stores)",
+      "description": "Endpoints for mobile clients (`IOS` and `AND`) to check whether a newer or mandatory update exists in the App Store or Google Play.",
+      "item": [
+        {
+          "name": "Check App Version (iOS)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/app-version/check?platform=IOS&current_version=1.0.0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "app-version",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "IOS",
+                  "description": "IOS or AND"
+                },
+                {
+                  "key": "current_version",
+                  "value": "1.0.0",
+                  "description": "Currently installed version"
+                }
+              ]
+            },
+            "description": "Checks if an iOS update or mandatory force_update is available in the App Store.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check App Version (Android)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/app-version/check?platform=AND&current_version=1.0.0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "app-version",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "AND",
+                  "description": "IOS or AND"
+                },
+                {
+                  "key": "current_version",
+                  "value": "1.0.0",
+                  "description": "Currently installed version"
+                }
+              ]
+            },
+            "description": "Checks if an Android update or mandatory force_update is available in Google Play.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Store Version Configs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/app-version",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "app-version"
+              ]
+            },
+            "description": "Lists the stored version configurations for iOS (`IOS`) and Android (`AND`).",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Store Version Config (Protected)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/app-version/IOS",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "app-version",
+                "IOS"
+              ]
+            },
+            "description": "Updates the latest/minimum required store version for `IOS` or `AND`. Requires Bearer JWT.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latest_version\": \"1.3.0\",\n  \"min_required_version\": \"1.0.0\",\n  \"force_update\": false,\n  \"store_url\": \"https://apps.apple.com/app/id000000000\",\n  \"release_notes\": \"Performance improvements and new rewards module.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Authentication",
+      "description": "Family registration, login with client-encrypted password, token refresh, and 2-step password recovery with a 6-digit code. Automatically saves `access_token` and `refresh_token` into collection variables.",
+      "item": [
+        {
+          "name": "Register Family Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new parent/family account and automatically stores the returned `access_token` and `refresh_token`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_family\": \"{{name_family}}\",\n  \"email_parent\": \"{{email_parent}}\",\n  \"password\": \"{{password}}\",\n  \"approve_pin\": \"{{approve_pin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', data.access_token);",
+                  "        if (pm.environment.name) { pm.environment.set('access_token', data.access_token); }",
+                  "        console.log('Updated access_token automatically.');",
+                  "    }",
+                  "    if (data.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "        if (pm.environment.name) { pm.environment.set('refresh_token', data.refresh_token); }",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Auto-Saves JWT Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates with `email_parent` and `password` and automatically saves `access_token` and `refresh_token` to collection & environment variables.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_parent\": \"{{email_parent}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', data.access_token);",
+                  "        if (pm.environment.name) { pm.environment.set('access_token', data.access_token); }",
+                  "        console.log('Updated access_token automatically.');",
+                  "    }",
+                  "    if (data.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "        if (pm.environment.name) { pm.environment.set('refresh_token', data.refresh_token); }",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Forgot Password (Request 6-Digit Code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Generates a 6-digit recovery code valid for 15 minutes and auto-saves `debug_recovery_code` into `{{reset_code}}`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_parent\": \"{{email_parent}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.debug_recovery_code !== undefined && data.debug_recovery_code !== null) {",
+                  "        pm.collectionVariables.set('reset_code', String(data.debug_recovery_code));",
+                  "        if (pm.environment.name) { pm.environment.set('reset_code', String(data.debug_recovery_code)); }",
+                  "        console.log('Saved reset_code =', data.debug_recovery_code);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset Password with 6-Digit Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Validates the 6-digit `recovery_code` and updates the parent's encrypted password.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_parent\": \"{{email_parent}}\",\n  \"recovery_code\": \"{{reset_code}}\",\n  \"new_password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Exchanges a valid `refresh_token` for a new pair of JWT tokens and auto-updates `{{access_token}}`.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', data.access_token);",
+                  "        if (pm.environment.name) { pm.environment.set('access_token', data.access_token); }",
+                  "        console.log('Updated access_token automatically.');",
+                  "    }",
+                  "    if (data.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "        if (pm.environment.name) { pm.environment.set('refresh_token', data.refresh_token); }",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 200 or 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Users / Family",
+      "description": "Retrieve and update the authenticated parent/family profile (`/api/v1/users/me`).",
+      "item": [
+        {
+          "name": "Get Current Family Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Returns the profile data of the currently authenticated parent/family."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Current Family Profile (/me)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Updates `name_family`, `approve_pin`, or `password` for the authenticated parent account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_family\": \"Leon Family\",\n  \"approve_pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Family Members",
+      "description": "Create, list, edit, and delete family members linked to the authenticated parent.",
+      "item": [
+        {
+          "name": "Create Family Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/family-members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family-members"
+              ]
+            },
+            "description": "Registers a new family member and automatically saves `identification_uuid` into `{{member_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_parent\": \"{{email_parent}}\",\n  \"identification_uuid\": \"550e8400-e29b-41d4-a716-446655440001\",\n  \"member_name\": \"Sofia\",\n  \"avatar_name\": \"avatar_unicorn_01\",\n  \"name_family\": \"{{name_family}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.identification_uuid !== undefined && data.identification_uuid !== null) {",
+                  "        pm.collectionVariables.set('member_id', String(data.identification_uuid));",
+                  "        if (pm.environment.name) { pm.environment.set('member_id', String(data.identification_uuid)); }",
+                  "        console.log('Saved member_id =', data.identification_uuid);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List All Family Members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/family-members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family-members"
+              ]
+            },
+            "description": "Lists all family members belonging to the authenticated parent."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Family Member by UUID",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/family-members/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family-members",
+                "{{member_id}}"
+              ]
+            },
+            "description": "Partially updates `member_name` and/or `avatar_name` using `{{member_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_name\": \"Mateo Updated\",\n  \"avatar_name\": \"avatar_tiger_02\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Family Member by UUID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/family-members/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family-members",
+                "{{member_id}}"
+              ]
+            },
+            "description": "Deletes the family member identified by `{{member_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Family Tasks",
+      "description": "Create, edit (`enable`/`disable`), list all, list enabled, and delete tasks for a family.",
+      "item": [
+        {
+          "name": "Create Family Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "description": "Creates a new family task (status defaults to `enable`) and saves its `id` into `{{task_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clean the bedroom\",\n  \"time_granted\": \"00:30:00\",\n  \"coins_granted\": 50,\n  \"email_parent\": \"{{email_parent}}\",\n  \"description\": \"Make the bed and put away all toys before dinner.\",\n  \"status\": \"enable\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.id !== undefined && data.id !== null) {",
+                  "        pm.collectionVariables.set('task_id', String(data.id));",
+                  "        if (pm.environment.name) { pm.environment.set('task_id', String(data.id)); }",
+                  "        console.log('Saved task_id =', data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Family Task (Edit or Enable/Disable)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "description": "Updates any field of the task including `status` (`enable` or `disable`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clean bedroom and desk\",\n  \"time_granted\": \"00:45:00\",\n  \"coins_granted\": 75,\n  \"description\": \"Make the bed, put away toys, and organize the desk.\",\n  \"status\": \"enable\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Family Tasks (Any Status)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "description": "Returns all tasks for the authenticated parent's family regardless of status (`enable` or `disable`)."
+          },
+          "response": []
+        },
+        {
+          "name": "List Only Enabled Family Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/enabled",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "enabled"
+              ]
+            },
+            "description": "Returns only tasks with `status = enable` for the authenticated parent's family."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Family Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tasks/{{task_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tasks",
+                "{{task_id}}"
+              ]
+            },
+            "description": "Permanently deletes the task identified by `{{task_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Parent Goals",
+      "description": "Create, list, edit, and delete base goals configured by the parent.",
+      "item": [
+        {
+          "name": "Create Parent Goal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/goals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "goals"
+              ]
+            },
+            "description": "Creates a new parent goal and saves its `id` into `{{goal_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"measure_type\": \"minutes\",\n  \"status\": \"active\",\n  \"email_parent\": \"{{email_parent}}\",\n  \"name\": \"Daily reading\",\n  \"value\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.id !== undefined && data.id !== null) {",
+                  "        pm.collectionVariables.set('goal_id', String(data.id));",
+                  "        if (pm.environment.name) { pm.environment.set('goal_id', String(data.id)); }",
+                  "        console.log('Saved goal_id =', data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Parent Goals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/goals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "goals"
+              ]
+            },
+            "description": "Lists all goals created by the authenticated parent."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Parent Goal",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/goals/{{goal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "goals",
+                "{{goal_id}}"
+              ]
+            },
+            "description": "Updates `name`, `measure_type`, `value`, or `status` (`active`/`inactive`) of a parent goal.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Evening reading\",\n  \"measure_type\": \"minutes\",\n  \"value\": 45,\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Parent Goal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/goals/{{goal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "goals",
+                "{{goal_id}}"
+              ]
+            },
+            "description": "Deletes the parent goal identified by `{{goal_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. Parent Rewards",
+      "description": "Create, list, edit, and delete rewards configured by the parent.",
+      "item": [
+        {
+          "name": "Create Parent Reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rewards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rewards"
+              ]
+            },
+            "description": "Creates a new parent reward and saves its `id` into `{{reward_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"1 hour of video games\",\n  \"time_required\": \"01:00:00\",\n  \"coins_required\": 100,\n  \"email_parent\": \"{{email_parent}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.id !== undefined && data.id !== null) {",
+                  "        pm.collectionVariables.set('reward_id', String(data.id));",
+                  "        if (pm.environment.name) { pm.environment.set('reward_id', String(data.id)); }",
+                  "        console.log('Saved reward_id =', data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Parent Rewards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rewards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rewards"
+              ]
+            },
+            "description": "Lists all rewards created by the authenticated parent."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Parent Reward",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rewards/{{reward_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rewards",
+                "{{reward_id}}"
+              ]
+            },
+            "description": "Updates `name`, `time_required`, or `coins_required` for a parent reward.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"2 hours of video games\",\n  \"time_required\": \"02:00:00\",\n  \"coins_required\": 180\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Parent Reward",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rewards/{{reward_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rewards",
+                "{{reward_id}}"
+              ]
+            },
+            "description": "Deletes the parent reward identified by `{{reward_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "9. Member Goals",
+      "description": "Assign goals to specific family members, track accumulated progress, and delete member goals.",
+      "item": [
+        {
+          "name": "Create Member Goal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-goals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-goals"
+              ]
+            },
+            "description": "Assigns a parent goal (`{{goal_id}}`) to a family member (`{{member_id}}`) and saves its `id` into `{{member_goal_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"goal_id\": 1,\n  \"member_id\": \"{{member_id}}\",\n  \"rewards_system_type\": \"stars\",\n  \"rewards_system_value\": 10,\n  \"accumulated_value\": 0,\n  \"parent_email\": \"{{email_parent}}\",\n  \"name\": \"Daily reading\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.id !== undefined && data.id !== null) {",
+                  "        pm.collectionVariables.set('member_goal_id', String(data.id));",
+                  "        if (pm.environment.name) { pm.environment.set('member_goal_id', String(data.id)); }",
+                  "        console.log('Saved member_goal_id =', data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Member Goals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-goals",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-goals"
+              ],
+              "query": [
+                {
+                  "key": "member_id",
+                  "value": "{{member_id}}",
+                  "description": "Optional filter by family member UUID",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists all member goals for the family (enable `member_id` query param to filter by a single child)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Member Goal Progress",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-goals/{{member_goal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-goals",
+                "{{member_goal_id}}"
+              ]
+            },
+            "description": "Updates `accumulated_value` or reward settings for a member's goal.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accumulated_value\": 15,\n  \"rewards_system_type\": \"stars\",\n  \"rewards_system_value\": 10,\n  \"name\": \"Daily reading\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Member Goal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-goals/{{member_goal_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-goals",
+                "{{member_goal_id}}"
+              ]
+            },
+            "description": "Deletes the member goal identified by `{{member_goal_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Member Rewards",
+      "description": "Register rewards claimed by a family member (`PENDING`), mark them as delivered (`COLLECTED`), and delete claimed rewards.",
+      "item": [
+        {
+          "name": "Claim Member Reward (State: PENDING)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-rewards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-rewards"
+              ]
+            },
+            "description": "Creates a claimed reward record in `PENDING` state and saves its `id` into `{{member_reward_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": \"{{member_id}}\",\n  \"parent_email\": \"{{email_parent}}\",\n  \"reward_id\": 1,\n  \"name_reward\": \"1 hour of video games\",\n  \"claimed_value\": \"100 coins\",\n  \"state\": \"PENDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.id !== undefined && data.id !== null) {",
+                  "        pm.collectionVariables.set('member_reward_id', String(data.id));",
+                  "        if (pm.environment.name) { pm.environment.set('member_reward_id', String(data.id)); }",
+                  "        console.log('Saved member_reward_id =', data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is successful', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Claimed Member Rewards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-rewards",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-rewards"
+              ],
+              "query": [
+                {
+                  "key": "member_id",
+                  "value": "{{member_id}}",
+                  "description": "Optional filter by member UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "state",
+                  "value": "PENDING",
+                  "description": "Optional filter by state (PENDING or COLLECTED)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists all claimed rewards for the family (optional filters: `member_id`, `state`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Claimed Reward State to COLLECTED",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-rewards/{{member_reward_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-rewards",
+                "{{member_reward_id}}"
+              ]
+            },
+            "description": "Parent marks the claimed reward as `COLLECTED` once delivered to the family member.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state\": \"COLLECTED\",\n  \"claimed_value\": \"100 coins\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Claimed Member Reward",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-rewards/{{member_reward_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-rewards",
+                "{{member_reward_id}}"
+              ]
+            },
+            "description": "Deletes the claimed reward identified by `{{member_reward_id}}`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Member Balances",
+      "description": "Manage and query the accumulated coins and screen/play time balance for each family member.",
+      "item": [
+        {
+          "name": "Create or Upsert Member Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-balances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-balances"
+              ]
+            },
+            "description": "Creates or updates the balance (`coins_obtained` and `time_obtained`) for `{{member_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": \"{{member_id}}\",\n  \"coins_obtained\": 150,\n  \"time_obtained\": \"01:30:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Family Member Balances",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-balances",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-balances"
+              ]
+            },
+            "description": "Lists the balances of all members in the authenticated family."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Member Balance by UUID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-balances/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-balances",
+                "{{member_id}}"
+              ]
+            },
+            "description": "Retrieves the balance for a specific family member (`{{member_id}}`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Member Balance by UUID",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/member-balances/{{member_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "member-balances",
+                "{{member_id}}"
+              ]
+            },
+            "description": "Partially updates `coins_obtained` and/or `time_obtained` for `{{member_id}}`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coins_obtained\": 200,\n  \"time_obtained\": \"02:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Activity History (Audit Logs)",
+      "description": "Read-only enterprise audit trail showing who performed what action and when across the family account.",
+      "item": [
+        {
+          "name": "List Family Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/activity-logs?limit=50&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "activity-logs"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Max records to return (1-200)"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Pagination offset"
+                },
+                {
+                  "key": "member_id",
+                  "value": "{{member_id}}",
+                  "description": "Optional filter by member UUID",
+                  "disabled": true
+                },
+                {
+                  "key": "entity_type",
+                  "value": "TASK",
+                  "description": "Optional filter by entity type (USER, FAMILY_MEMBER, TASK, GOAL, REWARD, MEMBER_GOAL, MEMBER_REWARD, MEMBER_BALANCE)",
+                  "disabled": true
+                },
+                {
+                  "key": "action",
+                  "value": "CREATE",
+                  "description": "Optional filter by action (REGISTER, LOGIN, CREATE, UPDATE, DELETE, COLLECT_REWARD)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Returns the chronological audit log of all actions performed in the family account."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc5NzMyNzgyNiwiaWF0IjoxNzk0NzM1ODI2LCJlbWFpbCI6InBhcmVudEBmaGsuYXBwIiwicm9sZSI6InVzZXIifQ.Q8mOqPiQgES_JZfoBjHzVdjSmejSSxG1mPPinblddRI",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3OTUzNDA2MjYsImlhdCI6MTc5NDczNTgyNn0.SBy6dsaxgsq8GRrxBCoQyoMlNGkgjQHPsoTu_4AqukM",
+      "type": "string"
+    },
+    {
+      "key": "email_parent",
+      "value": "parent@fhk.app",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "type": "string"
+    },
+    {
+      "key": "name_family",
+      "value": "Leon Family",
+      "type": "string"
+    },
+    {
+      "key": "approve_pin",
+      "value": "1234",
+      "type": "string"
+    },
+    {
+      "key": "reset_code",
+      "value": "000000",
+      "type": "string"
+    },
+    {
+      "key": "member_id",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "goal_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "reward_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "member_goal_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "member_reward_id",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}

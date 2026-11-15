@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from app.api.v1.router import api_router
 from app.core.config import settings
@@ -110,3 +112,23 @@ def health_check() -> dict:
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+POSTMAN_DIR = Path(__file__).resolve().parent.parent / "postman"
+
+
+@app.get("/postman/collection.json", include_in_schema=False)
+def download_postman_collection() -> FileResponse:
+    return FileResponse(
+        path=POSTMAN_DIR / "FHKBackend.postman_collection.json",
+        media_type="application/json",
+        filename="FHKBackend.postman_collection.json",
+    )
+
+
+@app.get("/postman/environment.json", include_in_schema=False)
+def download_postman_environment() -> FileResponse:
+    return FileResponse(
+        path=POSTMAN_DIR / "FHKBackend.postman_environment.json",
+        media_type="application/json",
+        filename="FHKBackend.postman_environment.json",
+    )
