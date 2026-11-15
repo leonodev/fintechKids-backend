@@ -410,6 +410,69 @@ def test_full_auth_and_crud_flow():
     assert list_rewards_after_del.status_code == 200
     assert len(list_rewards_after_del.json()) == 0
 
+    # 3.6.13 Crear dos tareas familiares (POST /api/v1/tasks) — por defecto status='enable'
+    task1_res = client.post(
+        "/api/v1/tasks",
+        headers=headers,
+        json={
+            "name": "Ordenar la habitación",
+            "time_granted": "00:30:00",
+            "coins_granted": 50,
+            "email_parent": "fredy@fhk.app",
+            "description": "Tender la cama y guardar los juguetes.",
+        },
+    )
+    assert task1_res.status_code == 201
+    task1_data = task1_res.json()
+    task1_id = task1_data["id"]
+    assert task1_data["status"] == "enable"
+    assert "created_at" in task1_data and task1_data["created_at"] is not None
+
+    task2_res = client.post(
+        "/api/v1/tasks",
+        headers=headers,
+        json={
+            "name": "Lavar los platos",
+            "time_granted": "00:20:00",
+            "coins_granted": 35,
+            "email_parent": "fredy@fhk.app",
+            "description": "Lavar los platos después de la cena.",
+        },
+    )
+    assert task2_res.status_code == 201
+    task2_id = task2_res.json()["id"]
+
+    # 3.6.14 Editar la segunda tarea y deshabilitarla (status='disable')
+    patch_task2_res = client.patch(
+        f"/api/v1/tasks/{task2_id}",
+        headers=headers,
+        json={
+            "name": "Lavar y secar los platos",
+            "coins_granted": 40,
+            "status": "disable",
+        },
+    )
+    assert patch_task2_res.status_code == 200
+    assert patch_task2_res.json()["status"] == "disable"
+    assert patch_task2_res.json()["coins_granted"] == 40
+
+    # 3.6.15 Listar todas las tareas de la familia con cualquier estado (GET /api/v1/tasks)
+    all_tasks_res = client.get("/api/v1/tasks", headers=headers)
+    assert all_tasks_res.status_code == 200
+    assert len(all_tasks_res.json()) == 2
+
+    # 3.6.16 Listar tareas de la familia solo con estado 'enable' (GET /api/v1/tasks/enabled)
+    enabled_tasks_res = client.get("/api/v1/tasks/enabled", headers=headers)
+    assert enabled_tasks_res.status_code == 200
+    assert len(enabled_tasks_res.json()) == 1
+    assert enabled_tasks_res.json()[0]["id"] == task1_id
+    assert enabled_tasks_res.json()[0]["status"] == "enable"
+
+    # 3.6.17 Eliminar una tarea de la familia (DELETE /api/v1/tasks/{task_id})
+    del_task1_res = client.delete(f"/api/v1/tasks/{task1_id}", headers=headers)
+    assert del_task1_res.status_code == 200
+    assert del_task1_res.json()["task_id"] == task1_id
+
     # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",
@@ -533,6 +596,8 @@ def test_protected_endpoints_reject_without_valid_token():
         "/api/v1/member-balances",
         "/api/v1/rewards",
         "/api/v1/member-rewards",
+        "/api/v1/tasks",
+        "/api/v1/tasks/enabled",
     ]
     for path in protected_gets:
         # Sin token -> 401

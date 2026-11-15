@@ -7,6 +7,7 @@ from app.models.member_goal import MemberGoal
 from app.models.member_balance import MemberBalance
 from app.models.reward import Reward
 from app.models.member_reward import MemberReward
+from app.models.task import Task
 
 __all__ = [
     "User",
@@ -18,4 +19,5 @@ __all__ = [
     "MemberBalance",
     "Reward",
     "MemberReward",
+    "Task",
 ]

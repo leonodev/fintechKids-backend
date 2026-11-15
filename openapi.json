@@ -1684,10 +1684,302 @@
         }
       }
     },
+    "/api/v1/tasks": {
+      "post": {
+        "tags": [
+          "9. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "1. Crear una nueva tarea para la familia (por el padre)",
+        "description": "Registra una nueva tarea para la familia recibiendo `name`, `time_granted`, `coins_granted`, `email_parent`, `description` y `status` (por defecto se asigna `enable` automáticamente). El campo `created_at` se genera automáticamente en UTC (protegido con JWT).",
+        "operationId": "create_task_api_v1_tasks_post",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "9. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "3. Listar todas las tareas de una familia (con cualquier estado)",
+        "description": "Devuelve todas las tareas pertenecientes exclusivamente a la familia del padre autenticado sin importar su estado (`enable` y `disable`) (protegido con JWT).",
+        "operationId": "list_all_family_tasks_api_v1_tasks_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  },
+                  "title": "Response List All Family Tasks Api V1 Tasks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}": {
+      "patch": {
+        "tags": [
+          "9. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "2. Editar una tarea de la familia (incluyendo habilitar/deshabilitar status)",
+        "description": "Permite al padre editar cualquier campo de una tarea (`name`, `time_granted`, `coins_granted`, `description`) e incluso cambiar su `status` entre `enable` y `disable` (protegido con JWT).",
+        "operationId": "update_task_api_v1_tasks__task_id__patch",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "9. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "5. Eliminar una tarea de una familia",
+        "description": "Elimina permanentemente una tarea de la base de datos buscando por `task_id` y verificando que pertenezca a la familia del padre autenticado (protegido con JWT).",
+        "operationId": "delete_task_api_v1_tasks__task_id__delete",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDeleteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/enabled": {
+      "get": {
+        "tags": [
+          "9. Tareas de la Familia (Tasks)"
+        ],
+        "summary": "4. Listar tareas de una familia solo con estado 'enable'",
+        "description": "Devuelve únicamente las tareas habilitadas (`status = 'enable'`) pertenecientes a la familia del padre autenticado (protegido con JWT).",
+        "operationId": "list_enabled_family_tasks_api_v1_tasks_enabled_get",
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "email_parent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "examples": [
+                "padre@fhk.app"
+              ],
+              "title": "Email Parent"
+            },
+            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  },
+                  "title": "Response List Enabled Family Tasks Api V1 Tasks Enabled Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "9. Versión de la App (Tiendas)"
+          "10. Versión de la App (Tiendas)"
         ],
         "summary": "Verificar si la App tiene la última versión de tiendas",
         "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
@@ -1750,7 +2042,7 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "9. Versión de la App (Tiendas)"
+          "10. Versión de la App (Tiendas)"
         ],
         "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
         "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
@@ -1776,7 +2068,7 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "9. Versión de la App (Tiendas)"
+          "10. Versión de la App (Tiendas)"
         ],
         "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
         "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
@@ -1836,7 +2128,7 @@
     "/api/v1/items": {
       "get": {
         "tags": [
-          "10. Elementos (CRUD Ejemplo)"
+          "11. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Listar elementos del usuario",
         "description": "Obtiene la lista paginada de elementos pertenecientes al usuario autenticado.",
@@ -1907,7 +2199,7 @@
       },
       "post": {
         "tags": [
-          "10. Elementos (CRUD Ejemplo)"
+          "11. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Crear un nuevo elemento",
         "description": "Persiste un nuevo elemento en la base de datos asociado al usuario autenticado.",
@@ -1957,7 +2249,7 @@
     "/api/v1/items/{item_id}": {
       "get": {
         "tags": [
-          "10. Elementos (CRUD Ejemplo)"
+          "11. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Obtener detalle de un elemento",
         "description": "Obtiene un elemento por su ID verificando que pertenezca al usuario autenticado.",
@@ -2006,7 +2298,7 @@
       },
       "patch": {
         "tags": [
-          "10. Elementos (CRUD Ejemplo)"
+          "11. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Actualizar un elemento",
         "description": "Actualiza parcialmente los campos de un elemento existente.",
@@ -2065,7 +2357,7 @@
       },
       "delete": {
         "tags": [
-          "10. Elementos (CRUD Ejemplo)"
+          "11. Elementos (CRUD Ejemplo)"
         ],
         "summary": "Eliminar un elemento",
         "description": "Elimina de forma permanente un elemento de la base de datos.",
@@ -3919,6 +4211,264 @@
         "type": "object",
         "title": "RewardUpdate"
       },
+      "TaskCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Nombre de la tarea creada por el padre",
+            "examples": [
+              "Ordenar la habitación"
+            ]
+          },
+          "time_granted": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Time Granted",
+            "description": "Tiempo otorgado como recompensa al completar la tarea",
+            "examples": [
+              "00:30:00"
+            ]
+          },
+          "coins_granted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Coins Granted",
+            "description": "Cantidad de monedas otorgadas al completar la tarea",
+            "examples": [
+              50
+            ]
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo electrónico del padre/tutor propietario de la tarea",
+            "examples": [
+              "padre@fhk.app"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description",
+            "description": "Descripción detallada de la tarea a realizar",
+            "examples": [
+              "Tender la cama y guardar los juguetes antes de cenar."
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskStatusEnum",
+            "description": "Estado inicial de la tarea (`enable` o `disable`). Por defecto se asigna `enable` automáticamente.",
+            "default": "enable",
+            "examples": [
+              "enable"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "time_granted",
+          "coins_granted",
+          "email_parent",
+          "description"
+        ],
+        "title": "TaskCreate"
+      },
+      "TaskDeleteResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Mensaje de confirmación de eliminación",
+            "examples": [
+              "Tarea eliminada correctamente."
+            ]
+          },
+          "task_id": {
+            "type": "integer",
+            "title": "Task Id",
+            "description": "ID de la tarea eliminada",
+            "examples": [
+              1
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "task_id"
+        ],
+        "title": "TaskDeleteResponse"
+      },
+      "TaskResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "ID único de la tarea en base de datos"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Nombre de la tarea"
+          },
+          "time_granted": {
+            "type": "string",
+            "title": "Time Granted",
+            "description": "Tiempo otorgado"
+          },
+          "coins_granted": {
+            "type": "integer",
+            "title": "Coins Granted",
+            "description": "Monedas otorgadas"
+          },
+          "email_parent": {
+            "type": "string",
+            "format": "email",
+            "title": "Email Parent",
+            "description": "Correo del padre/tutor"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Descripción de la tarea"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskStatusEnum",
+            "description": "Estado actual de la tarea (`enable` o `disable`)"
+          },
+          "parent_id": {
+            "type": "integer",
+            "title": "Parent Id",
+            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Última actualización en UTC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "name",
+          "time_granted",
+          "coins_granted",
+          "email_parent",
+          "description",
+          "status",
+          "parent_id",
+          "updated_at"
+        ],
+        "title": "TaskResponse"
+      },
+      "TaskStatusEnum": {
+        "type": "string",
+        "enum": [
+          "enable",
+          "disable"
+        ],
+        "title": "TaskStatusEnum"
+      },
+      "TaskUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Nuevo nombre de la tarea",
+            "examples": [
+              "Ordenar habitación y escritorio"
+            ]
+          },
+          "time_granted": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Granted",
+            "description": "Nuevo tiempo otorgado",
+            "examples": [
+              "00:45:00"
+            ]
+          },
+          "coins_granted": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coins Granted",
+            "description": "Nueva cantidad de monedas otorgadas",
+            "examples": [
+              75
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Nueva descripción de la tarea",
+            "examples": [
+              "Tender la cama, guardar juguetes y limpiar el escritorio."
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskStatusEnum"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nuevo estado de la tarea (`enable` para habilitarla o `disable` para deshabilitarla)",
+            "examples": [
+              "disable"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "TaskUpdate"
+      },
       "TokenResponse": {
         "properties": {
           "access_token": {
@@ -4199,11 +4749,15 @@
       "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED` / `COLLETED`) y eliminación de recompensas reclamadas por los miembros."
     },
     {
-      "name": "9. Versión de la App (Tiendas)",
+      "name": "9. Tareas de la Familia (Tasks)",
+      "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre."
+    },
+    {
+      "name": "10. Versión de la App (Tiendas)",
       "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
     },
     {
-      "name": "10. Elementos (CRUD Ejemplo)",
+      "name": "11. Elementos (CRUD Ejemplo)",
       "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos."
     }
   ]

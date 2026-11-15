@@ -50,11 +50,15 @@ openapi_tags = [
         "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED` / `COLLETED`) y eliminación de recompensas reclamadas por los miembros.",
     },
     {
-        "name": "9. Versión de la App (Tiendas)",
+        "name": "9. Tareas de la Familia (Tasks)",
+        "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre.",
+    },
+    {
+        "name": "10. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "10. Elementos (CRUD Ejemplo)",
+        "name": "11. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]
