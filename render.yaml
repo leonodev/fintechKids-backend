@@ -1,8 +1,11 @@
 services:
+  # 1. DEVELOPMENT ENVIRONMENT (Connected to 'develop' branch — Auto-Deploy ON)
   - type: web
-    name: fintechkids-backend
+    name: fintechkids-backend-dev
     runtime: python
     plan: free
+    branch: develop
+    autoDeploy: true
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v1/health
@@ -13,6 +16,45 @@ services:
         value: development
       - key: SECRET_KEY
         generateValue: true
-      # Optional: Paste your free permanent Neon.tech or Supabase PostgreSQL URL in Render Dashboard -> Environment
-      # - key: DATABASE_URL
-      #   sync: false
+      - key: DATABASE_URL
+        sync: false # Set to Neon 'development' branch connection string in Render Dashboard
+
+  # 2. STAGE / QA ENVIRONMENT (Connected to 'develop' branch — Manual Deploy / Controlled Promotion)
+  - type: web
+    name: fintechkids-backend-stage
+    runtime: python
+    plan: free
+    branch: develop
+    autoDeploy: false
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: stage
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # Set to Neon 'stage' branch connection string in Render Dashboard
+
+  # 3. PRODUCTION ENVIRONMENT (Connected to 'main' branch)
+  - type: web
+    name: fintechkids-backend
+    runtime: python
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # Set to Neon 'production' branch connection string in Render Dashboard

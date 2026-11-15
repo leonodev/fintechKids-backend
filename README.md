@@ -365,10 +365,13 @@ Whenever endpoints or Pydantic schemas are modified, you can export the static `
 python3 scripts/export_openapi.py
 ```
 
-### Postman Collection & Environment (`postman/`)
-A ready-to-import Postman v2.1 Collection and Environment with pre-configured Bearer JWT (`{{access_token}}`), global variables, and automatic post-response variable capture scripts are included in the `postman/` directory:
-- [`postman/FHKBackend.postman_collection.json`](./postman/FHKBackend.postman_collection.json)
-- [`postman/FHKBackend.postman_environment.json`](./postman/FHKBackend.postman_environment.json)
+### Postman Collection & Multi-Environment Files (`postman/`)
+A ready-to-import Postman v2.1 Collection and 4 Environment files (`Local`, `Development`, `Stage`, and `Production`) with pre-configured Bearer JWT (`{{access_token}}`), global variables, and automatic post-response variable capture scripts are included in the `postman/` directory:
+- [`postman/FHKBackend.postman_collection.json`](./postman/FHKBackend.postman_collection.json) — Complete 12-Module Collection
+- [`postman/FHKBackend.postman_environment.json`](./postman/FHKBackend.postman_environment.json) — Local (`http://localhost:8000`)
+- [`postman/FHKBackend.dev.postman_environment.json`](./postman/FHKBackend.dev.postman_environment.json) — Development (`https://fintechkids-backend-dev.onrender.com`)
+- [`postman/FHKBackend.stage.postman_environment.json`](./postman/FHKBackend.stage.postman_environment.json) — Stage (`https://fintechkids-backend-stage.onrender.com`)
+- [`postman/FHKBackend.prod.postman_environment.json`](./postman/FHKBackend.prod.postman_environment.json) — Production (`https://fintechkids-backend.onrender.com`)
 
 ```bash
 python3 scripts/generate_postman.py
@@ -386,21 +389,50 @@ python3 scripts/generate_mockoon.py
 
 ## 10. Cloud Deployment: Render + Neon Serverless PostgreSQL
 
-The project is deployed in the cloud using a **100% non-expiring Free Tier architecture** combining **Render** (compute) and **Neon** (serverless PostgreSQL persistence):
+The project is deployed in the cloud using a **3-environment (`development`, `stage`, `production`), 100% non-expiring Free Tier architecture** combining **GitHub** (`develop` and `main` branches), **Render** (3 isolated Web Services defined in [`render.yaml`](./render.yaml)), and **Neon** (3 isolated Serverless PostgreSQL database branches):
 
 ```mermaid
-flowchart LR
-    Mobile["iOS / Android App & Postman"] -->|HTTPS REST + Bearer JWT| Render["Render Web Service (FastAPI / Uvicorn)"]
-    Render -->|postgresql+psycopg2:// + SSL| Neon[("Neon Serverless PostgreSQL (10 Tables)")]
+flowchart TD
+    subgraph GitHub["GitHub Repository (leonodev/fintechKids-backend)"]
+        BranchDev["Branch: develop"]
+        BranchMain["Branch: main"]
+        BranchDev -->|"Merge after Stage QA"| BranchMain
+    end
+
+    subgraph Render["Render Cloud Compute (render.yaml)"]
+        RenderDev["fintechkids-backend-dev (Auto-Deploy ON)"]
+        RenderStage["fintechkids-backend-stage (Manual Promotion / Restart)"]
+        RenderProd["fintechkids-backend (Production - Auto-Deploy ON)"]
+    end
+
+    subgraph Neon["Neon Serverless PostgreSQL (fintechkids-db)"]
+        NeonDev[("Neon Branch: development")]
+        NeonStage[("Neon Branch: stage")]
+        NeonProd[("Neon Branch: production")]
+    end
+
+    BranchDev -->|"Auto-Deploy on push"| RenderDev
+    BranchDev -->|"Manual Deploy when ready for QA"| RenderStage
+    BranchMain -->|"Auto-Deploy on merge"| RenderProd
+
+    RenderDev -->|"DATABASE_URL (dev)"| NeonDev
+    RenderStage -->|"DATABASE_URL (stage)"| NeonStage
+    RenderProd -->|"DATABASE_URL (prod)"| NeonProd
 ```
 
+### Multi-Environment Matrix (Render + Neon)
+
+| Environment | Git Branch | Render Service Name | Deploy Trigger | Neon DB Branch | `ENVIRONMENT` Var |
+| :--- | :---: | :--- | :--- | :--- | :---: |
+| **Development** | `develop` | `fintechkids-backend-dev` | **Automatic** on every `git push origin develop` | `development` | `development` |
+| **Stage (QA)** | `develop` | `fintechkids-backend-stage` | **Manual Deploy / Restart** when `develop` is ready for QA | `stage` | `stage` |
+| **Production** | `main` | `fintechkids-backend` | **Automatic** on merge from `develop` to `main` | `production` | `production` |
+
 ### 1. Compute Layer — Render (`render.yaml`)
-- **Service URL**: `https://fintechkids-backend.onrender.com`
-- **Blueprint Configuration**: [`render.yaml`](./render.yaml) configures Python `3.11.9`, runs `pip install -r requirements.txt` during build, starts the ASGI server with `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, and monitors `/health`.
-- **Auto-Deploy**: Connected to the GitHub repository (`leonodev/fintechKids-backend`) so every push to `main` automatically builds and deploys.
+- **Blueprint Configuration**: [`render.yaml`](./render.yaml) declares all 3 services (`fintechkids-backend-dev`, `fintechkids-backend-stage`, `fintechkids-backend`) on Python `3.11.9`, runs `pip install -r requirements.txt` during build, starts the ASGI server with `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, and monitors `/api/v1/health`.
 
 ### 2. Database Layer — Neon Serverless PostgreSQL (`app/db/session.py`)
-- **Provider**: [Neon (`neon.tech`)](https://neon.tech/) provides a permanent PostgreSQL instance with connection pooling (`-pooler`) and TLS encryption (`sslmode=require&channel_binding=require`).
+- **Database Branching**: [Neon (`neon.tech`)](https://neon.tech/) supports isolated PostgreSQL branches (`development`, `stage`, `production`) inside the `fintechkids-db` project, each with its own connection string (`-pooler`) and TLS encryption (`sslmode=require&channel_binding=require`).
 - **Automatic Driver Scheme Normalization**: Because SQLAlchemy 2.1+ defaults bare `postgresql://` URLs to `psycopg` (v3), [`app/db/session.py`](./app/db/session.py) automatically normalizes any `postgres://` or `postgresql://` connection string into `postgresql+psycopg2://` so the `psycopg2-binary` driver is always used seamlessly:
   ```python
   db_url = settings.DATABASE_URL
@@ -409,14 +441,14 @@ flowchart LR
   elif db_url.startswith("postgresql://"):
       db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
   ```
-- **Automatic Schema Provisioning**: On application startup, FastAPI's `lifespan` hook in [`app/main.py`](./app/main.py) runs `Base.metadata.create_all(bind=engine)`, automatically creating all 10 tables in the `public` schema of Neon (`users`, `app_versions`, `family_members`, `tasks`, `goals`, `rewards`, `member_goals`, `member_rewards`, `member_balances`, and `activity_logs`) if they do not yet exist.
+- **Automatic Schema Provisioning**: On application startup in each environment, FastAPI's `lifespan` hook in [`app/main.py`](./app/main.py) runs `Base.metadata.create_all(bind=engine)`, automatically creating all 10 tables in the `public` schema of the connected Neon branch (`users`, `app_versions`, `family_members`, `tasks`, `goals`, `rewards`, `member_goals`, `member_rewards`, `member_balances`, and `activity_logs`) if they do not yet exist.
 
-### 3. Environment Variables Configured in Render
-In **Render Dashboard → `fintechkids-backend` → Environment**:
+### 3. Environment Variables Configured per Render Service
+In **Render Dashboard → Service → Environment**:
 
 ```env
 PYTHON_VERSION="3.11.9"
-ENVIRONMENT="development"
+ENVIRONMENT="development" # or "stage" / "production"
 SECRET_KEY="<auto-generated-by-render>"
-DATABASE_URL="postgresql://<user>:<password>@<endpoint>-pooler.<region>.aws.neon.tech/<dbname>?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://<user>:<password>@<branch-endpoint>-pooler.<region>.aws.neon.tech/<dbname>?sslmode=require&channel_binding=require"
 ```

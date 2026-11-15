@@ -140,7 +140,11 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) 
         message="Se ha generado y enviado un código de verificación de 6 dígitos al correo registrado.",
         email_parent=user.email_parent,
         expires_in_minutes=settings.RESET_CODE_EXPIRE_MINUTES,
-        debug_recovery_code=recovery_code if settings.ENVIRONMENT == "development" else None,
+        debug_recovery_code=(
+            recovery_code
+            if settings.ENVIRONMENT.lower() in {"development", "stage", "staging"}
+            else None
+        ),
     )
 
 

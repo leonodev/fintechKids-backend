@@ -895,12 +895,17 @@ def build_collection(seeded: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def build_environment(seeded: Dict[str, Any]) -> Dict[str, Any]:
+def build_environment(
+    seeded: Dict[str, Any],
+    env_id: str = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    env_name: str = "FHKBackend Local (localhost:8000)",
+    base_url: str = "http://localhost:8000",
+) -> Dict[str, Any]:
     return {
-        "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-        "name": "FHKBackend Local (Development)",
+        "id": env_id,
+        "name": env_name,
         "values": [
-            {"key": "base_url", "value": "http://localhost:8000", "type": "default", "enabled": True},
+            {"key": "base_url", "value": base_url, "type": "default", "enabled": True},
             {"key": "access_token", "value": seeded["access_token"], "type": "secret", "enabled": True},
             {"key": "refresh_token", "value": seeded["refresh_token"], "type": "secret", "enabled": True},
             {"key": "email_parent", "value": DEFAULT_EMAIL, "type": "default", "enabled": True},
@@ -927,18 +932,47 @@ def main() -> None:
     postman_dir.mkdir(parents=True, exist_ok=True)
 
     collection_path = postman_dir / "FHKBackend.postman_collection.json"
-    environment_path = postman_dir / "FHKBackend.postman_environment.json"
-
     collection_path.write_text(
         json.dumps(build_collection(seeded), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    environment_path.write_text(
-        json.dumps(build_environment(seeded), indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+
+    env_configs = [
+        (
+            "FHKBackend.postman_environment.json",
+            "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+            "FHKBackend - Local (localhost:8000)",
+            "http://localhost:8000",
+        ),
+        (
+            "FHKBackend.dev.postman_environment.json",
+            "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+            "FHKBackend - Development (Render + Neon dev)",
+            "https://fintechkids-backend-dev.onrender.com",
+        ),
+        (
+            "FHKBackend.stage.postman_environment.json",
+            "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+            "FHKBackend - Stage (Render + Neon stage)",
+            "https://fintechkids-backend-stage.onrender.com",
+        ),
+        (
+            "FHKBackend.prod.postman_environment.json",
+            "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f80",
+            "FHKBackend - Production (Render + Neon prod)",
+            "https://fintechkids-backend.onrender.com",
+        ),
+    ]
+
+    for filename, env_id, env_name, base_url in env_configs:
+        env_path = postman_dir / filename
+        env_path.write_text(
+            json.dumps(build_environment(seeded, env_id, env_name, base_url), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"Postman Environment generated at: {env_path}")
+
     print(f"Postman Collection generated at: {collection_path}")
-    print(f"Postman Environment generated at: {environment_path}")
 
 
 if __name__ == "__main__":
