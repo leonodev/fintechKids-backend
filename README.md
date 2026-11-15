@@ -9,11 +9,16 @@
 
 Enterprise-grade RESTful API backend for **FintechKids (FHK)** — a family financial education, task management, goal tracking, and reward system platform. Built with **FastAPI**, **SQLAlchemy 2.0**, **Pydantic v2**, **JWT (Access + Refresh Tokens)**, **SHA-256 + `bcrypt` password hashing**, and an **automated enterprise audit trail**. Deployed in the cloud on **Render** and backed by **Neon Serverless PostgreSQL**.
 
-### 🌐 Live Cloud Endpoints (Render + Neon PostgreSQL)
-- **Interactive Swagger UI**: https://fintechkids-backend.onrender.com/docs
-- **ReDoc Documentation**: https://fintechkids-backend.onrender.com/redoc
-- **Health Check**: https://fintechkids-backend.onrender.com/api/v1/health
-- **OpenAPI 3.1 JSON**: https://fintechkids-backend.onrender.com/api/v1/openapi.json
+### 🌐 Live Multi-Environment Cloud Endpoints (Render + Neon PostgreSQL)
+
+All 3 cloud environments and the local server are pre-configured in the **Swagger UI `Servers` selector dropdown** (`/docs` and `openapi.json`):
+
+| Environment | Git Branch | Neon DB Branch | Swagger UI (`/docs`) | Health Check (`/api/v1/health`) | ReDoc (`/redoc`) |
+| :--- | :---: | :---: | :--- | :--- | :--- |
+| **Development (`dev`)** | `develop` *(Auto)* | `development` | [Swagger Dev](https://fintechkids-backend-dev.onrender.com/docs) | [`/api/v1/health`](https://fintechkids-backend-dev.onrender.com/api/v1/health) | [ReDoc Dev](https://fintechkids-backend-dev.onrender.com/redoc) |
+| **Stage / QA (`stage`)** | `develop` *(Manual)* | `stage` | [Swagger Stage](https://fintechkids-backend-stage.onrender.com/docs) | [`/api/v1/health`](https://fintechkids-backend-stage.onrender.com/api/v1/health) | [ReDoc Stage](https://fintechkids-backend-stage.onrender.com/redoc) |
+| **Production (`prod`)** | `main` *(Auto)* | `production` | [Swagger Prod](https://fintechkids-backend.onrender.com/docs) | [`/api/v1/health`](https://fintechkids-backend.onrender.com/api/v1/health) | [ReDoc Prod](https://fintechkids-backend.onrender.com/redoc) |
+| **Local (`local`)** | `develop` | `SQLite (fhk.db)` | `http://localhost:8000/docs` | `http://localhost:8000/api/v1/health` | `http://localhost:8000/redoc` |
 
 ---
 

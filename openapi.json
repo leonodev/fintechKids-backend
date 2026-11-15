@@ -2,9 +2,31 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FHK Backend API",
-    "description": "REST API backend with JWT authentication, security middleware, database persistence, and auto-generated interactive OpenAPI/Swagger documentation.",
+    "description": "REST API backend for **FintechKids (FHK)** with JWT authentication, security middleware, automated audit logging, and multi-environment persistence (**Render** + **Neon Serverless PostgreSQL**).\n\n### Active Environments\n| Environment | Base URL | Git Branch | Neon DB Branch |\n| :--- | :--- | :---: | :---: |\n| **Development** | `https://fintechkids-backend-dev.onrender.com` | `develop` | `development` |\n| **Stage (QA)** | `https://fintechkids-backend-stage.onrender.com` | `develop` | `stage` |\n| **Production** | `https://fintechkids-backend.onrender.com` | `main` | `production` |\n| **Local** | `http://localhost:8000` | `develop` | `SQLite (fhk.db)` |",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current Active Environment Server"
+    },
+    {
+      "url": "https://fintechkids-backend-dev.onrender.com",
+      "description": "Development Cloud (Render + Neon 'development' DB branch)"
+    },
+    {
+      "url": "https://fintechkids-backend-stage.onrender.com",
+      "description": "Stage / QA Cloud (Render + Neon 'stage' DB branch)"
+    },
+    {
+      "url": "https://fintechkids-backend.onrender.com",
+      "description": "Production Cloud (Render + Neon 'production' DB branch)"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Local Development Server (SQLite)"
+    }
+  ],
   "paths": {
     "/api/v1/health": {
       "get": {

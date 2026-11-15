@@ -188,18 +188,28 @@
   <!-- ==================== LAYER 5: PERSISTENCE ==================== -->
   <g transform="translate(30, 733)">
     <rect x="0" y="0" width="1040" height="96" rx="10" fill="url(#layer5Grad)" stroke="#ec4899" stroke-width="1.2"/>
-    <text x="20" y="30" class="layer-title" fill="#f472b6">5. DATABASE &amp; PERSISTENCE LAYER</text>
-    <text x="20" y="50" class="layer-sub">app/core/config.py</text>
-    <text x="20" y="68" class="layer-sub">DATABASE_URL (.env)</text>
+    <text x="20" y="30" class="layer-title" fill="#f472b6">5. MULTI-ENVIRONMENT PERSISTENCE</text>
+    <text x="20" y="50" class="layer-sub">render.yaml • app/db/session.py</text>
+    <text x="20" y="68" class="layer-sub">postgresql+psycopg2:// (Neon)</text>
 
-    <rect x="260" y="16" width="365" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
-    <text x="442" y="38" text-anchor="middle" class="box-title">Local / Development Environment</text>
-    <text x="442" y="56" text-anchor="middle" class="box-code">SQLite 3 (sqlite:///./fhk.db)</text>
-    <text x="442" y="71" text-anchor="middle" class="box-desc">Zero-config embedded relational storage</text>
+    <rect x="260" y="16" width="175" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="347" y="36" text-anchor="middle" class="box-title">Local Env</text>
+    <text x="347" y="53" text-anchor="middle" class="box-code">SQLite 3 (fhk.db)</text>
+    <text x="347" y="69" text-anchor="middle" class="box-desc">localhost:8000</text>
 
-    <rect x="650" y="16" width="365" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
-    <text x="832" y="38" text-anchor="middle" class="box-title">Cloud Production (Render + Neon DB)</text>
-    <text x="832" y="56" text-anchor="middle" class="box-code">PostgreSQL (postgresql+psycopg2://...)</text>
-    <text x="832" y="71" text-anchor="middle" class="box-desc">Neon Serverless Postgres • pool_pre_ping=True</text>
+    <rect x="448" y="16" width="182" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="539" y="36" text-anchor="middle" class="box-title">Cloud Dev (Auto)</text>
+    <text x="539" y="53" text-anchor="middle" class="box-code">Neon: development</text>
+    <text x="539" y="69" text-anchor="middle" class="box-desc">Git: develop</text>
+
+    <rect x="643" y="16" width="182" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="734" y="36" text-anchor="middle" class="box-title">Cloud Stage (QA)</text>
+    <text x="734" y="53" text-anchor="middle" class="box-code">Neon: stage</text>
+    <text x="734" y="69" text-anchor="middle" class="box-desc">Git: develop (manual)</text>
+
+    <rect x="838" y="16" width="182" height="64" rx="8" fill="#0f172a" stroke="#db2777" stroke-width="1"/>
+    <text x="929" y="36" text-anchor="middle" class="box-title">Cloud Prod (Live)</text>
+    <text x="929" y="53" text-anchor="middle" class="box-code">Neon: production</text>
+    <text x="929" y="69" text-anchor="middle" class="box-desc">Git: main</text>
   </g>
 </svg>

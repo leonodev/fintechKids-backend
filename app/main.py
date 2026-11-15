@@ -66,6 +66,30 @@ openapi_tags = [
 ]
 
 
+openapi_servers = [
+    {
+        "url": "/",
+        "description": "Current Active Environment Server",
+    },
+    {
+        "url": "https://fintechkids-backend-dev.onrender.com",
+        "description": "Development Cloud (Render + Neon 'development' DB branch)",
+    },
+    {
+        "url": "https://fintechkids-backend-stage.onrender.com",
+        "description": "Stage / QA Cloud (Render + Neon 'stage' DB branch)",
+    },
+    {
+        "url": "https://fintechkids-backend.onrender.com",
+        "description": "Production Cloud (Render + Neon 'production' DB branch)",
+    },
+    {
+        "url": "http://localhost:8000",
+        "description": "Local Development Server (SQLite)",
+    },
+]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
@@ -80,6 +104,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_tags=openapi_tags,
+    servers=openapi_servers,
     lifespan=lifespan,
 )
 

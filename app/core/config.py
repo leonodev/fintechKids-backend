@@ -7,8 +7,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FHK Backend API"
     PROJECT_DESCRIPTION: str = (
-        "REST API backend with JWT authentication, security middleware, database persistence, "
-        "and auto-generated interactive OpenAPI/Swagger documentation."
+        "REST API backend for **FintechKids (FHK)** with JWT authentication, security middleware, "
+        "automated audit logging, and multi-environment persistence (**Render** + **Neon Serverless PostgreSQL**).\n\n"
+        "### Active Environments\n"
+        "| Environment | Base URL | Git Branch | Neon DB Branch |\n"
+        "| :--- | :--- | :---: | :---: |\n"
+        "| **Development** | `https://fintechkids-backend-dev.onrender.com` | `develop` | `development` |\n"
+        "| **Stage (QA)** | `https://fintechkids-backend-stage.onrender.com` | `develop` | `stage` |\n"
+        "| **Production** | `https://fintechkids-backend.onrender.com` | `main` | `production` |\n"
+        "| **Local** | `http://localhost:8000` | `develop` | `SQLite (fhk.db)` |"
     )
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
