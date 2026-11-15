@@ -257,8 +257,12 @@ FHKBackend/
 │   └── schemas/                     # Pydantic v2 request/response DTOs & Enums
 ├── docs/
 │   └── architecture.svg             # Layered architecture vector diagram
+├── postman/
+│   ├── FHKBackend.postman_collection.json   # Ready-to-import Postman v2.1 Collection (12 modules)
+│   └── FHKBackend.postman_environment.json  # Ready-to-import Postman Environment variables
 ├── scripts/
-│   └── export_openapi.py            # CLI utility to export openapi.json
+│   ├── export_openapi.py            # CLI utility to export openapi.json
+│   └── generate_postman.py          # CLI utility to generate Postman files & seed demo data
 ├── tests/
 │   └── test_api.py                  # End-to-end integration & security test suite (pytest)
 ├── openapi.json                     # Auto-generated OpenAPI 3.1 contract
@@ -320,12 +324,23 @@ pytest -v
 
 ---
 
-## 8. OpenAPI Specification Export
+## 8. OpenAPI & Postman Collection Export
 
-Whenever endpoints or Pydantic schemas are modified, you can export the static `openapi.json` file at the root of the repository (useful for mobile code generators, Postman, or IDE Swagger preview extensions):
+Whenever endpoints or Pydantic schemas are modified, you can export the static `openapi.json` file at the root of the repository:
 
 ```bash
 python3 scripts/export_openapi.py
+```
+
+### Postman Collection & Environment (`postman/`)
+A ready-to-import Postman v2.1 Collection and Environment with pre-configured Bearer JWT (`{{access_token}}`), global variables, and automatic post-response variable capture scripts are included in the `postman/` directory:
+- [`postman/FHKBackend.postman_collection.json`](./postman/FHKBackend.postman_collection.json)
+- [`postman/FHKBackend.postman_environment.json`](./postman/FHKBackend.postman_environment.json)
+
+To regenerate the Postman files and seed the local demo account at any time:
+
+```bash
+python3 scripts/generate_postman.py
 ```
 
 ---
