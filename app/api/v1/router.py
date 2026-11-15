@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     items,
     member_balances,
     member_goals,
+    rewards,
     users,
 )
 
@@ -36,8 +37,13 @@ api_router.include_router(
     tags=["6. Balance de los Miembros (Member Balances)"],
 )
 api_router.include_router(
+    rewards.router,
+    prefix="/rewards",
+    tags=["7. Recompensas del Padre (Rewards)"],
+)
+api_router.include_router(
     app_version.router,
     prefix="/app-version",
-    tags=["7. Versión de la App (Tiendas)"],
+    tags=["8. Versión de la App (Tiendas)"],
 )
-api_router.include_router(items.router, prefix="/items", tags=["8. Elementos (CRUD Ejemplo)"])
+api_router.include_router(items.router, prefix="/items", tags=["9. Elementos (CRUD Ejemplo)"])

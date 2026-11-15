@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.item import Item
     from app.models.member_balance import MemberBalance
     from app.models.member_goal import MemberGoal
+    from app.models.reward import Reward
 
 
 class User(Base):
@@ -65,6 +66,13 @@ class User(Base):
     # Relación con Balances de los Miembros (1 Padre/Familia -> N Balances)
     member_balances: Mapped[List["MemberBalance"]] = relationship(
         "MemberBalance",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+    )
+
+    # Relación con Recompensas / Rewards (1 Padre/Familia -> N Recompensas)
+    rewards: Mapped[List["Reward"]] = relationship(
+        "Reward",
         back_populates="parent",
         cascade="all, delete-orphan",
     )

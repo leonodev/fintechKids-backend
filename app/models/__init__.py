@@ -5,6 +5,7 @@ from app.models.family_member import FamilyMember
 from app.models.goal import Goal
 from app.models.member_goal import MemberGoal
 from app.models.member_balance import MemberBalance
+from app.models.reward import Reward
 
 __all__ = [
     "User",
@@ -14,4 +15,5 @@ __all__ = [
     "Goal",
     "MemberGoal",
     "MemberBalance",
+    "Reward",
 ]

@@ -323,6 +323,30 @@ def test_full_auth_and_crud_flow():
     assert list_balance_res.status_code == 200
     assert len(list_balance_res.json()) == 1
 
+    # 3.6.9 Crear una recompensa del padre (POST /api/v1/rewards)
+    create_reward_res = client.post(
+        "/api/v1/rewards",
+        headers=headers,
+        json={
+            "name": "1 hora de videojuegos",
+            "time_required": "01:00:00",
+            "coins_required": 100,
+            "email_parent": "fredy@fhk.app",
+        },
+    )
+    assert create_reward_res.status_code == 201
+    reward_data = create_reward_res.json()
+    assert reward_data["name"] == "1 hora de videojuegos"
+    assert reward_data["time_required"] == "01:00:00"
+    assert reward_data["coins_required"] == 100
+    assert reward_data["email_parent"] == "fredy@fhk.app"
+    assert "created_at" in reward_data and reward_data["created_at"] is not None
+
+    # 3.6.10 Listar recompensas del padre (GET /api/v1/rewards)
+    list_rewards_res = client.get("/api/v1/rewards", headers=headers)
+    assert list_rewards_res.status_code == 200
+    assert len(list_rewards_res.json()) == 1
+
     # 3.7 Editar meta del padre (PATCH /api/v1/goals/{goal_id})
     patch_goal_res = client.patch(
         f"/api/v1/goals/{goal_id}",
@@ -444,6 +468,7 @@ def test_protected_endpoints_reject_without_valid_token():
         "/api/v1/goals",
         "/api/v1/member-goals",
         "/api/v1/member-balances",
+        "/api/v1/rewards",
     ]
     for path in protected_gets:
         # Sin token -> 401

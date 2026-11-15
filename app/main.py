@@ -42,11 +42,15 @@ openapi_tags = [
         "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro.",
     },
     {
-        "name": "7. Versión de la App (Tiendas)",
+        "name": "7. Recompensas del Padre (Rewards)",
+        "description": "Creación y consulta de recompensas (`rewards`) configuradas por el padre/tutor de la familia.",
+    },
+    {
+        "name": "8. Versión de la App (Tiendas)",
         "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
     },
     {
-        "name": "8. Elementos (CRUD Ejemplo)",
+        "name": "9. Elementos (CRUD Ejemplo)",
         "description": "Operaciones CRUD protegidas con JWT y persistidas en base de datos. Plantilla base para tus nuevos módulos.",
     },
 ]
