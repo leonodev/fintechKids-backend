@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: fintechkids-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: development
+      - key: SECRET_KEY
+        generateValue: true
+      # Optional: Paste your free permanent Neon.tech or Supabase PostgreSQL URL in Render Dashboard -> Environment
+      # - key: DATABASE_URL
+      #   sync: false
