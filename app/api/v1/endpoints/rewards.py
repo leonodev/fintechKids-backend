@@ -24,12 +24,11 @@ router = APIRouter()
     "",
     response_model=RewardResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear una nueva recompensa del padre (Reward)",
+    summary="Create a new parent reward",
     description=(
-        "Registra una nueva recompensa creada por el padre recibiendo `name`, `time_required` "
-        "(también acepta `time_requiered`), `coins_required` y `email_parent`. El campo `created_at` "
-        "se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la "
-        "cuenta del padre en `users` (protegido con JWT)."
+        "Registers a new reward created by the parent receiving `name`, `time_required`, "
+        "`coins_required`, and `email_parent`. The `created_at` field is auto-generated in UTC "
+        "and linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected)."
     ),
 )
 def create_reward(
@@ -76,8 +75,8 @@ def create_reward(
 @router.get(
     "",
     response_model=List[RewardResponse],
-    summary="Listar recompensas (Rewards) creadas por el padre",
-    description="Obtiene todas las recompensas registradas por el padre autenticado (protegido con JWT).",
+    summary="List rewards created by the parent",
+    description="Retrieves all rewards registered by the authenticated parent (JWT Protected).",
 )
 def list_rewards(
     db: Session = Depends(get_db),
@@ -94,10 +93,10 @@ def list_rewards(
 @router.patch(
     "/{reward_id}",
     response_model=RewardResponse,
-    summary="Editar una recompensa creada por el padre",
+    summary="Update a reward created by the parent",
     description=(
-        "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa "
-        "existente perteneciente al padre autenticado (protegido con JWT)."
+        "Partially updates `name`, `time_required`, and/or `coins_required` of an existing reward "
+        "owned by the authenticated parent (JWT Protected)."
     ),
 )
 def update_reward(
@@ -144,10 +143,10 @@ def update_reward(
 @router.delete(
     "/{reward_id}",
     response_model=RewardDeleteResponse,
-    summary="Eliminar una recompensa creada por el padre",
+    summary="Delete a reward created by the parent",
     description=(
-        "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` "
-        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+        "Permanently deletes a reward from the database by `reward_id`, "
+        "verifying ownership by the authenticated parent (JWT Protected)."
     ),
 )
 def delete_reward(

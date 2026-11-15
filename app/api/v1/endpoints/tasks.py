@@ -25,11 +25,11 @@ router = APIRouter()
     "",
     response_model=TaskResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="1. Crear una nueva tarea para la familia (por el padre)",
+    summary="1. Create a new family task (by parent)",
     description=(
-        "Registra una nueva tarea para la familia recibiendo `name`, `time_granted`, `coins_granted`, "
-        "`email_parent`, `description` y `status` (por defecto se asigna `enable` automáticamente). "
-        "El campo `created_at` se genera automáticamente en UTC (protegido con JWT)."
+        "Registers a new family task receiving `name`, `time_granted`, `coins_granted`, "
+        "`email_parent`, `description`, and `status` (defaults to `enable` automatically). "
+        "The `created_at` field is auto-generated in UTC (JWT Protected)."
     ),
 )
 def create_task(
@@ -78,10 +78,10 @@ def create_task(
 @router.patch(
     "/{task_id}",
     response_model=TaskResponse,
-    summary="2. Editar una tarea de la familia (incluyendo habilitar/deshabilitar status)",
+    summary="2. Edit a family task (including enabling/disabling status)",
     description=(
-        "Permite al padre editar cualquier campo de una tarea (`name`, `time_granted`, `coins_granted`, "
-        "`description`) e incluso cambiar su `status` entre `enable` y `disable` (protegido con JWT)."
+        "Allows the parent to edit any field of a task (`name`, `time_granted`, `coins_granted`, "
+        "`description`) as well as toggle its `status` between `enable` and `disable` (JWT Protected)."
     ),
 )
 def update_task(
@@ -132,17 +132,17 @@ def update_task(
 @router.get(
     "",
     response_model=List[TaskResponse],
-    summary="3. Listar todas las tareas de una familia (con cualquier estado)",
+    summary="3. List all family tasks (any status)",
     description=(
-        "Devuelve todas las tareas pertenecientes exclusivamente a la familia del padre autenticado "
-        "sin importar su estado (`enable` y `disable`) (protegido con JWT)."
+        "Returns all tasks belonging exclusively to the authenticated parent's family "
+        "regardless of their status (`enable` and `disable`) (JWT Protected)."
     ),
 )
 def list_all_family_tasks(
     email_parent: Optional[str] = Query(
         default=None,
-        description="Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
-        examples=["padre@fhk.app"],
+        description="Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family.",
+        examples=["parent@fhk.app"],
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -164,17 +164,17 @@ def list_all_family_tasks(
 @router.get(
     "/enabled",
     response_model=List[TaskResponse],
-    summary="4. Listar tareas de una familia solo con estado 'enable'",
+    summary="4. List family tasks with 'enable' status only",
     description=(
-        "Devuelve únicamente las tareas habilitadas (`status = 'enable'`) pertenecientes a la familia "
-        "del padre autenticado (protegido con JWT)."
+        "Returns only enabled tasks (`status = 'enable'`) belonging to the authenticated "
+        "parent's family (JWT Protected)."
     ),
 )
 def list_enabled_family_tasks(
     email_parent: Optional[str] = Query(
         default=None,
-        description="Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
-        examples=["padre@fhk.app"],
+        description="Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family.",
+        examples=["parent@fhk.app"],
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -199,10 +199,10 @@ def list_enabled_family_tasks(
 @router.delete(
     "/{task_id}",
     response_model=TaskDeleteResponse,
-    summary="5. Eliminar una tarea de una familia",
+    summary="5. Delete a family task",
     description=(
-        "Elimina permanentemente una tarea de la base de datos buscando por `task_id` y verificando "
-        "que pertenezca a la familia del padre autenticado (protegido con JWT)."
+        "Permanently deletes a task from the database by `task_id`, verifying "
+        "that it belongs to the authenticated parent's family (JWT Protected)."
     ),
 )
 def delete_task(

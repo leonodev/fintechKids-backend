@@ -27,12 +27,12 @@ router = APIRouter()
     "",
     response_model=MemberGoalResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Asignar / Crear una meta para un miembro de la familia",
+    summary="Assign / Create a goal for a family member",
     description=(
-        "Registra una meta seleccionada por un miembro de la familia a partir de una meta creada por el padre. "
-        "Recibe `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, "
-        "`accumulated_value`, `parent_email` y `name`. El campo `created_at` se genera automáticamente en UTC "
-        "y se valida la integridad relacional con el padre, la meta base y el miembro (protegido con JWT)."
+        "Registers a goal selected by a family member based on a goal created by the parent. "
+        "Receives `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, "
+        "`accumulated_value`, `parent_email`, and `name`. The `created_at` field is auto-generated in UTC "
+        "and relational integrity with the parent, base goal, and family member is validated (JWT Protected)."
     ),
 )
 def create_member_goal(
@@ -112,20 +112,20 @@ def create_member_goal(
 @router.get(
     "",
     response_model=List[MemberGoalResponse],
-    summary="Listar metas de los miembros de la familia",
+    summary="List family member goals",
     description=(
-        "Obtiene todas las metas asignadas a los miembros de la familia del padre autenticado, "
-        "con filtro opcional por `member_id` (UUID) o `goal_id`."
+        "Retrieves all goals assigned to family members of the authenticated parent, "
+        "with optional filters by `member_id` (UUID) or `goal_id`."
     ),
 )
 def list_member_goals(
     member_id: Optional[UUID] = Query(
         default=None,
-        description="Filtrar opcionalmente por el UUID de un miembro específico",
+        description="Optionally filter by a specific family member's UUID",
     ),
     goal_id: Optional[int] = Query(
         default=None,
-        description="Filtrar opcionalmente por el ID de la meta del padre",
+        description="Optionally filter by the parent's base goal ID",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -141,10 +141,10 @@ def list_member_goals(
 @router.patch(
     "/{member_goal_id}",
     response_model=MemberGoalResponse,
-    summary="Actualizar progreso (accumulated_value) o datos de una meta de un miembro",
+    summary="Update progress (accumulated_value) or details of a member goal",
     description=(
-        "Actualiza el progreso (`accumulated_value`) y opcionalmente el nombre o recompensa "
-        "de la meta de un miembro identificada por `member_goal_id` (protegido con JWT)."
+        "Updates the progress (`accumulated_value`) and optionally the name or reward settings "
+        "of a member's goal identified by `member_goal_id` (JWT Protected)."
     ),
 )
 def update_member_goal(
@@ -197,10 +197,10 @@ def update_member_goal(
 @router.delete(
     "/{member_goal_id}",
     response_model=MemberGoalDeleteResponse,
-    summary="Eliminar una meta de un miembro de la familia",
+    summary="Delete a family member's goal",
     description=(
-        "Elimina permanentemente la meta asignada a un miembro de la familia buscando por `member_goal_id` "
-        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+        "Permanently deletes a goal assigned to a family member by `member_goal_id`, "
+        "verifying ownership by the authenticated parent (JWT Protected)."
     ),
 )
 def delete_member_goal(

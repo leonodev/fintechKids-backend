@@ -25,11 +25,11 @@ router = APIRouter()
     "",
     response_model=GoalResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear una nueva meta del padre (Goal)",
+    summary="Create a new parent goal",
     description=(
-        "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), "
-        "`email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y "
-        "se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT)."
+        "Registers a new goal in the database receiving `measure_type`, `status` (`active` or `inactive`), "
+        "`email_parent`, `name`, and `value` (Int). The `created_at` field is auto-generated in UTC and "
+        "linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected)."
     ),
 )
 def create_goal(
@@ -77,14 +77,14 @@ def create_goal(
 @router.get(
     "",
     response_model=List[GoalResponse],
-    summary="Listar metas (Goals) creadas por el padre",
-    description="Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
+    summary="List goals created by the parent",
+    description="Retrieves all goals registered by the authenticated parent, with an optional filter by `status`.",
 )
 def list_goals(
     goal_status: Optional[GoalStatusEnum] = Query(
         default=None,
         alias="status",
-        description="Filtrar opcionalmente por estado (`active` o `inactive`)",
+        description="Optionally filter by goal status (`active` or `inactive`)",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -98,10 +98,10 @@ def list_goals(
 @router.patch(
     "/{goal_id}",
     response_model=GoalResponse,
-    summary="Editar una meta creada por el padre",
+    summary="Update a goal created by the parent",
     description=(
-        "Actualiza parcialmente `name`, `measure_type`, `value` y/o `status` (`active` / `inactive`) "
-        "de una meta existente perteneciente al padre autenticado (protegido con JWT)."
+        "Partially updates `name`, `measure_type`, `value`, and/or `status` (`active` / `inactive`) "
+        "of an existing goal owned by the authenticated parent (JWT Protected)."
     ),
 )
 def update_goal(
@@ -150,10 +150,10 @@ def update_goal(
 @router.delete(
     "/{goal_id}",
     response_model=GoalDeleteResponse,
-    summary="Eliminar una meta creada por el padre",
+    summary="Delete a goal created by the parent",
     description=(
-        "Elimina permanentemente una meta de la base de datos buscando por su `goal_id` "
-        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+        "Permanently deletes a goal from the database by `goal_id`, "
+        "verifying ownership by the authenticated parent (JWT Protected)."
     ),
 )
 def delete_goal(

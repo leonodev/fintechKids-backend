@@ -16,31 +16,31 @@ router = APIRouter()
 @router.get(
     "",
     response_model=List[ActivityLogResponse],
-    summary="Consultar el historial de actividad (Audit Log) de la familia",
+    summary="Query the family's activity history (Audit Log)",
     description=(
-        "Devuelve la bitácora histórica de acciones registradas automáticamente en el backend "
-        "para la familia del padre autenticado, ordenada de la más reciente a la más antigua. "
-        "Permite filtrar opcionalmente por `member_id`, `entity_type` o `action` (protegido con JWT)."
+        "Returns the historical audit trail of actions automatically recorded by the backend "
+        "for the authenticated parent's family, ordered from newest to oldest. "
+        "Supports optional filtering by `member_id`, `entity_type`, or `action` (JWT Protected)."
     ),
 )
 def list_activity_logs(
     member_id: Optional[str] = Query(
         default=None,
-        description="Filtrar opcionalmente por el UUID de un miembro de la familia",
+        description="Optionally filter by a family member's UUID",
     ),
     entity_type: Optional[str] = Query(
         default=None,
-        description="Filtrar por módulo/entidad (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
+        description="Filter by module/entity (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
     ),
     action: Optional[str] = Query(
         default=None,
-        description="Filtrar por tipo de acción (ej. `CREATE_TASK`, `UPDATE_BALANCE`, `CLAIM_REWARD`)",
+        description="Filter by action type (e.g. `CREATE_TASK`, `UPDATE_MEMBER_BALANCE`, `CLAIM_MEMBER_REWARD`)",
     ),
     limit: int = Query(
         default=50,
         ge=1,
         le=200,
-        description="Cantidad máxima de eventos históricos a devolver",
+        description="Maximum number of historical events to return",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),

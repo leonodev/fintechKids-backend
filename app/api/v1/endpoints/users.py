@@ -16,8 +16,8 @@ router = APIRouter()
 @router.get(
     "/me",
     response_model=UserResponse,
-    summary="Obtener datos de la familia / padre autenticado",
-    description="Devuelve la información registrada de la familia propietaria del token JWT actual.",
+    summary="Get authenticated family / parent profile",
+    description="Returns the registered profile information for the family that owns the current JWT token.",
 )
 def read_current_user(current_user: User = Depends(get_current_user)) -> User:
     return current_user
@@ -26,8 +26,8 @@ def read_current_user(current_user: User = Depends(get_current_user)) -> User:
 @router.patch(
     "/me",
     response_model=UserResponse,
-    summary="Actualizar datos de la familia / padre autenticado",
-    description="Permite actualizar `name_family`, `password` o `approve_pin` de la cuenta autenticada.",
+    summary="Update authenticated family / parent profile",
+    description="Updates `name_family`, `password`, or `approve_pin` for the authenticated family account.",
 )
 def update_current_user(
     user_in: UserUpdate,

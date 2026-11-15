@@ -21,7 +21,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 # Permite pegar directamente un Bearer JWT token en Swagger UI o enviarlo desde la App
 http_bearer = HTTPBearer(
     scheme_name="BearerJWT",
-    description="Pega aquí tu `access_token` JWT obtenido en `/api/v1/auth/login`",
+    description="Paste your JWT `access_token` obtained from `/api/v1/auth/login` here",
     auto_error=False,
 )
 

@@ -66,24 +66,24 @@ def _get_or_seed_platform_version(db: Session, platform: PlatformEnum) -> AppVer
 @router.get(
     "/check",
     response_model=AppVersionCheckResponse,
-    summary="Verificar si la App tiene la última versión de tiendas",
+    summary="Check whether the app has the latest store version installed",
     description=(
-        "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo "
-        "y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas "
-        "para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa."
+        "Public **GET** endpoint that receives the `current_version` installed on the device "
+        "and the `platform` (`IOS` or `AND`), comparing it against the latest published store version "
+        "to indicate if it is up to date, if an optional update is available, or if a forced update is required."
     ),
 )
 def check_app_version(
     platform: PlatformEnum = Query(
         ...,
-        description="Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)",
+        description="Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)",
         examples=["IOS"],
     ),
     current_version: str = Query(
         ...,
         min_length=1,
         max_length=30,
-        description="Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)",
+        description="Currently installed app version (e.g. `1.0.0` or `1.2.0`)",
         examples=["1.0.0"],
     ),
     db: Session = Depends(get_db),
@@ -130,8 +130,8 @@ def check_app_version(
 @router.get(
     "",
     response_model=List[AppVersionConfigResponse],
-    summary="Listar versiones actuales configuradas en tiendas (IOS y AND)",
-    description="Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
+    summary="List configured store versions (IOS and AND)",
+    description="Returns the current store version configuration stored in the database for both platforms.",
 )
 def list_store_versions(db: Session = Depends(get_db)) -> List[AppVersion]:
     _get_or_seed_platform_version(db, PlatformEnum.IOS)
@@ -142,10 +142,10 @@ def list_store_versions(db: Session = Depends(get_db)) -> List[AppVersion]:
 @router.put(
     "/{platform}",
     response_model=AppVersionConfigResponse,
-    summary="Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
+    summary="Update the published store version for IOS or AND (JWT Protected)",
     description=(
-        "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), "
-        "la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`)."
+        "Updates the database record for the latest store version (`latest_version`), "
+        "minimum required version (`min_required_version`), and whether updating is mandatory (`force_update`)."
     ),
 )
 def update_store_version(

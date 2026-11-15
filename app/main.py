@@ -9,64 +9,63 @@ from app.core.config import settings
 from app.core.security import SecurityHeadersMiddleware
 from app.db.base import Base
 from app.db.session import engine
-import app.models  # noqa: F401 - Registra los modelos en el metadata de SQLAlchemy
+import app.models  # noqa: F401
 
 
 openapi_tags = [
     {
-        "name": "1. Estado del servidor",
-        "description": "Verificación de salud y disponibilidad del servicio.",
+        "name": "1. Server Status",
+        "description": "Service health check and availability status.",
     },
     {
-        "name": "2. Versión de la App (Tiendas)",
-        "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas.",
+        "name": "2. App Version (Stores)",
+        "description": "Check the currently installed app version (`IOS` or `AND`) against the latest version published in stores.",
     },
     {
-        "name": "3. Autenticación",
-        "description": "Registro de usuarios, inicio de sesión, recuperación de contraseña y renovación de tokens JWT (`access_token` y `refresh_token`).",
+        "name": "3. Authentication",
+        "description": "Family registration, login, 6-digit password recovery, and JWT token refresh (`access_token` and `refresh_token`).",
     },
     {
-        "name": "4. Usuarios / Familia",
-        "description": "Consulta y actualización de los datos de la familia / padre autenticado.",
+        "name": "4. Users / Family",
+        "description": "Retrieve and update the authenticated parent / family profile.",
     },
     {
-        "name": "5. Miembros de la Familia",
-        "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre.",
+        "name": "5. Family Members",
+        "description": "Create, update, list, and delete family members linked to the parent account.",
     },
     {
-        "name": "6. Tareas de la Familia (Tasks)",
-        "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre.",
+        "name": "6. Family Tasks",
+        "description": "Create, edit, list (all or `enable` only), and delete family tasks created by the parent.",
     },
     {
-        "name": "7. Metas del Padre (Goals)",
-        "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia.",
+        "name": "7. Parent Goals",
+        "description": "Create and manage base goals configured by the family parent/guardian.",
     },
     {
-        "name": "8. Recompensas del Padre (Rewards)",
-        "description": "Creación y gestión de recompensas (`rewards`) configuradas por el padre/tutor de la familia.",
+        "name": "8. Parent Rewards",
+        "description": "Create and manage rewards configured by the family parent/guardian.",
     },
     {
-        "name": "9. Metas de los Miembros (Member Goals)",
-        "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia.",
+        "name": "9. Member Goals",
+        "description": "Assign, list, update progress (`accumulated_value`), and delete goals selected by family members.",
     },
     {
-        "name": "10. Recompensas de los Miembros (Member Rewards)",
-        "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros.",
+        "name": "10. Member Rewards",
+        "description": "Claim rewards (`PENDING`), update delivery state (`COLLECTED`), and delete claimed member rewards.",
     },
     {
-        "name": "11. Balance de los Miembros (Member Balances)",
-        "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro.",
+        "name": "11. Member Balances",
+        "description": "Create, retrieve, and update the coin (`coins_obtained`) and time (`time_obtained`) balance of each family member.",
     },
     {
-        "name": "12. Historial de Actividad (Audit Logs)",
-        "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia.",
+        "name": "12. Activity History (Audit Logs)",
+        "description": "Query the automated historical activity and audit trail recorded per family.",
     },
 ]
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Crea las tablas automáticamente al iniciar si no existen
     Base.metadata.create_all(bind=engine)
     yield
 
@@ -82,10 +81,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Cabeceras de seguridad HTTP
 app.add_middleware(SecurityHeadersMiddleware)
 
-# Configuración CORS para consumo desde clientes Web / Móviles
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -97,9 +94,9 @@ app.add_middleware(
 
 @app.get(
     "/health",
-    tags=["1. Estado del servidor"],
-    summary="Health Check del Backend",
-    description="Verifica que el servidor esté activo y listo para recibir peticiones.",
+    tags=["1. Server Status"],
+    summary="Backend Health Check",
+    description="Verifies that the server is active and ready to accept requests.",
 )
 def health_check() -> dict:
     return {

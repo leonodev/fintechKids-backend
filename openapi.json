@@ -2,17 +2,17 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FHK Backend API",
-    "description": "Backend REST API con autenticación JWT, seguridad, persistencia en base de datos y documentación interactiva OpenAPI/Swagger auto-generada.",
+    "description": "REST API backend with JWT authentication, security middleware, database persistence, and auto-generated interactive OpenAPI/Swagger documentation.",
     "version": "1.0.0"
   },
   "paths": {
     "/health": {
       "get": {
         "tags": [
-          "1. Estado del servidor"
+          "1. Server Status"
         ],
-        "summary": "Health Check del Backend",
-        "description": "Verifica que el servidor esté activo y listo para recibir peticiones.",
+        "summary": "Backend Health Check",
+        "description": "Verifies that the server is active and ready to accept requests.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {
@@ -33,10 +33,10 @@
     "/api/v1/app-version/check": {
       "get": {
         "tags": [
-          "2. Versión de la App (Tiendas)"
+          "2. App Version (Stores)"
         ],
-        "summary": "Verificar si la App tiene la última versión de tiendas",
-        "description": "Servicio **GET** público que recibe la `current_version` instalada en el dispositivo y la `platform` (`IOS` o `AND`), comparándola contra la última versión publicada en tiendas para indicar si está actualizada, si hay actualización disponible o si requiere actualización forzosa.",
+        "summary": "Check whether the app has the latest store version installed",
+        "description": "Public **GET** endpoint that receives the `current_version` installed on the device and the `platform` (`IOS` or `AND`), comparing it against the latest published store version to indicate if it is up to date, if an optional update is available, or if a forced update is required.",
         "operationId": "check_app_version_api_v1_app_version_check_get",
         "parameters": [
           {
@@ -45,12 +45,12 @@
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/PlatformEnum",
-              "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)",
+              "description": "Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)",
               "examples": [
                 "IOS"
               ]
             },
-            "description": "Plataforma del dispositivo: `IOS` (Apple App Store) o `AND` (Google Play Store)"
+            "description": "Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)"
           },
           {
             "name": "current_version",
@@ -60,13 +60,13 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 30,
-              "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)",
+              "description": "Currently installed app version (e.g. `1.0.0` or `1.2.0`)",
               "examples": [
                 "1.0.0"
               ],
               "title": "Current Version"
             },
-            "description": "Versión actual instalada en la app (ej. `1.0.0` o `1.2.0`)"
+            "description": "Currently installed app version (e.g. `1.0.0` or `1.2.0`)"
           }
         ],
         "responses": {
@@ -96,10 +96,10 @@
     "/api/v1/app-version": {
       "get": {
         "tags": [
-          "2. Versión de la App (Tiendas)"
+          "2. App Version (Stores)"
         ],
-        "summary": "Listar versiones actuales configuradas en tiendas (IOS y AND)",
-        "description": "Devuelve la configuración actual almacenada en base de datos para ambas plataformas.",
+        "summary": "List configured store versions (IOS and AND)",
+        "description": "Returns the current store version configuration stored in the database for both platforms.",
         "operationId": "list_store_versions_api_v1_app_version_get",
         "responses": {
           "200": {
@@ -122,10 +122,10 @@
     "/api/v1/app-version/{platform}": {
       "put": {
         "tags": [
-          "2. Versión de la App (Tiendas)"
+          "2. App Version (Stores)"
         ],
-        "summary": "Actualizar la versión publicada en tienda para IOS o AND (Protegido con JWT)",
-        "description": "Permite actualizar en la base de datos cuál es la última versión en tiendas (`latest_version`), la versión mínima requerida (`min_required_version`) y si la actualización es obligatoria (`force_update`).",
+        "summary": "Update the published store version for IOS or AND (JWT Protected)",
+        "description": "Updates the database record for the latest store version (`latest_version`), minimum required version (`min_required_version`), and whether updating is mandatory (`force_update`).",
         "operationId": "update_store_version_api_v1_app_version__platform__put",
         "security": [
           {
@@ -182,10 +182,10 @@
     "/api/v1/auth/register": {
       "post": {
         "tags": [
-          "3. Autenticación"
+          "3. Authentication"
         ],
-        "summary": "Registrar nueva familia / padre",
-        "description": "Registra una familia en la base de datos recibiendo `name_family`, `email_parent`, `password` (encriptado desde la app) y `approve_pin`. El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC.",
+        "summary": "Register a new family / parent",
+        "description": "Registers a family in the database receiving `name_family`, `email_parent`, `password` (client-encrypted from the app), and `approve_pin`. The `created_at` field is automatically assigned by the server in UTC.",
         "operationId": "register_user_api_v1_auth_register_post",
         "requestBody": {
           "content": {
@@ -224,10 +224,10 @@
     "/api/v1/auth/login": {
       "post": {
         "tags": [
-          "3. Autenticación"
+          "3. Authentication"
         ],
-        "summary": "Iniciar sesión desde la App (JSON)",
-        "description": "Recibe `email_parent` y `password` (el mismo password encriptado enviado desde la app en el registro) y devuelve un `access_token` y `refresh_token` JWT.",
+        "summary": "Log in from the App (JSON)",
+        "description": "Receives `email_parent` and `password` (the same client-encrypted password sent during registration) and returns a JWT `access_token` and `refresh_token`.",
         "operationId": "login_json_api_v1_auth_login_post",
         "requestBody": {
           "content": {
@@ -266,10 +266,10 @@
     "/api/v1/auth/forgot-password": {
       "post": {
         "tags": [
-          "3. Autenticación"
+          "3. Authentication"
         ],
-        "summary": "Recuperar contraseña - Paso 1: Solicitar código de 6 dígitos",
-        "description": "Recibe `email_parent`, genera un código temporal de 6 dígitos válido por 15 minutos y lo persiste en la base de datos para enviarlo al correo del padre.",
+        "summary": "Password Recovery - Step 1: Request 6-digit verification code",
+        "description": "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, and persists it in the database to be sent to the parent's email.",
         "operationId": "forgot_password_api_v1_auth_forgot_password_post",
         "requestBody": {
           "content": {
@@ -308,10 +308,10 @@
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
-          "3. Autenticación"
+          "3. Authentication"
         ],
-        "summary": "Recuperar contraseña - Paso 2: Confirmar código y actualizar password",
-        "description": "Recibe `email_parent`, `recovery_code` (6 dígitos) y el nuevo `new_password` encriptado desde la app. Valida que el código sea correcto y no haya expirado, actualiza la contraseña en BD e invalida el código.",
+        "summary": "Password Recovery - Step 2: Confirm code and update password",
+        "description": "Receives `email_parent`, `recovery_code` (6 digits), and the new client-encrypted `new_password`. Validates that the code matches and has not expired, updates the password in the database, and invalidates the code.",
         "operationId": "reset_password_api_v1_auth_reset_password_post",
         "requestBody": {
           "content": {
@@ -350,10 +350,10 @@
     "/api/v1/auth/refresh": {
       "post": {
         "tags": [
-          "3. Autenticación"
+          "3. Authentication"
         ],
-        "summary": "Renovar Access Token usando Refresh Token",
-        "description": "Permite a la app móvil obtener un nuevo `access_token` sin obligar al usuario a iniciar sesión nuevamente.",
+        "summary": "Renew Access Token using Refresh Token",
+        "description": "Allows the mobile app to obtain a new `access_token` without forcing the user to log in again.",
         "operationId": "refresh_access_token_api_v1_auth_refresh_post",
         "requestBody": {
           "content": {
@@ -392,10 +392,10 @@
     "/api/v1/users/me": {
       "get": {
         "tags": [
-          "4. Usuarios / Familia"
+          "4. Users / Family"
         ],
-        "summary": "Obtener datos de la familia / padre autenticado",
-        "description": "Devuelve la información registrada de la familia propietaria del token JWT actual.",
+        "summary": "Get authenticated family / parent profile",
+        "description": "Returns the registered profile information for the family that owns the current JWT token.",
         "operationId": "read_current_user_api_v1_users_me_get",
         "responses": {
           "200": {
@@ -420,10 +420,10 @@
       },
       "patch": {
         "tags": [
-          "4. Usuarios / Familia"
+          "4. Users / Family"
         ],
-        "summary": "Actualizar datos de la familia / padre autenticado",
-        "description": "Permite actualizar `name_family`, `password` o `approve_pin` de la cuenta autenticada.",
+        "summary": "Update authenticated family / parent profile",
+        "description": "Updates `name_family`, `password`, or `approve_pin` for the authenticated family account.",
         "operationId": "update_current_user_api_v1_users_me_patch",
         "requestBody": {
           "content": {
@@ -470,10 +470,10 @@
     "/api/v1/family-members": {
       "post": {
         "tags": [
-          "5. Miembros de la Familia"
+          "5. Family Members"
         ],
-        "summary": "Crear un nuevo miembro de la familia",
-        "description": "Registra un nuevo miembro en la familia recibiendo `email_parent`, `identification_uuid` (UUID), `member_name`, `avatar_name` y `name_family`. Se vincula por llave foránea (`parent_id`) con la cuenta del padre registrada en `users` (protegido con JWT).",
+        "summary": "Create a new family member",
+        "description": "Registers a new family member receiving `email_parent`, `identification_uuid` (UUID), `member_name`, `avatar_name`, and `name_family`. Linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
         "operationId": "create_family_member_api_v1_family_members_post",
         "security": [
           {
@@ -518,10 +518,10 @@
       },
       "get": {
         "tags": [
-          "5. Miembros de la Familia"
+          "5. Family Members"
         ],
-        "summary": "Listar miembros de la familia",
-        "description": "Obtiene todos los miembros registrados de la familia del padre autenticado.",
+        "summary": "List family members",
+        "description": "Retrieves all registered family members belonging to the authenticated parent.",
         "operationId": "list_family_members_api_v1_family_members_get",
         "security": [
           {
@@ -545,10 +545,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtro opcional por `email_parent` (por defecto usa el del token JWT actual)",
+              "description": "Optional filter by `email_parent` (defaults to the email in the current JWT token)",
               "title": "Email Parent"
             },
-            "description": "Filtro opcional por `email_parent` (por defecto usa el del token JWT actual)"
+            "description": "Optional filter by `email_parent` (defaults to the email in the current JWT token)"
           }
         ],
         "responses": {
@@ -582,10 +582,10 @@
     "/api/v1/family-members/{identification_uuid}": {
       "patch": {
         "tags": [
-          "5. Miembros de la Familia"
+          "5. Family Members"
         ],
-        "summary": "Editar nombre o avatar de un miembro de la familia",
-        "description": "Actualiza el nombre (`member_name`) y/o el avatar (`avatar_name`) de un miembro de la familia identificado por su `identification_uuid` (protegido con JWT).",
+        "summary": "Update a family member's name or avatar",
+        "description": "Updates `member_name` and/or `avatar_name` of a family member identified by `identification_uuid` (JWT Protected).",
         "operationId": "update_family_member_api_v1_family_members__identification_uuid__patch",
         "security": [
           {
@@ -642,10 +642,10 @@
       },
       "delete": {
         "tags": [
-          "5. Miembros de la Familia"
+          "5. Family Members"
         ],
-        "summary": "Eliminar un miembro de la familia",
-        "description": "Elimina permanentemente un miembro de la familia de la base de datos buscando por su `identification_uuid` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "summary": "Delete a family member",
+        "description": "Permanently deletes a family member from the database by `identification_uuid`, verifying ownership by the authenticated parent (JWT Protected).",
         "operationId": "delete_family_member_api_v1_family_members__identification_uuid__delete",
         "security": [
           {
@@ -694,10 +694,10 @@
     "/api/v1/tasks": {
       "post": {
         "tags": [
-          "6. Tareas de la Familia (Tasks)"
+          "6. Family Tasks"
         ],
-        "summary": "1. Crear una nueva tarea para la familia (por el padre)",
-        "description": "Registra una nueva tarea para la familia recibiendo `name`, `time_granted`, `coins_granted`, `email_parent`, `description` y `status` (por defecto se asigna `enable` automáticamente). El campo `created_at` se genera automáticamente en UTC (protegido con JWT).",
+        "summary": "1. Create a new family task (by parent)",
+        "description": "Registers a new family task receiving `name`, `time_granted`, `coins_granted`, `email_parent`, `description`, and `status` (defaults to `enable` automatically). The `created_at` field is auto-generated in UTC (JWT Protected).",
         "operationId": "create_task_api_v1_tasks_post",
         "security": [
           {
@@ -742,10 +742,10 @@
       },
       "get": {
         "tags": [
-          "6. Tareas de la Familia (Tasks)"
+          "6. Family Tasks"
         ],
-        "summary": "3. Listar todas las tareas de una familia (con cualquier estado)",
-        "description": "Devuelve todas las tareas pertenecientes exclusivamente a la familia del padre autenticado sin importar su estado (`enable` y `disable`) (protegido con JWT).",
+        "summary": "3. List all family tasks (any status)",
+        "description": "Returns all tasks belonging exclusively to the authenticated parent's family regardless of their status (`enable` and `disable`) (JWT Protected).",
         "operationId": "list_all_family_tasks_api_v1_tasks_get",
         "security": [
           {
@@ -769,13 +769,13 @@
                   "type": "null"
                 }
               ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "description": "Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family.",
               "examples": [
-                "padre@fhk.app"
+                "parent@fhk.app"
               ],
               "title": "Email Parent"
             },
-            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+            "description": "Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family."
           }
         ],
         "responses": {
@@ -809,10 +809,10 @@
     "/api/v1/tasks/{task_id}": {
       "patch": {
         "tags": [
-          "6. Tareas de la Familia (Tasks)"
+          "6. Family Tasks"
         ],
-        "summary": "2. Editar una tarea de la familia (incluyendo habilitar/deshabilitar status)",
-        "description": "Permite al padre editar cualquier campo de una tarea (`name`, `time_granted`, `coins_granted`, `description`) e incluso cambiar su `status` entre `enable` y `disable` (protegido con JWT).",
+        "summary": "2. Edit a family task (including enabling/disabling status)",
+        "description": "Allows the parent to edit any field of a task (`name`, `time_granted`, `coins_granted`, `description`) as well as toggle its `status` between `enable` and `disable` (JWT Protected).",
         "operationId": "update_task_api_v1_tasks__task_id__patch",
         "security": [
           {
@@ -868,10 +868,10 @@
       },
       "delete": {
         "tags": [
-          "6. Tareas de la Familia (Tasks)"
+          "6. Family Tasks"
         ],
-        "summary": "5. Eliminar una tarea de una familia",
-        "description": "Elimina permanentemente una tarea de la base de datos buscando por `task_id` y verificando que pertenezca a la familia del padre autenticado (protegido con JWT).",
+        "summary": "5. Delete a family task",
+        "description": "Permanently deletes a task from the database by `task_id`, verifying that it belongs to the authenticated parent's family (JWT Protected).",
         "operationId": "delete_task_api_v1_tasks__task_id__delete",
         "security": [
           {
@@ -919,10 +919,10 @@
     "/api/v1/tasks/enabled": {
       "get": {
         "tags": [
-          "6. Tareas de la Familia (Tasks)"
+          "6. Family Tasks"
         ],
-        "summary": "4. Listar tareas de una familia solo con estado 'enable'",
-        "description": "Devuelve únicamente las tareas habilitadas (`status = 'enable'`) pertenecientes a la familia del padre autenticado (protegido con JWT).",
+        "summary": "4. List family tasks with 'enable' status only",
+        "description": "Returns only enabled tasks (`status = 'enable'`) belonging to the authenticated parent's family (JWT Protected).",
         "operationId": "list_enabled_family_tasks_api_v1_tasks_enabled_get",
         "security": [
           {
@@ -946,13 +946,13 @@
                   "type": "null"
                 }
               ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT.",
+              "description": "Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family.",
               "examples": [
-                "padre@fhk.app"
+                "parent@fhk.app"
               ],
               "title": "Email Parent"
             },
-            "description": "Correo del padre (`email_parent`). Opcional ya que se filtra automáticamente por la familia del token JWT."
+            "description": "Parent email (`email_parent`). Optional since results are automatically filtered by the JWT token's family."
           }
         ],
         "responses": {
@@ -986,10 +986,10 @@
     "/api/v1/goals": {
       "post": {
         "tags": [
-          "7. Metas del Padre (Goals)"
+          "7. Parent Goals"
         ],
-        "summary": "Crear una nueva meta del padre (Goal)",
-        "description": "Registra una nueva meta en la base de datos recibiendo `measure_type`, `status` (`active` o `inactive`), `email_parent`, `name` y `value` (Int). El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
+        "summary": "Create a new parent goal",
+        "description": "Registers a new goal in the database receiving `measure_type`, `status` (`active` or `inactive`), `email_parent`, `name`, and `value` (Int). The `created_at` field is auto-generated in UTC and linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
         "operationId": "create_goal_api_v1_goals_post",
         "security": [
           {
@@ -1034,10 +1034,10 @@
       },
       "get": {
         "tags": [
-          "7. Metas del Padre (Goals)"
+          "7. Parent Goals"
         ],
-        "summary": "Listar metas (Goals) creadas por el padre",
-        "description": "Obtiene todas las metas registradas por el padre autenticado, con filtro opcional por `status`.",
+        "summary": "List goals created by the parent",
+        "description": "Retrieves all goals registered by the authenticated parent, with an optional filter by `status`.",
         "operationId": "list_goals_api_v1_goals_get",
         "security": [
           {
@@ -1061,10 +1061,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por estado (`active` o `inactive`)",
+              "description": "Optionally filter by goal status (`active` or `inactive`)",
               "title": "Status"
             },
-            "description": "Filtrar opcionalmente por estado (`active` o `inactive`)"
+            "description": "Optionally filter by goal status (`active` or `inactive`)"
           }
         ],
         "responses": {
@@ -1098,10 +1098,10 @@
     "/api/v1/goals/{goal_id}": {
       "patch": {
         "tags": [
-          "7. Metas del Padre (Goals)"
+          "7. Parent Goals"
         ],
-        "summary": "Editar una meta creada por el padre",
-        "description": "Actualiza parcialmente `name`, `measure_type`, `value` y/o `status` (`active` / `inactive`) de una meta existente perteneciente al padre autenticado (protegido con JWT).",
+        "summary": "Update a goal created by the parent",
+        "description": "Partially updates `name`, `measure_type`, `value`, and/or `status` (`active` / `inactive`) of an existing goal owned by the authenticated parent (JWT Protected).",
         "operationId": "update_goal_api_v1_goals__goal_id__patch",
         "security": [
           {
@@ -1157,10 +1157,10 @@
       },
       "delete": {
         "tags": [
-          "7. Metas del Padre (Goals)"
+          "7. Parent Goals"
         ],
-        "summary": "Eliminar una meta creada por el padre",
-        "description": "Elimina permanentemente una meta de la base de datos buscando por su `goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "summary": "Delete a goal created by the parent",
+        "description": "Permanently deletes a goal from the database by `goal_id`, verifying ownership by the authenticated parent (JWT Protected).",
         "operationId": "delete_goal_api_v1_goals__goal_id__delete",
         "security": [
           {
@@ -1208,10 +1208,10 @@
     "/api/v1/rewards": {
       "get": {
         "tags": [
-          "8. Recompensas del Padre (Rewards)"
+          "8. Parent Rewards"
         ],
-        "summary": "Listar recompensas (Rewards) creadas por el padre",
-        "description": "Obtiene todas las recompensas registradas por el padre autenticado (protegido con JWT).",
+        "summary": "List rewards created by the parent",
+        "description": "Retrieves all rewards registered by the authenticated parent (JWT Protected).",
         "operationId": "list_rewards_api_v1_rewards_get",
         "responses": {
           "200": {
@@ -1240,10 +1240,10 @@
       },
       "post": {
         "tags": [
-          "8. Recompensas del Padre (Rewards)"
+          "8. Parent Rewards"
         ],
-        "summary": "Crear una nueva recompensa del padre (Reward)",
-        "description": "Registra una nueva recompensa creada por el padre recibiendo `name`, `time_required` (también acepta `time_requiered`), `coins_required` y `email_parent`. El campo `created_at` se asigna automáticamente en UTC y se relaciona por llave foránea (`parent_id`) con la cuenta del padre en `users` (protegido con JWT).",
+        "summary": "Create a new parent reward",
+        "description": "Registers a new reward created by the parent receiving `name`, `time_required`, `coins_required`, and `email_parent`. The `created_at` field is auto-generated in UTC and linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
         "operationId": "create_reward_api_v1_rewards_post",
         "requestBody": {
           "content": {
@@ -1290,10 +1290,10 @@
     "/api/v1/rewards/{reward_id}": {
       "patch": {
         "tags": [
-          "8. Recompensas del Padre (Rewards)"
+          "8. Parent Rewards"
         ],
-        "summary": "Editar una recompensa creada por el padre",
-        "description": "Actualiza parcialmente `name`, `time_required` y/o `coins_required` de una recompensa existente perteneciente al padre autenticado (protegido con JWT).",
+        "summary": "Update a reward created by the parent",
+        "description": "Partially updates `name`, `time_required`, and/or `coins_required` of an existing reward owned by the authenticated parent (JWT Protected).",
         "operationId": "update_reward_api_v1_rewards__reward_id__patch",
         "security": [
           {
@@ -1349,10 +1349,10 @@
       },
       "delete": {
         "tags": [
-          "8. Recompensas del Padre (Rewards)"
+          "8. Parent Rewards"
         ],
-        "summary": "Eliminar una recompensa creada por el padre",
-        "description": "Elimina permanentemente una recompensa de la base de datos buscando por su `reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "summary": "Delete a reward created by the parent",
+        "description": "Permanently deletes a reward from the database by `reward_id`, verifying ownership by the authenticated parent (JWT Protected).",
         "operationId": "delete_reward_api_v1_rewards__reward_id__delete",
         "security": [
           {
@@ -1400,10 +1400,10 @@
     "/api/v1/member-goals": {
       "post": {
         "tags": [
-          "9. Metas de los Miembros (Member Goals)"
+          "9. Member Goals"
         ],
-        "summary": "Asignar / Crear una meta para un miembro de la familia",
-        "description": "Registra una meta seleccionada por un miembro de la familia a partir de una meta creada por el padre. Recibe `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, `accumulated_value`, `parent_email` y `name`. El campo `created_at` se genera automáticamente en UTC y se valida la integridad relacional con el padre, la meta base y el miembro (protegido con JWT).",
+        "summary": "Assign / Create a goal for a family member",
+        "description": "Registers a goal selected by a family member based on a goal created by the parent. Receives `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, `accumulated_value`, `parent_email`, and `name`. The `created_at` field is auto-generated in UTC and relational integrity with the parent, base goal, and family member is validated (JWT Protected).",
         "operationId": "create_member_goal_api_v1_member_goals_post",
         "security": [
           {
@@ -1448,10 +1448,10 @@
       },
       "get": {
         "tags": [
-          "9. Metas de los Miembros (Member Goals)"
+          "9. Member Goals"
         ],
-        "summary": "Listar metas de los miembros de la familia",
-        "description": "Obtiene todas las metas asignadas a los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID) o `goal_id`.",
+        "summary": "List family member goals",
+        "description": "Retrieves all goals assigned to family members of the authenticated parent, with optional filters by `member_id` (UUID) or `goal_id`.",
         "operationId": "list_member_goals_api_v1_member_goals_get",
         "security": [
           {
@@ -1476,10 +1476,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "description": "Optionally filter by a specific family member's UUID",
               "title": "Member Id"
             },
-            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+            "description": "Optionally filter by a specific family member's UUID"
           },
           {
             "name": "goal_id",
@@ -1494,10 +1494,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por el ID de la meta del padre",
+              "description": "Optionally filter by the parent's base goal ID",
               "title": "Goal Id"
             },
-            "description": "Filtrar opcionalmente por el ID de la meta del padre"
+            "description": "Optionally filter by the parent's base goal ID"
           }
         ],
         "responses": {
@@ -1531,10 +1531,10 @@
     "/api/v1/member-goals/{member_goal_id}": {
       "patch": {
         "tags": [
-          "9. Metas de los Miembros (Member Goals)"
+          "9. Member Goals"
         ],
-        "summary": "Actualizar progreso (accumulated_value) o datos de una meta de un miembro",
-        "description": "Actualiza el progreso (`accumulated_value`) y opcionalmente el nombre o recompensa de la meta de un miembro identificada por `member_goal_id` (protegido con JWT).",
+        "summary": "Update progress (accumulated_value) or details of a member goal",
+        "description": "Updates the progress (`accumulated_value`) and optionally the name or reward settings of a member's goal identified by `member_goal_id` (JWT Protected).",
         "operationId": "update_member_goal_api_v1_member_goals__member_goal_id__patch",
         "security": [
           {
@@ -1590,10 +1590,10 @@
       },
       "delete": {
         "tags": [
-          "9. Metas de los Miembros (Member Goals)"
+          "9. Member Goals"
         ],
-        "summary": "Eliminar una meta de un miembro de la familia",
-        "description": "Elimina permanentemente la meta asignada a un miembro de la familia buscando por `member_goal_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "summary": "Delete a family member's goal",
+        "description": "Permanently deletes a goal assigned to a family member by `member_goal_id`, verifying ownership by the authenticated parent (JWT Protected).",
         "operationId": "delete_member_goal_api_v1_member_goals__member_goal_id__delete",
         "security": [
           {
@@ -1641,10 +1641,10 @@
     "/api/v1/member-rewards": {
       "post": {
         "tags": [
-          "10. Recompensas de los Miembros (Member Rewards)"
+          "10. Member Rewards"
         ],
-        "summary": "Registrar una recompensa reclamada por un miembro de la familia",
-        "description": "Registra una recompensa seleccionada por un miembro de la familia con estado inicial `PENDING`. Puedes enviar `reward_id` para que el backend resuelva automáticamente `name_reward` cruzándolo con la tabla `rewards` del padre, o enviar `name_reward` directamente (protegido con JWT).",
+        "summary": "Register a reward claimed by a family member",
+        "description": "Registers a reward selected by a family member with initial state `PENDING`. You can send `reward_id` so the backend automatically resolves `name_reward` by matching it against the parent's `rewards` table, or send `name_reward` directly (JWT Protected).",
         "operationId": "create_member_reward_api_v1_member_rewards_post",
         "security": [
           {
@@ -1689,10 +1689,10 @@
       },
       "get": {
         "tags": [
-          "10. Recompensas de los Miembros (Member Rewards)"
+          "10. Member Rewards"
         ],
-        "summary": "Listar recompensas reclamadas/cobradas por los miembros",
-        "description": "Obtiene las recompensas reclamadas por los miembros de la familia, con filtros opcionales por `member_id` (UUID) y `state` (`PENDING` o `COLLECTED`) (protegido con JWT).",
+        "summary": "List claimed/collected member rewards",
+        "description": "Retrieves rewards claimed by family members, with optional filters by `member_id` (UUID) and `state` (`PENDING` or `COLLECTED`) (JWT Protected).",
         "operationId": "list_member_rewards_api_v1_member_rewards_get",
         "security": [
           {
@@ -1717,10 +1717,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "description": "Optionally filter by a specific family member's UUID",
               "title": "Member Id"
             },
-            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+            "description": "Optionally filter by a specific family member's UUID"
           },
           {
             "name": "state",
@@ -1735,10 +1735,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por estado (`PENDING` o `COLLECTED`)",
+              "description": "Optionally filter by state (`PENDING` or `COLLECTED`)",
               "title": "State"
             },
-            "description": "Filtrar opcionalmente por estado (`PENDING` o `COLLECTED`)"
+            "description": "Optionally filter by state (`PENDING` or `COLLECTED`)"
           }
         ],
         "responses": {
@@ -1772,10 +1772,10 @@
     "/api/v1/member-rewards/{member_reward_id}": {
       "patch": {
         "tags": [
-          "10. Recompensas de los Miembros (Member Rewards)"
+          "10. Member Rewards"
         ],
-        "summary": "Cambiar estado de la recompensa (de PENDING a COLLECTED)",
-        "description": "Permite al padre cambiar el `state` de una recompensa reclamada (por ejemplo, de `PENDING` a `COLLECTED` cuando ya entregó la recompensa al miembro) (protegido con JWT).",
+        "summary": "Update claimed reward state (from PENDING to COLLECTED)",
+        "description": "Allows the parent to change the `state` of a claimed reward (for example, from `PENDING` to `COLLECTED` once the reward has been delivered to the family member) (JWT Protected).",
         "operationId": "update_member_reward_state_api_v1_member_rewards__member_reward_id__patch",
         "security": [
           {
@@ -1831,10 +1831,10 @@
       },
       "delete": {
         "tags": [
-          "10. Recompensas de los Miembros (Member Rewards)"
+          "10. Member Rewards"
         ],
-        "summary": "Eliminar una recompensa reclamada/cobrada de un miembro",
-        "description": "Elimina permanentemente una recompensa reclamada/cobrada buscando por `member_reward_id` y verificando que pertenezca al padre autenticado (protegido con JWT).",
+        "summary": "Delete a claimed/collected member reward",
+        "description": "Permanently deletes a claimed/collected reward by `member_reward_id`, verifying ownership by the authenticated parent (JWT Protected).",
         "operationId": "delete_member_reward_api_v1_member_rewards__member_reward_id__delete",
         "security": [
           {
@@ -1882,10 +1882,10 @@
     "/api/v1/member-balances": {
       "post": {
         "tags": [
-          "11. Balance de los Miembros (Member Balances)"
+          "11. Member Balances"
         ],
-        "summary": "Registrar / Crear el balance de un miembro de la familia",
-        "description": "Registra el balance de monedas (`coins_obtained`) y tiempo (`time_obtained`) de un miembro identificado por `member_id` (UUID). El campo `created_at` se asigna automáticamente en UTC. Si el miembro ya tenía un balance registrado, actualiza sus valores y devuelve el registro (protegido con JWT).",
+        "summary": "Create / Register a family member's balance",
+        "description": "Registers the coin (`coins_obtained`) and time (`time_obtained`) balance of a family member identified by `member_id` (UUID). The `created_at` field is auto-generated in UTC. If the member already has a registered balance, updates its values and returns the record (JWT Protected).",
         "operationId": "create_member_balance_api_v1_member_balances_post",
         "security": [
           {
@@ -1930,10 +1930,10 @@
       },
       "get": {
         "tags": [
-          "11. Balance de los Miembros (Member Balances)"
+          "11. Member Balances"
         ],
-        "summary": "Listar balances de los miembros de la familia",
-        "description": "Obtiene los balances de monedas y tiempo de todos los miembros de la familia del padre autenticado, con filtro opcional por `member_id` (UUID).",
+        "summary": "List balances of all family members",
+        "description": "Retrieves the coin and time balances of all family members belonging to the authenticated parent, with an optional filter by `member_id` (UUID).",
         "operationId": "list_member_balances_api_v1_member_balances_get",
         "security": [
           {
@@ -1958,10 +1958,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por el UUID de un miembro específico",
+              "description": "Optionally filter by a specific family member's UUID",
               "title": "Member Id"
             },
-            "description": "Filtrar opcionalmente por el UUID de un miembro específico"
+            "description": "Optionally filter by a specific family member's UUID"
           }
         ],
         "responses": {
@@ -1995,10 +1995,10 @@
     "/api/v1/member-balances/{member_id}": {
       "get": {
         "tags": [
-          "11. Balance de los Miembros (Member Balances)"
+          "11. Member Balances"
         ],
-        "summary": "Obtener el saldo (balance) de un miembro en concreto",
-        "description": "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, inicializa y retorna su balance en `0` monedas y `00:00:00`.",
+        "summary": "Get the balance of a specific family member",
+        "description": "Returns the balance object (`coins_obtained` and `time_obtained`) of a specific family member by `member_id` (`identification_uuid`), validating that it belongs to the authenticated parent's `email_parent`. If the member exists but has no balance record yet, initializes and returns a default balance with `0` coins and `00:00:00`.",
         "operationId": "get_member_balance_api_v1_member_balances__member_id__get",
         "security": [
           {
@@ -2032,13 +2032,13 @@
                   "type": "null"
                 }
               ],
-              "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
+              "description": "Parent email (`email_parent`). Optional since it is also validated automatically from the JWT token.",
               "examples": [
-                "padre@fhk.app"
+                "parent@fhk.app"
               ],
               "title": "Email Parent"
             },
-            "description": "Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT."
+            "description": "Parent email (`email_parent`). Optional since it is also validated automatically from the JWT token."
           }
         ],
         "responses": {
@@ -2066,10 +2066,10 @@
       },
       "patch": {
         "tags": [
-          "11. Balance de los Miembros (Member Balances)"
+          "11. Member Balances"
         ],
-        "summary": "Actualizar el balance de un miembro por su UUID",
-        "description": "Actualiza `coins_obtained` y/o `time_obtained` del balance de un miembro identificado por su `member_id` (UUID) (protegido con JWT).",
+        "summary": "Update a family member's balance by UUID",
+        "description": "Updates `coins_obtained` and/or `time_obtained` of a family member's balance identified by `member_id` (UUID) (JWT Protected).",
         "operationId": "update_member_balance_api_v1_member_balances__member_id__patch",
         "security": [
           {
@@ -2128,10 +2128,10 @@
     "/api/v1/activity-logs": {
       "get": {
         "tags": [
-          "12. Historial de Actividad (Audit Logs)"
+          "12. Activity History (Audit Logs)"
         ],
-        "summary": "Consultar el historial de actividad (Audit Log) de la familia",
-        "description": "Devuelve la bitácora histórica de acciones registradas automáticamente en el backend para la familia del padre autenticado, ordenada de la más reciente a la más antigua. Permite filtrar opcionalmente por `member_id`, `entity_type` o `action` (protegido con JWT).",
+        "summary": "Query the family's activity history (Audit Log)",
+        "description": "Returns the historical audit trail of actions automatically recorded by the backend for the authenticated parent's family, ordered from newest to oldest. Supports optional filtering by `member_id`, `entity_type`, or `action` (JWT Protected).",
         "operationId": "list_activity_logs_api_v1_activity_logs_get",
         "security": [
           {
@@ -2155,10 +2155,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar opcionalmente por el UUID de un miembro de la familia",
+              "description": "Optionally filter by a family member's UUID",
               "title": "Member Id"
             },
-            "description": "Filtrar opcionalmente por el UUID de un miembro de la familia"
+            "description": "Optionally filter by a family member's UUID"
           },
           {
             "name": "entity_type",
@@ -2173,10 +2173,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar por módulo/entidad (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
+              "description": "Filter by module/entity (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
               "title": "Entity Type"
             },
-            "description": "Filtrar por módulo/entidad (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)"
+            "description": "Filter by module/entity (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)"
           },
           {
             "name": "action",
@@ -2191,10 +2191,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filtrar por tipo de acción (ej. `CREATE_TASK`, `UPDATE_BALANCE`, `CLAIM_REWARD`)",
+              "description": "Filter by action type (e.g. `CREATE_TASK`, `UPDATE_MEMBER_BALANCE`, `CLAIM_MEMBER_REWARD`)",
               "title": "Action"
             },
-            "description": "Filtrar por tipo de acción (ej. `CREATE_TASK`, `UPDATE_BALANCE`, `CLAIM_REWARD`)"
+            "description": "Filter by action type (e.g. `CREATE_TASK`, `UPDATE_MEMBER_BALANCE`, `CLAIM_MEMBER_REWARD`)"
           },
           {
             "name": "limit",
@@ -2204,11 +2204,11 @@
               "type": "integer",
               "maximum": 200,
               "minimum": 1,
-              "description": "Cantidad máxima de eventos históricos a devolver",
+              "description": "Maximum number of historical events to return",
               "default": 50,
               "title": "Limit"
             },
-            "description": "Cantidad máxima de eventos históricos a devolver"
+            "description": "Maximum number of historical events to return"
           }
         ],
         "responses": {
@@ -2247,24 +2247,24 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único del registro de auditoría en base de datos"
+            "description": "Unique database ID of the audit log entry"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora exacta del evento en UTC"
+            "description": "Exact UTC timestamp of the event"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de la familia/padre"
+            "description": "Parent/family account ID"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "member_id": {
             "anyOf": [
@@ -2276,20 +2276,20 @@
               }
             ],
             "title": "Member Id",
-            "description": "UUID del miembro de la familia involucrado en la acción (si aplica)"
+            "description": "UUID of the family member involved in the action (if applicable)"
           },
           "action": {
             "type": "string",
             "title": "Action",
-            "description": "Acción ejecutada (ej. `REGISTER_FAMILY`, `CREATE_MEMBER`, `UPDATE_BALANCE`, `CLAIM_REWARD`, `COLLECT_REWARD`, `CREATE_TASK`)",
+            "description": "Executed action (e.g. `REGISTER_FAMILY`, `CREATE_MEMBER`, `UPDATE_MEMBER_BALANCE`, `CLAIM_MEMBER_REWARD`, `CREATE_TASK`)",
             "examples": [
-              "UPDATE_BALANCE"
+              "UPDATE_MEMBER_BALANCE"
             ]
           },
           "entity_type": {
             "type": "string",
             "title": "Entity Type",
-            "description": "Tabla o entidad afectada (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
+            "description": "Affected table or entity (`users`, `family_members`, `goals`, `member_goals`, `member_balances`, `rewards`, `member_rewards`, `tasks`)",
             "examples": [
               "member_balances"
             ]
@@ -2297,7 +2297,7 @@
           "entity_id": {
             "type": "string",
             "title": "Entity Id",
-            "description": "ID o UUID del registro afectado",
+            "description": "ID or UUID of the affected record",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -2312,9 +2312,9 @@
               }
             ],
             "title": "Details",
-            "description": "Detalle descriptivo de los cambios realizados",
+            "description": "Human-readable summary of the changes performed",
             "examples": [
-              "Balance actualizado: coins_obtained=220, time_obtained=02:15:00"
+              "Balance updated: coins_obtained=220, time_obtained=02:15:00"
             ]
           }
         },
@@ -2334,7 +2334,7 @@
         "properties": {
           "platform": {
             "$ref": "#/components/schemas/PlatformEnum",
-            "description": "Plataforma consultada (`IOS` para Apple App Store, `AND` para Google Play Store)",
+            "description": "Queried platform (`IOS` for Apple App Store, `AND` for Google Play Store)",
             "examples": [
               "IOS"
             ]
@@ -2342,7 +2342,7 @@
           "current_version": {
             "type": "string",
             "title": "Current Version",
-            "description": "Versión instalada actualmente en el dispositivo del usuario",
+            "description": "App version currently installed on the user's device",
             "examples": [
               "1.0.0"
             ]
@@ -2350,7 +2350,7 @@
           "latest_version": {
             "type": "string",
             "title": "Latest Version",
-            "description": "Última versión disponible en la tienda correspondiente",
+            "description": "Latest version available in the corresponding store",
             "examples": [
               "1.2.0"
             ]
@@ -2358,7 +2358,7 @@
           "min_required_version": {
             "type": "string",
             "title": "Min Required Version",
-            "description": "Versión mínima permitida para seguir usando la app sin actualizar",
+            "description": "Minimum required version allowed to continue using the app without updating",
             "examples": [
               "1.0.0"
             ]
@@ -2366,7 +2366,7 @@
           "is_up_to_date": {
             "type": "boolean",
             "title": "Is Up To Date",
-            "description": "`true` si la app ya tiene instalada la última versión (o superior) de la tienda",
+            "description": "`true` if the app already has the latest (or newer) store version installed",
             "examples": [
               false
             ]
@@ -2374,7 +2374,7 @@
           "update_available": {
             "type": "boolean",
             "title": "Update Available",
-            "description": "`true` si existe una versión más reciente publicada en la tienda",
+            "description": "`true` if a newer version is published in the store",
             "examples": [
               true
             ]
@@ -2382,7 +2382,7 @@
           "force_update": {
             "type": "boolean",
             "title": "Force Update",
-            "description": "`true` si la actualización es obligatoria (bloqueante) para continuar usando la app",
+            "description": "`true` if updating is mandatory (blocking) to continue using the app",
             "examples": [
               false
             ]
@@ -2397,7 +2397,7 @@
               }
             ],
             "title": "Store Url",
-            "description": "Enlace directo a la tienda (App Store / Google Play) para descargar la actualización",
+            "description": "Direct link to the store (App Store / Google Play) to download the update",
             "examples": [
               "https://apps.apple.com/app/id000000000"
             ]
@@ -2412,17 +2412,17 @@
               }
             ],
             "title": "Release Notes",
-            "description": "Notas de la versión con las novedades disponibles en tienda",
+            "description": "Release notes describing what is new in the store version",
             "examples": [
-              "Mejoras de rendimiento y nuevas funcionalidades de seguridad."
+              "Performance improvements and new security features."
             ]
           },
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje descriptivo listo para mostrar al usuario o registrar en logs",
+            "description": "Descriptive status message ready to display to the user or log",
             "examples": [
-              "Hay una nueva versión (1.2.0) disponible en la tienda."
+              "A new version (1.2.0) is available in the store."
             ]
           }
         },
@@ -2506,7 +2506,7 @@
             "maxLength": 30,
             "minLength": 1,
             "title": "Latest Version",
-            "description": "Última versión publicada en la tienda (formato semántico ej. 1.2.0)",
+            "description": "Latest version published in the store (semantic format, e.g. `1.2.0`)",
             "examples": [
               "1.3.0"
             ]
@@ -2516,7 +2516,7 @@
             "maxLength": 30,
             "minLength": 1,
             "title": "Min Required Version",
-            "description": "Versión mínima obligatoria (clientes con versión menor verán force_update=true)",
+            "description": "Minimum required version (clients below this version will receive `force_update=true`)",
             "examples": [
               "1.1.0"
             ]
@@ -2524,7 +2524,7 @@
           "force_update": {
             "type": "boolean",
             "title": "Force Update",
-            "description": "Si es `true`, fuerza la actualización a todos los usuarios que no estén en `latest_version`",
+            "description": "If `true`, forces an update for all users not on `latest_version`",
             "default": false
           },
           "store_url": {
@@ -2537,7 +2537,7 @@
               }
             ],
             "title": "Store Url",
-            "description": "URL oficial de la app en App Store o Google Play",
+            "description": "Official App Store or Google Play URL",
             "examples": [
               "https://apps.apple.com/app/id000000000"
             ]
@@ -2552,9 +2552,9 @@
               }
             ],
             "title": "Release Notes",
-            "description": "Notas de lanzamiento de la versión actual",
+            "description": "Release notes for the current version",
             "examples": [
-              "Corrección de errores y mejoras de estabilidad."
+              "Bug fixes and stability improvements."
             ]
           }
         },
@@ -2571,16 +2571,16 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor registrado al que pertenece el miembro",
+            "description": "Registered parent/guardian email address that owns this family member",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "identification_uuid": {
             "type": "string",
             "format": "uuid",
             "title": "Identification Uuid",
-            "description": "Identificador único UUID del miembro de la familia generado desde la app",
+            "description": "Unique UUID identifier for the family member generated by the app",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -2590,7 +2590,7 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Member Name",
-            "description": "Nombre del miembro de la familia",
+            "description": "Family member's name",
             "examples": [
               "Mateo"
             ]
@@ -2600,7 +2600,7 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Avatar Name",
-            "description": "Nombre o identificador del avatar seleccionado en la app",
+            "description": "Name or identifier of the avatar selected in the app",
             "examples": [
               "avatar_lion_01"
             ]
@@ -2610,9 +2610,9 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name Family",
-            "description": "Nombre de la familia (mismo `name_family` del registro / `users/me`)",
+            "description": "Family name (same `name_family` from registration / `/users/me`)",
             "examples": [
-              "Familia León"
+              "Leon Family"
             ]
           }
         },
@@ -2631,16 +2631,16 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Miembro de la familia eliminado correctamente."
+              "Family member deleted successfully."
             ]
           },
           "identification_uuid": {
             "type": "string",
             "format": "uuid",
             "title": "Identification Uuid",
-            "description": "UUID del miembro que fue eliminado",
+            "description": "UUID of the deleted family member",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -2658,51 +2658,51 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID numérico interno del miembro en base de datos"
+            "description": "Internal numeric database ID of the member"
           },
           "identification_uuid": {
             "type": "string",
             "format": "uuid",
             "title": "Identification Uuid",
-            "description": "UUID único de identificación del miembro"
+            "description": "Unique identification UUID of the member"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "name_family": {
             "type": "string",
             "title": "Name Family",
-            "description": "Nombre de la familia"
+            "description": "Family name"
           },
           "member_name": {
             "type": "string",
             "title": "Member Name",
-            "description": "Nombre del miembro"
+            "description": "Member name"
           },
           "avatar_name": {
             "type": "string",
             "title": "Avatar Name",
-            "description": "Avatar asignado"
+            "description": "Assigned avatar"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha de creación en UTC"
+            "description": "Creation UTC timestamp"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -2733,9 +2733,9 @@
               }
             ],
             "title": "Member Name",
-            "description": "Nuevo nombre del miembro de la familia",
+            "description": "New name for the family member",
             "examples": [
-              "Mateo León"
+              "Mateo Leon"
             ]
           },
           "avatar_name": {
@@ -2750,7 +2750,7 @@
               }
             ],
             "title": "Avatar Name",
-            "description": "Nuevo nombre o identificador del avatar",
+            "description": "New avatar name or identifier",
             "examples": [
               "avatar_tiger_02"
             ]
@@ -2765,9 +2765,9 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor para recibir el código temporal de 6 dígitos",
+            "description": "Parent/guardian email address to receive the temporary 6-digit recovery code",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           }
         },
@@ -2782,21 +2782,21 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación para mostrar al usuario en la app",
+            "description": "Confirmation message to display in the app",
             "examples": [
-              "Se ha generado y enviado un código de verificación de 6 dígitos al correo registrado."
+              "A 6-digit verification code has been generated and sent to the registered email."
             ]
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo al cual se envió el código"
+            "description": "Email address where the recovery code was sent"
           },
           "expires_in_minutes": {
             "type": "integer",
             "title": "Expires In Minutes",
-            "description": "Minutos de validez del código de 6 dígitos"
+            "description": "Validity time in minutes for the 6-digit code"
           },
           "debug_recovery_code": {
             "anyOf": [
@@ -2808,7 +2808,7 @@
               }
             ],
             "title": "Debug Recovery Code",
-            "description": "Código de 6 dígitos expuesto únicamente en entorno `development` para facilitar pruebas desde la app o Swagger",
+            "description": "6-digit code exposed only in the `development` environment to facilitate testing from the app or Swagger",
             "examples": [
               "482910"
             ]
@@ -2829,14 +2829,14 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Measure Type",
-            "description": "Tipo de medida de la meta (ej. `minutes`, `hours`, `points`, `tasks`)",
+            "description": "Measurement unit type for the goal (e.g. `minutes`, `hours`, `points`, `tasks`)",
             "examples": [
               "minutes"
             ]
           },
           "status": {
             "$ref": "#/components/schemas/GoalStatusEnum",
-            "description": "Estado de la meta (`active` o `inactive`)",
+            "description": "Goal status (`active` or `inactive`)",
             "default": "active",
             "examples": [
               "active"
@@ -2846,9 +2846,9 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor propietario de la meta",
+            "description": "Email address of the parent/guardian who owns the goal",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "name": {
@@ -2856,16 +2856,16 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name",
-            "description": "Nombre descriptivo de la meta",
+            "description": "Descriptive name of the goal",
             "examples": [
-              "Lectura diaria"
+              "Daily reading"
             ]
           },
           "value": {
             "type": "integer",
             "minimum": 0.0,
             "title": "Value",
-            "description": "Valor numérico objetivo de la meta",
+            "description": "Target numeric value for the goal",
             "examples": [
               30
             ]
@@ -2885,15 +2885,15 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Meta eliminada correctamente."
+              "Goal deleted successfully."
             ]
           },
           "goal_id": {
             "type": "integer",
             "title": "Goal Id",
-            "description": "ID de la meta eliminada",
+            "description": "ID of the deleted goal",
             "examples": [
               1
             ]
@@ -2911,49 +2911,49 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único de la meta en base de datos"
+            "description": "Unique database ID of the goal"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "measure_type": {
             "type": "string",
             "title": "Measure Type",
-            "description": "Tipo de medida de la meta"
+            "description": "Measurement unit type of the goal"
           },
           "status": {
             "$ref": "#/components/schemas/GoalStatusEnum",
-            "description": "Estado actual de la meta (`active` o `inactive`)"
+            "description": "Current goal status (`active` or `inactive`)"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "description": "Nombre de la meta"
+            "description": "Goal name"
           },
           "value": {
             "type": "integer",
             "title": "Value",
-            "description": "Valor numérico de la meta"
+            "description": "Target numeric value of the goal"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -2992,9 +2992,9 @@
               }
             ],
             "title": "Name",
-            "description": "Nuevo nombre descriptivo de la meta",
+            "description": "New descriptive name of the goal",
             "examples": [
-              "Lectura nocturna"
+              "Evening reading"
             ]
           },
           "measure_type": {
@@ -3009,7 +3009,7 @@
               }
             ],
             "title": "Measure Type",
-            "description": "Nuevo tipo de medida de la meta",
+            "description": "New measurement unit type for the goal",
             "examples": [
               "minutes"
             ]
@@ -3025,7 +3025,7 @@
               }
             ],
             "title": "Value",
-            "description": "Nuevo valor numérico objetivo de la meta",
+            "description": "New target numeric value for the goal",
             "examples": [
               45
             ]
@@ -3039,7 +3039,7 @@
                 "type": "null"
               }
             ],
-            "description": "Nuevo estado de la meta (`active` o `inactive`)",
+            "description": "New goal status (`active` or `inactive`)",
             "examples": [
               "inactive"
             ]
@@ -3067,9 +3067,9 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico registrado del padre/tutor",
+            "description": "Registered parent/guardian email address",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "password": {
@@ -3077,7 +3077,7 @@
             "maxLength": 512,
             "minLength": 4,
             "title": "Password",
-            "description": "Contraseña encriptada desde la app (la misma enviada durante el registro)",
+            "description": "Client-encrypted password from the app (same value sent during registration)",
             "examples": [
               "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             ]
@@ -3096,7 +3096,7 @@
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "description": "UUID of the family member (`identification_uuid` in `/api/v1/family-members`)",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -3105,7 +3105,7 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Coins Obtained",
-            "description": "Cantidad de monedas obtenidas por el miembro",
+            "description": "Amount of coins obtained by the member",
             "examples": [
               150
             ]
@@ -3115,7 +3115,7 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Time Obtained",
-            "description": "Tiempo obtenido por el miembro (ej. `01:30:00` o `90m`)",
+            "description": "Time obtained by the member (e.g. `01:30:00` or `90m`)",
             "examples": [
               "01:30:00"
             ]
@@ -3134,40 +3134,40 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único del registro de balance en base de datos"
+            "description": "Unique database ID of the balance record"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "member_id": {
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia"
+            "description": "UUID of the family member"
           },
           "coins_obtained": {
             "type": "integer",
             "title": "Coins Obtained",
-            "description": "Cantidad de monedas obtenidas"
+            "description": "Amount of coins obtained"
           },
           "time_obtained": {
             "type": "string",
             "title": "Time Obtained",
-            "description": "Tiempo obtenido"
+            "description": "Time obtained"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -3195,7 +3195,7 @@
               }
             ],
             "title": "Coins Obtained",
-            "description": "Nueva cantidad de monedas obtenidas por el miembro",
+            "description": "New amount of coins obtained by the member",
             "examples": [
               200
             ]
@@ -3212,7 +3212,7 @@
               }
             ],
             "title": "Time Obtained",
-            "description": "Nuevo tiempo obtenido por el miembro",
+            "description": "New time obtained by the member",
             "examples": [
               "02:00:00"
             ]
@@ -3226,7 +3226,7 @@
           "goal_id": {
             "type": "integer",
             "title": "Goal Id",
-            "description": "ID de la meta creada por el padre en `/api/v1/goals`",
+            "description": "ID of the base goal created by the parent in `/api/v1/goals`",
             "examples": [
               1
             ]
@@ -3235,7 +3235,7 @@
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "description": "UUID of the family member (`identification_uuid` in `/api/v1/family-members`)",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -3245,7 +3245,7 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Rewards System Type",
-            "description": "Tipo de sistema de recompensa seleccionado (ej. `points`, `stars`, `coins`, `allowance`)",
+            "description": "Selected reward system type (e.g. `points`, `stars`, `coins`, `allowance`)",
             "examples": [
               "stars"
             ]
@@ -3254,7 +3254,7 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Rewards System Value",
-            "description": "Valor de la recompensa asignada al completar la meta",
+            "description": "Reward value granted upon completing the goal",
             "examples": [
               10
             ]
@@ -3263,7 +3263,7 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Accumulated Value",
-            "description": "Valor acumulado hasta el momento en la meta del miembro",
+            "description": "Value accumulated so far toward the member's goal",
             "default": 0,
             "examples": [
               0
@@ -3273,9 +3273,9 @@
             "type": "string",
             "format": "email",
             "title": "Parent Email",
-            "description": "Correo electrónico del padre/tutor registrado (misma relación que con las tablas anteriores)",
+            "description": "Registered parent/guardian email address",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "name": {
@@ -3283,9 +3283,9 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name",
-            "description": "Nombre de la meta para el miembro",
+            "description": "Goal name for the family member",
             "examples": [
-              "Lectura diaria"
+              "Daily reading"
             ]
           }
         },
@@ -3305,15 +3305,15 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Meta del miembro eliminada correctamente."
+              "Member goal deleted successfully."
             ]
           },
           "member_goal_id": {
             "type": "integer",
             "title": "Member Goal Id",
-            "description": "ID de la meta del miembro que fue eliminada",
+            "description": "ID of the deleted member goal",
             "examples": [
               1
             ]
@@ -3331,61 +3331,61 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único de la meta del miembro en base de datos"
+            "description": "Unique database ID of the member's goal"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "goal_id": {
             "type": "integer",
             "title": "Goal Id",
-            "description": "ID de la meta base creada por el padre"
+            "description": "ID of the base goal created by the parent"
           },
           "member_id": {
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia"
+            "description": "UUID of the family member"
           },
           "rewards_system_type": {
             "type": "string",
             "title": "Rewards System Type",
-            "description": "Tipo de sistema de recompensa"
+            "description": "Reward system type"
           },
           "rewards_system_value": {
             "type": "integer",
             "title": "Rewards System Value",
-            "description": "Valor de la recompensa"
+            "description": "Reward value"
           },
           "accumulated_value": {
             "type": "integer",
             "title": "Accumulated Value",
-            "description": "Valor acumulado actual"
+            "description": "Current accumulated progress value"
           },
           "parent_email": {
             "type": "string",
             "format": "email",
             "title": "Parent Email",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "description": "Nombre de la meta del miembro"
+            "description": "Name of the member's goal"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -3417,7 +3417,7 @@
               }
             ],
             "title": "Accumulated Value",
-            "description": "Nuevo valor acumulado de progreso en la meta del miembro",
+            "description": "New accumulated progress value for the member's goal",
             "examples": [
               15
             ]
@@ -3434,7 +3434,7 @@
               }
             ],
             "title": "Rewards System Type",
-            "description": "Nuevo tipo de sistema de recompensa (opcional)",
+            "description": "New reward system type (optional)",
             "examples": [
               "stars"
             ]
@@ -3450,7 +3450,7 @@
               }
             ],
             "title": "Rewards System Value",
-            "description": "Nuevo valor de la recompensa (opcional)",
+            "description": "New reward value (optional)",
             "examples": [
               20
             ]
@@ -3467,9 +3467,9 @@
               }
             ],
             "title": "Name",
-            "description": "Nuevo nombre de la meta del miembro (opcional)",
+            "description": "New goal name for the member (optional)",
             "examples": [
-              "Lectura diaria"
+              "Daily reading"
             ]
           }
         },
@@ -3482,7 +3482,7 @@
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia (`identification_uuid` en `/api/v1/family-members`)",
+            "description": "UUID of the family member (`identification_uuid` in `/api/v1/family-members`)",
             "examples": [
               "550e8400-e29b-41d4-a716-446655440000"
             ]
@@ -3491,9 +3491,9 @@
             "type": "string",
             "format": "email",
             "title": "Parent Email",
-            "description": "Correo electrónico del padre/tutor registrado (misma relación que en los módulos anteriores)",
+            "description": "Registered parent/guardian email address",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "reward_id": {
@@ -3506,7 +3506,7 @@
               }
             ],
             "title": "Reward Id",
-            "description": "(Recomendado) ID de la recompensa creada por el padre en `/api/v1/rewards`. Si lo envías, el backend resuelve y guarda automáticamente `name_reward` desde la base de datos.",
+            "description": "(Recommended) ID of the reward created by the parent in `/api/v1/rewards`. When provided, the backend automatically resolves and stores `name_reward` from the database.",
             "examples": [
               1
             ]
@@ -3523,9 +3523,9 @@
               }
             ],
             "title": "Name Reward",
-            "description": "Nombre de la recompensa. Si envías `reward_id`, este campo es opcional porque el backend lo toma automáticamente de la lista de `rewards` del padre.",
+            "description": "Reward name. Optional when `reward_id` is provided because the backend resolves it automatically from the parent's `rewards` list.",
             "examples": [
-              "1 hora de videojuegos"
+              "1 hour of video games"
             ]
           },
           "claimed_value": {
@@ -3533,14 +3533,14 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Claimed Value",
-            "description": "Valor reclamado por el miembro (ej. `100 coins` o `01:00:00`)",
+            "description": "Claimed value by the member (e.g. `100 coins` or `01:00:00`)",
             "examples": [
               "100 coins"
             ]
           },
           "state": {
             "$ref": "#/components/schemas/MemberRewardStateEnum",
-            "description": "Estado de la recompensa reclamada: `PENDING` (al seleccionarla el miembro) o `COLLECTED` (cuando el padre la marca como entregada/cobrada).",
+            "description": "State of the claimed reward: `PENDING` (when selected by the member) or `COLLECTED` (when marked as delivered/collected by the parent).",
             "default": "PENDING",
             "examples": [
               "PENDING"
@@ -3560,15 +3560,15 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Recompensa reclamada eliminada correctamente."
+              "Claimed reward deleted successfully."
             ]
           },
           "member_reward_id": {
             "type": "integer",
             "title": "Member Reward Id",
-            "description": "ID de la recompensa reclamada que fue eliminada",
+            "description": "ID of the deleted claimed reward",
             "examples": [
               1
             ]
@@ -3586,13 +3586,13 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único de la recompensa reclamada en base de datos"
+            "description": "Unique database ID of the claimed reward"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "reward_id": {
             "anyOf": [
@@ -3604,44 +3604,44 @@
               }
             ],
             "title": "Reward Id",
-            "description": "ID de la recompensa original del padre"
+            "description": "ID of the parent's original reward"
           },
           "member_id": {
             "type": "string",
             "format": "uuid",
             "title": "Member Id",
-            "description": "UUID del miembro de la familia"
+            "description": "UUID of the family member"
           },
           "parent_email": {
             "type": "string",
             "format": "email",
             "title": "Parent Email",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "name_reward": {
             "type": "string",
             "title": "Name Reward",
-            "description": "Nombre de la recompensa"
+            "description": "Reward name"
           },
           "claimed_value": {
             "type": "string",
             "title": "Claimed Value",
-            "description": "Valor reclamado"
+            "description": "Claimed value"
           },
           "state": {
             "$ref": "#/components/schemas/MemberRewardStateEnum",
-            "description": "Estado actual (`PENDING` o `COLLECTED`)"
+            "description": "Current state (`PENDING` or `COLLECTED`)"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -3670,7 +3670,7 @@
         "properties": {
           "state": {
             "$ref": "#/components/schemas/MemberRewardStateEnum",
-            "description": "Nuevo estado de la recompensa (`PENDING` o `COLLECTED`)",
+            "description": "New state of the reward (`PENDING` or `COLLECTED`)",
             "examples": [
               "COLLECTED"
             ]
@@ -3687,7 +3687,7 @@
               }
             ],
             "title": "Claimed Value",
-            "description": "Actualizar opcionalmente el valor reclamado"
+            "description": "Optionally update the claimed value"
           }
         },
         "type": "object",
@@ -3709,7 +3709,7 @@
           "refresh_token": {
             "type": "string",
             "title": "Refresh Token",
-            "description": "Refresh token obtenido durante el login para renovar el access token"
+            "description": "Refresh token obtained during login to renew the access token"
           }
         },
         "type": "object",
@@ -3724,9 +3724,9 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor",
+            "description": "Registered parent/guardian email address",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "recovery_code": {
@@ -3734,7 +3734,7 @@
             "maxLength": 6,
             "minLength": 6,
             "title": "Recovery Code",
-            "description": "Código temporal de 6 dígitos recibido por correo",
+            "description": "Temporary 6-digit code received by email",
             "examples": [
               "482910"
             ]
@@ -3744,7 +3744,7 @@
             "maxLength": 512,
             "minLength": 4,
             "title": "New Password",
-            "description": "Nueva contraseña encriptada desde la app",
+            "description": "New client-encrypted password from the app",
             "examples": [
               "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
             ]
@@ -3763,9 +3763,9 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Confirmación del cambio de contraseña",
+            "description": "Password update confirmation message",
             "examples": [
-              "La contraseña se ha actualizado correctamente. Ya puedes iniciar sesión."
+              "Password has been updated successfully. You can now log in."
             ]
           },
           "email_parent": {
@@ -3794,9 +3794,9 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name",
-            "description": "Nombre de la recompensa creada por el padre",
+            "description": "Name of the reward created by the parent",
             "examples": [
-              "1 hora de videojuegos"
+              "1 hour of video games"
             ]
           },
           "time_required": {
@@ -3804,7 +3804,7 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Time Required",
-            "description": "Tiempo requerido para reclamar la recompensa (acepta `time_required` o `time_requiered`)",
+            "description": "Time required to claim the reward",
             "examples": [
               "01:00:00"
             ]
@@ -3813,7 +3813,7 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Coins Required",
-            "description": "Cantidad de monedas requeridas para reclamar la recompensa",
+            "description": "Amount of coins required to claim the reward",
             "examples": [
               100
             ]
@@ -3822,9 +3822,9 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor propietario de la recompensa",
+            "description": "Email address of the parent/guardian who owns the reward",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           }
         },
@@ -3842,15 +3842,15 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Recompensa eliminada correctamente."
+              "Reward deleted successfully."
             ]
           },
           "reward_id": {
             "type": "integer",
             "title": "Reward Id",
-            "description": "ID de la recompensa eliminada",
+            "description": "ID of the deleted reward",
             "examples": [
               1
             ]
@@ -3868,45 +3868,45 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único de la recompensa en base de datos"
+            "description": "Unique database ID of the reward"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "description": "Nombre de la recompensa"
+            "description": "Reward name"
           },
           "time_required": {
             "type": "string",
             "title": "Time Required",
-            "description": "Tiempo requerido para la recompensa"
+            "description": "Required time for the reward"
           },
           "coins_required": {
             "type": "integer",
             "title": "Coins Required",
-            "description": "Monedas requeridas para la recompensa"
+            "description": "Required coins for the reward"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -3936,9 +3936,9 @@
               }
             ],
             "title": "Name",
-            "description": "Nuevo nombre de la recompensa",
+            "description": "New reward name",
             "examples": [
-              "2 horas de videojuegos"
+              "2 hours of video games"
             ]
           },
           "time_required": {
@@ -3953,7 +3953,7 @@
               }
             ],
             "title": "Time Required",
-            "description": "Nuevo tiempo requerido para la recompensa",
+            "description": "New time required for the reward",
             "examples": [
               "02:00:00"
             ]
@@ -3969,7 +3969,7 @@
               }
             ],
             "title": "Coins Required",
-            "description": "Nueva cantidad de monedas requeridas",
+            "description": "New amount of required coins",
             "examples": [
               180
             ]
@@ -3985,9 +3985,9 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name",
-            "description": "Nombre de la tarea creada por el padre",
+            "description": "Name of the task created by the parent",
             "examples": [
-              "Ordenar la habitación"
+              "Clean the bedroom"
             ]
           },
           "time_granted": {
@@ -3995,7 +3995,7 @@
             "maxLength": 100,
             "minLength": 1,
             "title": "Time Granted",
-            "description": "Tiempo otorgado como recompensa al completar la tarea",
+            "description": "Screen/play time granted upon completing the task",
             "examples": [
               "00:30:00"
             ]
@@ -4004,7 +4004,7 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Coins Granted",
-            "description": "Cantidad de monedas otorgadas al completar la tarea",
+            "description": "Amount of coins granted upon completing the task",
             "examples": [
               50
             ]
@@ -4013,23 +4013,23 @@
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor propietario de la tarea",
+            "description": "Email address of the parent/guardian who owns the task",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "description": {
             "type": "string",
             "minLength": 1,
             "title": "Description",
-            "description": "Descripción detallada de la tarea a realizar",
+            "description": "Detailed description of the task to perform",
             "examples": [
-              "Tender la cama y guardar los juguetes antes de cenar."
+              "Make the bed and put away all toys before dinner."
             ]
           },
           "status": {
             "$ref": "#/components/schemas/TaskStatusEnum",
-            "description": "Estado inicial de la tarea (`enable` o `disable`). Por defecto se asigna `enable` automáticamente.",
+            "description": "Initial task status (`enable` or `disable`). Defaults to `enable` automatically.",
             "default": "enable",
             "examples": [
               "enable"
@@ -4051,15 +4051,15 @@
           "message": {
             "type": "string",
             "title": "Message",
-            "description": "Mensaje de confirmación de eliminación",
+            "description": "Deletion confirmation message",
             "examples": [
-              "Tarea eliminada correctamente."
+              "Task deleted successfully."
             ]
           },
           "task_id": {
             "type": "integer",
             "title": "Task Id",
-            "description": "ID de la tarea eliminada",
+            "description": "ID of the deleted task",
             "examples": [
               1
             ]
@@ -4077,54 +4077,54 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único de la tarea en base de datos"
+            "description": "Unique database ID of the task"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de creación auto-generada por el backend en UTC"
+            "description": "Creation UTC timestamp auto-generated by the backend"
           },
           "name": {
             "type": "string",
             "title": "Name",
-            "description": "Nombre de la tarea"
+            "description": "Task name"
           },
           "time_granted": {
             "type": "string",
             "title": "Time Granted",
-            "description": "Tiempo otorgado"
+            "description": "Granted time"
           },
           "coins_granted": {
             "type": "integer",
             "title": "Coins Granted",
-            "description": "Monedas otorgadas"
+            "description": "Granted coins"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "description": {
             "type": "string",
             "title": "Description",
-            "description": "Descripción de la tarea"
+            "description": "Task description"
           },
           "status": {
             "$ref": "#/components/schemas/TaskStatusEnum",
-            "description": "Estado actual de la tarea (`enable` o `disable`)"
+            "description": "Current task status (`enable` or `disable`)"
           },
           "parent_id": {
             "type": "integer",
             "title": "Parent Id",
-            "description": "ID de relación (Foreign Key) con la cuenta del padre en `users`"
+            "description": "Foreign key ID linking to the parent account in `users`"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -4164,9 +4164,9 @@
               }
             ],
             "title": "Name",
-            "description": "Nuevo nombre de la tarea",
+            "description": "New task name",
             "examples": [
-              "Ordenar habitación y escritorio"
+              "Clean bedroom and desk"
             ]
           },
           "time_granted": {
@@ -4181,7 +4181,7 @@
               }
             ],
             "title": "Time Granted",
-            "description": "Nuevo tiempo otorgado",
+            "description": "New granted time",
             "examples": [
               "00:45:00"
             ]
@@ -4197,7 +4197,7 @@
               }
             ],
             "title": "Coins Granted",
-            "description": "Nueva cantidad de monedas otorgadas",
+            "description": "New amount of granted coins",
             "examples": [
               75
             ]
@@ -4213,9 +4213,9 @@
               }
             ],
             "title": "Description",
-            "description": "Nueva descripción de la tarea",
+            "description": "New task description",
             "examples": [
-              "Tender la cama, guardar juguetes y limpiar el escritorio."
+              "Make the bed, put away toys, and organize the desk."
             ]
           },
           "status": {
@@ -4227,7 +4227,7 @@
                 "type": "null"
               }
             ],
-            "description": "Nuevo estado de la tarea (`enable` para habilitarla o `disable` para deshabilitarla)",
+            "description": "New task status (`enable` to enable it or `disable` to disable it)",
             "examples": [
               "disable"
             ]
@@ -4241,23 +4241,23 @@
           "access_token": {
             "type": "string",
             "title": "Access Token",
-            "description": "JWT Access Token para enviar en Authorization: Bearer <token>"
+            "description": "JWT Access Token to send in `Authorization: Bearer <token>`"
           },
           "refresh_token": {
             "type": "string",
             "title": "Refresh Token",
-            "description": "JWT Refresh Token para renovar sesión sin pedir contraseña nuevamente"
+            "description": "JWT Refresh Token to renew the session without re-entering credentials"
           },
           "token_type": {
             "type": "string",
             "title": "Token Type",
-            "description": "Tipo de token de autorización",
+            "description": "Authorization token type",
             "default": "bearer"
           },
           "expires_in_minutes": {
             "type": "integer",
             "title": "Expires In Minutes",
-            "description": "Tiempo de expiración del access token en minutos"
+            "description": "Access token expiration time in minutes"
           }
         },
         "type": "object",
@@ -4275,18 +4275,18 @@
             "maxLength": 255,
             "minLength": 1,
             "title": "Name Family",
-            "description": "Nombre de la familia",
+            "description": "Family name",
             "examples": [
-              "Familia León"
+              "Leon Family"
             ]
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/madre o tutor",
+            "description": "Parent or guardian email address",
             "examples": [
-              "padre@fhk.app"
+              "parent@fhk.app"
             ]
           },
           "password": {
@@ -4294,7 +4294,7 @@
             "maxLength": 512,
             "minLength": 4,
             "title": "Password",
-            "description": "Contraseña encriptada desde la app (el mismo valor se enviará en `/auth/login`)",
+            "description": "Client-encrypted password from the app (same value used in `/auth/login`)",
             "examples": [
               "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
             ]
@@ -4304,7 +4304,7 @@
             "maxLength": 50,
             "minLength": 4,
             "title": "Approve Pin",
-            "description": "PIN de aprobación parental",
+            "description": "Parental approval PIN",
             "examples": [
               "1234"
             ]
@@ -4324,40 +4324,40 @@
           "id": {
             "type": "integer",
             "title": "Id",
-            "description": "ID único del registro en base de datos"
+            "description": "Unique database record ID"
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At",
-            "description": "Fecha y hora de registro auto-generada por el backend en UTC"
+            "description": "Registration UTC timestamp auto-generated by the backend"
           },
           "name_family": {
             "type": "string",
             "title": "Name Family",
-            "description": "Nombre de la familia"
+            "description": "Family name"
           },
           "email_parent": {
             "type": "string",
             "format": "email",
             "title": "Email Parent",
-            "description": "Correo electrónico del padre/tutor"
+            "description": "Parent/guardian email address"
           },
           "approve_pin": {
             "type": "string",
             "title": "Approve Pin",
-            "description": "PIN de aprobación parental"
+            "description": "Parental approval PIN"
           },
           "is_active": {
             "type": "boolean",
             "title": "Is Active",
-            "description": "Indica si la cuenta está activa"
+            "description": "Indicates whether the account is active"
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "description": "Última actualización en UTC"
+            "description": "Last update UTC timestamp"
           }
         },
         "type": "object",
@@ -4386,7 +4386,7 @@
               }
             ],
             "title": "Name Family",
-            "description": "Nuevo nombre de la familia"
+            "description": "New family name"
           },
           "password": {
             "anyOf": [
@@ -4400,7 +4400,7 @@
               }
             ],
             "title": "Password",
-            "description": "Nueva contraseña encriptada desde la app"
+            "description": "New client-encrypted password from the app"
           },
           "approve_pin": {
             "anyOf": [
@@ -4414,7 +4414,7 @@
               }
             ],
             "title": "Approve Pin",
-            "description": "Nuevo PIN de aprobación parental"
+            "description": "New parental approval PIN"
           }
         },
         "type": "object",
@@ -4473,59 +4473,59 @@
       },
       "BearerJWT": {
         "type": "http",
-        "description": "Pega aquí tu `access_token` JWT obtenido en `/api/v1/auth/login`",
+        "description": "Paste your JWT `access_token` obtained from `/api/v1/auth/login` here",
         "scheme": "bearer"
       }
     }
   },
   "tags": [
     {
-      "name": "1. Estado del servidor",
-      "description": "Verificación de salud y disponibilidad del servicio."
+      "name": "1. Server Status",
+      "description": "Service health check and availability status."
     },
     {
-      "name": "2. Versión de la App (Tiendas)",
-      "description": "Verificación de versión actual instalada en el dispositivo (`IOS` o `AND`) contra la última versión publicada en tiendas."
+      "name": "2. App Version (Stores)",
+      "description": "Check the currently installed app version (`IOS` or `AND`) against the latest version published in stores."
     },
     {
-      "name": "3. Autenticación",
-      "description": "Registro de usuarios, inicio de sesión, recuperación de contraseña y renovación de tokens JWT (`access_token` y `refresh_token`)."
+      "name": "3. Authentication",
+      "description": "Family registration, login, 6-digit password recovery, and JWT token refresh (`access_token` and `refresh_token`)."
     },
     {
-      "name": "4. Usuarios / Familia",
-      "description": "Consulta y actualización de los datos de la familia / padre autenticado."
+      "name": "4. Users / Family",
+      "description": "Retrieve and update the authenticated parent / family profile."
     },
     {
-      "name": "5. Miembros de la Familia",
-      "description": "Creación, edición, consulta y eliminación de miembros de la familia vinculados a la cuenta del padre."
+      "name": "5. Family Members",
+      "description": "Create, update, list, and delete family members linked to the parent account."
     },
     {
-      "name": "6. Tareas de la Familia (Tasks)",
-      "description": "Creación, edición, consulta (todas o solo `enable`) y eliminación de tareas familiares creadas por el padre."
+      "name": "6. Family Tasks",
+      "description": "Create, edit, list (all or `enable` only), and delete family tasks created by the parent."
     },
     {
-      "name": "7. Metas del Padre (Goals)",
-      "description": "Creación y gestión de metas base configuradas por el padre/tutor de la familia."
+      "name": "7. Parent Goals",
+      "description": "Create and manage base goals configured by the family parent/guardian."
     },
     {
-      "name": "8. Recompensas del Padre (Rewards)",
-      "description": "Creación y gestión de recompensas (`rewards`) configuradas por el padre/tutor de la familia."
+      "name": "8. Parent Rewards",
+      "description": "Create and manage rewards configured by the family parent/guardian."
     },
     {
-      "name": "9. Metas de los Miembros (Member Goals)",
-      "description": "Asignación y seguimiento de metas seleccionadas por cada miembro de la familia."
+      "name": "9. Member Goals",
+      "description": "Assign, list, update progress (`accumulated_value`), and delete goals selected by family members."
     },
     {
-      "name": "10. Recompensas de los Miembros (Member Rewards)",
-      "description": "Registro, cambio de estado (`PENDING` -> `COLLECTED`) y eliminación de recompensas reclamadas por los miembros."
+      "name": "10. Member Rewards",
+      "description": "Claim rewards (`PENDING`), update delivery state (`COLLECTED`), and delete claimed member rewards."
     },
     {
-      "name": "11. Balance de los Miembros (Member Balances)",
-      "description": "Registro y consulta de monedas (`coins_obtained`) y tiempo (`time_obtained`) de cada miembro."
+      "name": "11. Member Balances",
+      "description": "Create, retrieve, and update the coin (`coins_obtained`) and time (`time_obtained`) balance of each family member."
     },
     {
-      "name": "12. Historial de Actividad (Audit Logs)",
-      "description": "Consulta de la bitácora histórica de actividad y auditoría registrada automáticamente por familia."
+      "name": "12. Activity History (Audit Logs)",
+      "description": "Query the automated historical activity and audit trail recorded per family."
     }
   ]
 }

@@ -36,11 +36,11 @@ router = APIRouter()
     "/register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Registrar nueva familia / padre",
+    summary="Register a new family / parent",
     description=(
-        "Registra una familia en la base de datos recibiendo `name_family`, `email_parent`, "
-        "`password` (encriptado desde la app) y `approve_pin`. "
-        "El campo `created_at` se asigna automáticamente en el servidor con la hora actual en UTC."
+        "Registers a family in the database receiving `name_family`, `email_parent`, "
+        "`password` (client-encrypted from the app), and `approve_pin`. "
+        "The `created_at` field is automatically assigned by the server in UTC."
     ),
 )
 def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
@@ -79,10 +79,10 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
 @router.post(
     "/login",
     response_model=TokenResponse,
-    summary="Iniciar sesión desde la App (JSON)",
+    summary="Log in from the App (JSON)",
     description=(
-        "Recibe `email_parent` y `password` (el mismo password encriptado enviado desde la app en el registro) "
-        "y devuelve un `access_token` y `refresh_token` JWT."
+        "Receives `email_parent` and `password` (the same client-encrypted password sent during registration) "
+        "and returns a JWT `access_token` and `refresh_token`."
     ),
 )
 def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
@@ -112,10 +112,10 @@ def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> Toke
 @router.post(
     "/forgot-password",
     response_model=ForgotPasswordResponse,
-    summary="Recuperar contraseña - Paso 1: Solicitar código de 6 dígitos",
+    summary="Password Recovery - Step 1: Request 6-digit verification code",
     description=(
-        "Recibe `email_parent`, genera un código temporal de 6 dígitos válido por 15 minutos "
-        "y lo persiste en la base de datos para enviarlo al correo del padre."
+        "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, "
+        "and persists it in the database to be sent to the parent's email."
     ),
 )
 def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) -> ForgotPasswordResponse:
@@ -147,10 +147,10 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) 
 @router.post(
     "/reset-password",
     response_model=ResetPasswordResponse,
-    summary="Recuperar contraseña - Paso 2: Confirmar código y actualizar password",
+    summary="Password Recovery - Step 2: Confirm code and update password",
     description=(
-        "Recibe `email_parent`, `recovery_code` (6 dígitos) y el nuevo `new_password` encriptado desde la app. "
-        "Valida que el código sea correcto y no haya expirado, actualiza la contraseña en BD e invalida el código."
+        "Receives `email_parent`, `recovery_code` (6 digits), and the new client-encrypted `new_password`. "
+        "Validates that the code matches and has not expired, updates the password in the database, and invalidates the code."
     ),
 )
 def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)) -> ResetPasswordResponse:
@@ -243,8 +243,8 @@ def login_oauth2_form(
 @router.post(
     "/refresh",
     response_model=TokenResponse,
-    summary="Renovar Access Token usando Refresh Token",
-    description="Permite a la app móvil obtener un nuevo `access_token` sin obligar al usuario a iniciar sesión nuevamente.",
+    summary="Renew Access Token using Refresh Token",
+    description="Allows the mobile app to obtain a new `access_token` without forcing the user to log in again.",
 )
 def refresh_access_token(body: RefreshTokenRequest, db: Session = Depends(get_db)) -> TokenResponse:
     try:

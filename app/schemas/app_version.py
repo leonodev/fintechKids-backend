@@ -14,53 +14,53 @@ class PlatformEnum(str, Enum):
 class AppVersionCheckResponse(BaseModel):
     platform: PlatformEnum = Field(
         ...,
-        description="Plataforma consultada (`IOS` para Apple App Store, `AND` para Google Play Store)",
+        description="Queried platform (`IOS` for Apple App Store, `AND` for Google Play Store)",
         examples=["IOS"],
     )
     current_version: str = Field(
         ...,
-        description="Versión instalada actualmente en el dispositivo del usuario",
+        description="App version currently installed on the user's device",
         examples=["1.0.0"],
     )
     latest_version: str = Field(
         ...,
-        description="Última versión disponible en la tienda correspondiente",
+        description="Latest version available in the corresponding store",
         examples=["1.2.0"],
     )
     min_required_version: str = Field(
         ...,
-        description="Versión mínima permitida para seguir usando la app sin actualizar",
+        description="Minimum required version allowed to continue using the app without updating",
         examples=["1.0.0"],
     )
     is_up_to_date: bool = Field(
         ...,
-        description="`true` si la app ya tiene instalada la última versión (o superior) de la tienda",
+        description="`true` if the app already has the latest (or newer) store version installed",
         examples=[False],
     )
     update_available: bool = Field(
         ...,
-        description="`true` si existe una versión más reciente publicada en la tienda",
+        description="`true` if a newer version is published in the store",
         examples=[True],
     )
     force_update: bool = Field(
         ...,
-        description="`true` si la actualización es obligatoria (bloqueante) para continuar usando la app",
+        description="`true` if updating is mandatory (blocking) to continue using the app",
         examples=[False],
     )
     store_url: Optional[str] = Field(
         default=None,
-        description="Enlace directo a la tienda (App Store / Google Play) para descargar la actualización",
+        description="Direct link to the store (App Store / Google Play) to download the update",
         examples=["https://apps.apple.com/app/id000000000"],
     )
     release_notes: Optional[str] = Field(
         default=None,
-        description="Notas de la versión con las novedades disponibles en tienda",
-        examples=["Mejoras de rendimiento y nuevas funcionalidades de seguridad."],
+        description="Release notes describing what is new in the store version",
+        examples=["Performance improvements and new security features."],
     )
     message: str = Field(
         ...,
-        description="Mensaje descriptivo listo para mostrar al usuario o registrar en logs",
-        examples=["Hay una nueva versión (1.2.0) disponible en la tienda."],
+        description="Descriptive status message ready to display to the user or log",
+        examples=["A new version (1.2.0) is available in the store."],
     )
 
 
@@ -69,29 +69,29 @@ class AppVersionConfigUpdate(BaseModel):
         ...,
         min_length=1,
         max_length=30,
-        description="Última versión publicada en la tienda (formato semántico ej. 1.2.0)",
+        description="Latest version published in the store (semantic format, e.g. `1.2.0`)",
         examples=["1.3.0"],
     )
     min_required_version: str = Field(
         ...,
         min_length=1,
         max_length=30,
-        description="Versión mínima obligatoria (clientes con versión menor verán force_update=true)",
+        description="Minimum required version (clients below this version will receive `force_update=true`)",
         examples=["1.1.0"],
     )
     force_update: bool = Field(
         default=False,
-        description="Si es `true`, fuerza la actualización a todos los usuarios que no estén en `latest_version`",
+        description="If `true`, forces an update for all users not on `latest_version`",
     )
     store_url: Optional[str] = Field(
         default=None,
-        description="URL oficial de la app en App Store o Google Play",
+        description="Official App Store or Google Play URL",
         examples=["https://apps.apple.com/app/id000000000"],
     )
     release_notes: Optional[str] = Field(
         default=None,
-        description="Notas de lanzamiento de la versión actual",
-        examples=["Corrección de errores y mejoras de estabilidad."],
+        description="Release notes for the current version",
+        examples=["Bug fixes and stability improvements."],
     )
 
 

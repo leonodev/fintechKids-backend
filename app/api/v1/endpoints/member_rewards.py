@@ -28,11 +28,11 @@ router = APIRouter()
     "",
     response_model=MemberRewardResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Registrar una recompensa reclamada por un miembro de la familia",
+    summary="Register a reward claimed by a family member",
     description=(
-        "Registra una recompensa seleccionada por un miembro de la familia con estado inicial `PENDING`. "
-        "Puedes enviar `reward_id` para que el backend resuelva automáticamente `name_reward` cruzándolo "
-        "con la tabla `rewards` del padre, o enviar `name_reward` directamente (protegido con JWT)."
+        "Registers a reward selected by a family member with initial state `PENDING`. "
+        "You can send `reward_id` so the backend automatically resolves `name_reward` by matching it "
+        "against the parent's `rewards` table, or send `name_reward` directly (JWT Protected)."
     ),
 )
 def create_member_reward(
@@ -123,20 +123,20 @@ def create_member_reward(
 @router.get(
     "",
     response_model=List[MemberRewardResponse],
-    summary="Listar recompensas reclamadas/cobradas por los miembros",
+    summary="List claimed/collected member rewards",
     description=(
-        "Obtiene las recompensas reclamadas por los miembros de la familia, con filtros opcionales "
-        "por `member_id` (UUID) y `state` (`PENDING` o `COLLECTED`) (protegido con JWT)."
+        "Retrieves rewards claimed by family members, with optional filters "
+        "by `member_id` (UUID) and `state` (`PENDING` or `COLLECTED`) (JWT Protected)."
     ),
 )
 def list_member_rewards(
     member_id: Optional[UUID] = Query(
         default=None,
-        description="Filtrar opcionalmente por el UUID de un miembro específico",
+        description="Optionally filter by a specific family member's UUID",
     ),
     state: Optional[MemberRewardStateEnum] = Query(
         default=None,
-        description="Filtrar opcionalmente por estado (`PENDING` o `COLLECTED`)",
+        description="Optionally filter by state (`PENDING` or `COLLECTED`)",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -152,10 +152,10 @@ def list_member_rewards(
 @router.patch(
     "/{member_reward_id}",
     response_model=MemberRewardResponse,
-    summary="Cambiar estado de la recompensa (de PENDING a COLLECTED)",
+    summary="Update claimed reward state (from PENDING to COLLECTED)",
     description=(
-        "Permite al padre cambiar el `state` de una recompensa reclamada (por ejemplo, de `PENDING` a "
-        "`COLLECTED` cuando ya entregó la recompensa al miembro) (protegido con JWT)."
+        "Allows the parent to change the `state` of a claimed reward (for example, from `PENDING` to "
+        "`COLLECTED` once the reward has been delivered to the family member) (JWT Protected)."
     ),
 )
 def update_member_reward_state(
@@ -203,10 +203,10 @@ def update_member_reward_state(
 @router.delete(
     "/{member_reward_id}",
     response_model=MemberRewardDeleteResponse,
-    summary="Eliminar una recompensa reclamada/cobrada de un miembro",
+    summary="Delete a claimed/collected member reward",
     description=(
-        "Elimina permanentemente una recompensa reclamada/cobrada buscando por `member_reward_id` "
-        "y verificando que pertenezca al padre autenticado (protegido con JWT)."
+        "Permanently deletes a claimed/collected reward by `member_reward_id`, "
+        "verifying ownership by the authenticated parent (JWT Protected)."
     ),
 )
 def delete_member_reward(

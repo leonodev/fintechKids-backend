@@ -25,11 +25,11 @@ router = APIRouter()
     "",
     response_model=FamilyMemberResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear un nuevo miembro de la familia",
+    summary="Create a new family member",
     description=(
-        "Registra un nuevo miembro en la familia recibiendo `email_parent`, `identification_uuid` (UUID), "
-        "`member_name`, `avatar_name` y `name_family`. Se vincula por llave foránea (`parent_id`) con la "
-        "cuenta del padre registrada en `users` (protegido con JWT)."
+        "Registers a new family member receiving `email_parent`, `identification_uuid` (UUID), "
+        "`member_name`, `avatar_name`, and `name_family`. Linked via foreign key (`parent_id`) "
+        "to the parent account in `users` (JWT Protected)."
     ),
 )
 def create_family_member(
@@ -90,13 +90,13 @@ def create_family_member(
 @router.get(
     "",
     response_model=List[FamilyMemberResponse],
-    summary="Listar miembros de la familia",
-    description="Obtiene todos los miembros registrados de la familia del padre autenticado.",
+    summary="List family members",
+    description="Retrieves all registered family members belonging to the authenticated parent.",
 )
 def list_family_members(
     email_parent: Optional[str] = Query(
         default=None,
-        description="Filtro opcional por `email_parent` (por defecto usa el del token JWT actual)",
+        description="Optional filter by `email_parent` (defaults to the email in the current JWT token)",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -110,10 +110,10 @@ def list_family_members(
 @router.patch(
     "/{identification_uuid}",
     response_model=FamilyMemberResponse,
-    summary="Editar nombre o avatar de un miembro de la familia",
+    summary="Update a family member's name or avatar",
     description=(
-        "Actualiza el nombre (`member_name`) y/o el avatar (`avatar_name`) de un miembro de la familia "
-        "identificado por su `identification_uuid` (protegido con JWT)."
+        "Updates `member_name` and/or `avatar_name` of a family member "
+        "identified by `identification_uuid` (JWT Protected)."
     ),
 )
 def update_family_member(
@@ -163,10 +163,10 @@ def update_family_member(
 @router.delete(
     "/{identification_uuid}",
     response_model=FamilyMemberDeleteResponse,
-    summary="Eliminar un miembro de la familia",
+    summary="Delete a family member",
     description=(
-        "Elimina permanentemente un miembro de la familia de la base de datos buscando por su "
-        "`identification_uuid` y verificando que pertenezca al padre autenticado (protegido con JWT)."
+        "Permanently deletes a family member from the database by `identification_uuid`, "
+        "verifying ownership by the authenticated parent (JWT Protected)."
     ),
 )
 def delete_family_member(

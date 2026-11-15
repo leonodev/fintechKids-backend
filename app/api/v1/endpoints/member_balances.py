@@ -25,12 +25,11 @@ router = APIRouter()
     "",
     response_model=MemberBalanceResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Registrar / Crear el balance de un miembro de la familia",
+    summary="Create / Register a family member's balance",
     description=(
-        "Registra el balance de monedas (`coins_obtained`) y tiempo (`time_obtained`) de un miembro "
-        "identificado por `member_id` (UUID). El campo `created_at` se asigna automáticamente en UTC. "
-        "Si el miembro ya tenía un balance registrado, actualiza sus valores y devuelve el registro "
-        "(protegido con JWT)."
+        "Registers the coin (`coins_obtained`) and time (`time_obtained`) balance of a family member "
+        "identified by `member_id` (UUID). The `created_at` field is auto-generated in UTC. "
+        "If the member already has a registered balance, updates its values and returns the record (JWT Protected)."
     ),
 )
 def create_member_balance(
@@ -97,16 +96,16 @@ def create_member_balance(
 @router.get(
     "",
     response_model=List[MemberBalanceResponse],
-    summary="Listar balances de los miembros de la familia",
+    summary="List balances of all family members",
     description=(
-        "Obtiene los balances de monedas y tiempo de todos los miembros de la familia del padre autenticado, "
-        "con filtro opcional por `member_id` (UUID)."
+        "Retrieves the coin and time balances of all family members belonging to the authenticated parent, "
+        "with an optional filter by `member_id` (UUID)."
     ),
 )
 def list_member_balances(
     member_id: Optional[UUID] = Query(
         default=None,
-        description="Filtrar opcionalmente por el UUID de un miembro específico",
+        description="Optionally filter by a specific family member's UUID",
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -120,20 +119,20 @@ def list_member_balances(
 @router.get(
     "/{member_id}",
     response_model=MemberBalanceResponse,
-    summary="Obtener el saldo (balance) de un miembro en concreto",
+    summary="Get the balance of a specific family member",
     description=(
-        "Devuelve el objeto de balance (`coins_obtained` y `time_obtained`) de un miembro específico "
-        "buscando por su `member_id` (`identification_uuid`) y validando que pertenezca al `email_parent` "
-        "del padre autenticado en el token JWT. Si el miembro existe pero aún no tenía saldo registrado, "
-        "inicializa y retorna su balance en `0` monedas y `00:00:00`."
+        "Returns the balance object (`coins_obtained` and `time_obtained`) of a specific family member "
+        "by `member_id` (`identification_uuid`), validating that it belongs to the authenticated parent's "
+        "`email_parent`. If the member exists but has no balance record yet, initializes and returns "
+        "a default balance with `0` coins and `00:00:00`."
     ),
 )
 def get_member_balance(
     member_id: UUID,
     email_parent: Optional[str] = Query(
         default=None,
-        description="Correo del padre (`email_parent`). Opcional ya que también se valida automáticamente desde el token JWT.",
-        examples=["padre@fhk.app"],
+        description="Parent email (`email_parent`). Optional since it is also validated automatically from the JWT token.",
+        examples=["parent@fhk.app"],
     ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -185,10 +184,10 @@ def get_member_balance(
 @router.patch(
     "/{member_id}",
     response_model=MemberBalanceResponse,
-    summary="Actualizar el balance de un miembro por su UUID",
+    summary="Update a family member's balance by UUID",
     description=(
-        "Actualiza `coins_obtained` y/o `time_obtained` del balance de un miembro "
-        "identificado por su `member_id` (UUID) (protegido con JWT)."
+        "Updates `coins_obtained` and/or `time_obtained` of a family member's balance "
+        "identified by `member_id` (UUID) (JWT Protected)."
     ),
 )
 def update_member_balance(

@@ -7,8 +7,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FHK Backend API"
     PROJECT_DESCRIPTION: str = (
-        "Backend REST API con autenticación JWT, seguridad, persistencia en base de datos "
-        "y documentación interactiva OpenAPI/Swagger auto-generada."
+        "REST API backend with JWT authentication, security middleware, database persistence, "
+        "and auto-generated interactive OpenAPI/Swagger documentation."
     )
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
