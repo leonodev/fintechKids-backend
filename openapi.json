@@ -58,7 +58,7 @@
           "2. App Version (Stores)"
         ],
         "summary": "Check whether the app has the latest store version installed",
-        "description": "Public **GET** endpoint that receives the `current_version` installed on the device and the `platform` (`IOS` or `AND`), comparing it against the latest published store version to indicate if it is up to date, if an optional update is available, or if a forced update is required.",
+        "description": "Public **GET** endpoint. You **MUST** send both `platform` and `current_version` as **Query Parameters**:\n\n| Query Parameter | Required | Allowed Values | Example |\n| :--- | :---: | :--- | :--- |\n| `platform` | **Yes** | `IOS` or `AND` | `IOS` |\n| `current_version` | **Yes** | Semantic version string (e.g. `1.0.0`) | `1.0.0` |\n\n**Example Request:**\n`GET /api/v1/app-version/check?platform=IOS&current_version=1.0.0`\n\nCompares `current_version` against the latest published store version to indicate whether the app is up to date, if an optional update is available (`update_available: true`), or if a mandatory update is required (`force_update: true`).",
         "operationId": "check_app_version_api_v1_app_version_check_get",
         "parameters": [
           {
@@ -67,12 +67,12 @@
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/PlatformEnum",
-              "description": "Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)",
+              "description": "**Required.** Target mobile platform: `IOS` (Apple App Store) or `AND` (Google Play Store).",
               "examples": [
                 "IOS"
               ]
             },
-            "description": "Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)"
+            "description": "**Required.** Target mobile platform: `IOS` (Apple App Store) or `AND` (Google Play Store)."
           },
           {
             "name": "current_version",
@@ -82,13 +82,13 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 30,
-              "description": "Currently installed app version (e.g. `1.0.0` or `1.2.0`)",
+              "description": "**Required.** Currently installed app version on the device (e.g. `1.0.0`).",
               "examples": [
                 "1.0.0"
               ],
               "title": "Current Version"
             },
-            "description": "Currently installed app version (e.g. `1.0.0` or `1.2.0`)"
+            "description": "**Required.** Currently installed app version on the device (e.g. `1.0.0`)."
           }
         ],
         "responses": {

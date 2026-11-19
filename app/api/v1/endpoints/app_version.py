@@ -24,14 +24,14 @@ DEFAULT_STORE_VERSIONS = {
         "min_required_version": "1.0.0",
         "force_update": False,
         "store_url": "https://apps.apple.com/app/id000000000",
-        "release_notes": "Versión 1.2.0 para iOS: mejoras de rendimiento y seguridad.",
+        "release_notes": "Version 1.2.0 for iOS: performance improvements and security updates.",
     },
     PlatformEnum.AND.value: {
         "latest_version": "1.2.0",
         "min_required_version": "1.0.0",
         "force_update": False,
         "store_url": "https://play.google.com/store/apps/details?id=com.fhk.app",
-        "release_notes": "Versión 1.2.0 para Android: mejoras de estabilidad y nuevas funciones.",
+        "release_notes": "Version 1.2.0 for Android: stability improvements and new features.",
     },
 }
 
@@ -68,22 +68,28 @@ def _get_or_seed_platform_version(db: Session, platform: PlatformEnum) -> AppVer
     response_model=AppVersionCheckResponse,
     summary="Check whether the app has the latest store version installed",
     description=(
-        "Public **GET** endpoint that receives the `current_version` installed on the device "
-        "and the `platform` (`IOS` or `AND`), comparing it against the latest published store version "
-        "to indicate if it is up to date, if an optional update is available, or if a forced update is required."
+        "Public **GET** endpoint. You **MUST** send both `platform` and `current_version` as **Query Parameters**:\n\n"
+        "| Query Parameter | Required | Allowed Values | Example |\n"
+        "| :--- | :---: | :--- | :--- |\n"
+        "| `platform` | **Yes** | `IOS` or `AND` | `IOS` |\n"
+        "| `current_version` | **Yes** | Semantic version string (e.g. `1.0.0`) | `1.0.0` |\n\n"
+        "**Example Request:**\n"
+        "`GET /api/v1/app-version/check?platform=IOS&current_version=1.0.0`\n\n"
+        "Compares `current_version` against the latest published store version to indicate whether the app is up to date, "
+        "if an optional update is available (`update_available: true`), or if a mandatory update is required (`force_update: true`)."
     ),
 )
 def check_app_version(
     platform: PlatformEnum = Query(
         ...,
-        description="Device platform: `IOS` (Apple App Store) or `AND` (Google Play Store)",
+        description="**Required.** Target mobile platform: `IOS` (Apple App Store) or `AND` (Google Play Store).",
         examples=["IOS"],
     ),
     current_version: str = Query(
         ...,
         min_length=1,
         max_length=30,
-        description="Currently installed app version (e.g. `1.0.0` or `1.2.0`)",
+        description="**Required.** Currently installed app version on the device (e.g. `1.0.0`).",
         examples=["1.0.0"],
     ),
     db: Session = Depends(get_db),
