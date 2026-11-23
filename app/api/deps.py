@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.errors import AppHTTPException, ErrorCode
 from app.core.security import decode_token
 from app.db.session import get_db
 from app.models.user import User
@@ -31,12 +32,12 @@ def get_current_user(
     oauth_token: Optional[str] = Depends(oauth2_scheme),
     bearer_creds: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
 ) -> User:
-    """Valida el token JWT enviado en el header Authorization: Bearer <token>."""
+    """Validates the JWT token sent in the Authorization: Bearer <token> header."""
     token = bearer_creds.credentials if bearer_creds else oauth_token
 
-    credentials_exception = HTTPException(
+    credentials_exception = AppHTTPException(
+        error_code=ErrorCode.INVALID_OR_EXPIRED_TOKEN,
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No se pudieron validar las credenciales o el token ha expirado.",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -58,8 +59,15 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El usuario se encuentra inactivo.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.ACCOUNT_INACTIVE)
     return user
+
+
+def verify_parent_ownership(db: Session, email: str, current_user: User) -> User:
+    """Verifies that the provided parent email exists and matches the authenticated JWT user."""
+    parent_user = db.query(User).filter(User.email_parent == email.lower()).first()
+    if not parent_user:
+        raise AppHTTPException(error_code=ErrorCode.PARENT_EMAIL_NOT_FOUND)
+    if parent_user.id != current_user.id:
+        raise AppHTTPException(error_code=ErrorCode.PARENT_EMAIL_MISMATCH)
+    return parent_user

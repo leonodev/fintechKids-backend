@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.audit import record_activity
+from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.member_balance import MemberBalance
@@ -31,6 +32,7 @@ router = APIRouter()
         "identified by `member_id` (UUID). The `created_at` field is auto-generated in UTC. "
         "If the member already has a registered balance, updates its values and returns the record (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.FAMILY_MEMBER_NOT_FOUND),
 )
 def create_member_balance(
     balance_in: MemberBalanceCreate,
@@ -48,10 +50,7 @@ def create_member_balance(
         .first()
     )
     if not family_member:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ningún miembro en tu familia con el `member_id` (UUID) indicado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.FAMILY_MEMBER_NOT_FOUND)
 
     existing_balance = (
         db.query(MemberBalance)
@@ -101,6 +100,7 @@ def create_member_balance(
         "Retrieves the coin and time balances of all family members belonging to the authenticated parent, "
         "with an optional filter by `member_id` (UUID)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def list_member_balances(
     member_id: Optional[UUID] = Query(
@@ -126,6 +126,11 @@ def list_member_balances(
         "`email_parent`. If the member exists but has no balance record yet, initializes and returns "
         "a default balance with `0` coins and `00:00:00`."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.PARENT_EMAIL_MISMATCH,
+        ErrorCode.FAMILY_MEMBER_NOT_FOUND,
+    ),
 )
 def get_member_balance(
     member_id: UUID,
@@ -138,10 +143,7 @@ def get_member_balance(
     current_user: User = Depends(get_current_user),
 ) -> MemberBalance:
     if email_parent and email_parent.lower() != current_user.email_parent.lower():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.PARENT_EMAIL_MISMATCH)
 
     member_uuid_str = str(member_id)
     family_member = (
@@ -153,10 +155,7 @@ def get_member_balance(
         .first()
     )
     if not family_member:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ningún miembro en tu familia con el `member_id` (UUID) indicado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.FAMILY_MEMBER_NOT_FOUND)
 
     balance = (
         db.query(MemberBalance)
@@ -189,6 +188,7 @@ def get_member_balance(
         "Updates `coins_obtained` and/or `time_obtained` of a family member's balance "
         "identified by `member_id` (UUID) (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.MEMBER_BALANCE_NOT_FOUND),
 )
 def update_member_balance(
     member_id: UUID,
@@ -206,10 +206,7 @@ def update_member_balance(
         .first()
     )
     if not balance:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró un balance registrado para el `member_id` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.MEMBER_BALANCE_NOT_FOUND)
 
     if balance_in.coins_obtained is not None:
         balance.coins_obtained = balance_in.coins_obtained

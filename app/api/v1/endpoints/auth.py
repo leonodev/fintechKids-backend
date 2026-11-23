@@ -3,12 +3,13 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import secrets
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.audit import record_activity
 from app.core.config import settings
+from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -42,14 +43,12 @@ router = APIRouter()
         "`password` (client-encrypted from the app), and `approve_pin`. "
         "The `created_at` field is automatically assigned by the server in UTC."
     ),
+    responses=api_error_responses(ErrorCode.EMAIL_ALREADY_REGISTERED),
 )
 def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
     existing_user = db.query(User).filter(User.email_parent == user_in.email_parent.lower()).first()
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe una familia registrada con este correo electrónico (email_parent).",
-        )
+        raise AppHTTPException(error_code=ErrorCode.EMAIL_ALREADY_REGISTERED)
 
     user = User(
         created_at=datetime.now(timezone.utc),
@@ -84,19 +83,14 @@ def register_user(user_in: UserCreate, db: Session = Depends(get_db)) -> User:
         "Receives `email_parent` and `password` (the same client-encrypted password sent during registration) "
         "and returns a JWT `access_token` and `refresh_token`."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_CREDENTIALS, ErrorCode.ACCOUNT_INACTIVE),
 )
 def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     user = db.query(User).filter(User.email_parent == credentials.email_parent.lower()).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo del padre (email_parent) o contraseña (password) incorrectos.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.INVALID_CREDENTIALS)
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="La cuenta se encuentra desactivada.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.ACCOUNT_INACTIVE)
 
     return TokenResponse(
         access_token=create_access_token(
@@ -117,14 +111,12 @@ def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> Toke
         "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, "
         "and persists it in the database to be sent to the parent's email."
     ),
+    responses=api_error_responses(ErrorCode.USER_NOT_FOUND),
 )
 def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) -> ForgotPasswordResponse:
     user = db.query(User).filter(User.email_parent == body.email_parent.lower()).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No existe ninguna cuenta registrada con este correo electrónico (email_parent).",
-        )
+        raise AppHTTPException(error_code=ErrorCode.USER_NOT_FOUND)
 
     recovery_code = f"{secrets.randbelow(900000) + 100000}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.RESET_CODE_EXPIRE_MINUTES)
@@ -137,7 +129,7 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) 
     db.commit()
 
     return ForgotPasswordResponse(
-        message="Se ha generado y enviado un código de verificación de 6 dígitos al correo registrado.",
+        message="A 6-digit verification code has been generated and sent to the registered email.",
         email_parent=user.email_parent,
         expires_in_minutes=settings.RESET_CODE_EXPIRE_MINUTES,
         debug_recovery_code=(
@@ -156,20 +148,20 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) 
         "Receives `email_parent`, `recovery_code` (6 digits), and the new client-encrypted `new_password`. "
         "Validates that the code matches and has not expired, updates the password in the database, and invalidates the code."
     ),
+    responses=api_error_responses(
+        ErrorCode.USER_NOT_FOUND,
+        ErrorCode.RECOVERY_CODE_NOT_REQUESTED,
+        ErrorCode.RECOVERY_CODE_EXPIRED,
+        ErrorCode.INVALID_RECOVERY_CODE,
+    ),
 )
 def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)) -> ResetPasswordResponse:
     user = db.query(User).filter(User.email_parent == body.email_parent.lower()).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No existe ninguna cuenta registrada con este correo electrónico (email_parent).",
-        )
+        raise AppHTTPException(error_code=ErrorCode.USER_NOT_FOUND)
 
     if not user.reset_code or not user.reset_code_expires_at:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No hay una solicitud de recuperación de contraseña activa para esta cuenta.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.RECOVERY_CODE_NOT_REQUESTED)
 
     expires_at = user.reset_code_expires_at
     if expires_at.tzinfo is None:
@@ -179,16 +171,10 @@ def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)) ->
         user.reset_code = None
         user.reset_code_expires_at = None
         db.commit()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El código de recuperación ha expirado. Solicita uno nuevo.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.RECOVERY_CODE_EXPIRED)
 
     if user.reset_code != body.recovery_code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El código de recuperación de 6 dígitos es incorrecto.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.INVALID_RECOVERY_CODE)
 
     now_utc = datetime.now(timezone.utc)
     user.hashed_password = get_password_hash(body.new_password)
@@ -211,7 +197,7 @@ def reset_password(body: ResetPasswordRequest, db: Session = Depends(get_db)) ->
     )
 
     return ResetPasswordResponse(
-        message="La contraseña se ha actualizado correctamente. Ya puedes iniciar sesión.",
+        message="Password has been updated successfully. You can now log in.",
         email_parent=user.email_parent,
         updated_at=user.updated_at,
     )
@@ -229,10 +215,9 @@ def login_oauth2_form(
     """Endpoint compatible con el formulario interactivo 'Authorize' de Swagger UI (username=email_parent, password=password)."""
     user = db.query(User).filter(User.email_parent == form_data.username.lower()).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo del padre o contraseña incorrectos.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.INVALID_CREDENTIALS)
+    if not user.is_active:
+        raise AppHTTPException(error_code=ErrorCode.ACCOUNT_INACTIVE)
     return TokenResponse(
         access_token=create_access_token(
             user.id,
@@ -249,28 +234,22 @@ def login_oauth2_form(
     response_model=TokenResponse,
     summary="Renew Access Token using Refresh Token",
     description="Allows the mobile app to obtain a new `access_token` without forcing the user to log in again.",
+    responses=api_error_responses(ErrorCode.INVALID_REFRESH_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def refresh_access_token(body: RefreshTokenRequest, db: Session = Depends(get_db)) -> TokenResponse:
     try:
         payload = decode_token(body.refresh_token)
         if payload.get("type") != "refresh":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="El token proporcionado no es un refresh token válido.",
-            )
+            raise AppHTTPException(error_code=ErrorCode.INVALID_REFRESH_TOKEN)
         user_id = int(payload["sub"])
     except (jwt.PyJWTError, KeyError, ValueError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token inválido o expirado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.INVALID_REFRESH_TOKEN)
 
     user = db.query(User).filter(User.id == user_id).first()
-    if not user or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no encontrado o inactivo.",
-        )
+    if not user:
+        raise AppHTTPException(error_code=ErrorCode.INVALID_REFRESH_TOKEN)
+    if not user.is_active:
+        raise AppHTTPException(error_code=ErrorCode.ACCOUNT_INACTIVE)
 
     return TokenResponse(
         access_token=create_access_token(

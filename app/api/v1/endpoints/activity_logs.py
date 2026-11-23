@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.errors import ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.activity_log import ActivityLog
 from app.models.user import User
@@ -22,6 +23,7 @@ router = APIRouter()
         "for the authenticated parent's family, ordered from newest to oldest. "
         "Supports optional filtering by `member_id`, `entity_type`, or `action` (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def list_activity_logs(
     member_id: Optional[str] = Query(

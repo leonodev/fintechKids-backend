@@ -557,6 +557,7 @@ def test_password_recovery_flow():
         },
     )
     assert reuse_res.status_code == 400
+    assert reuse_res.json()["error_code"] == "RECOVERY_CODE_NOT_REQUESTED"
 
     # 4. Iniciar sesión con el nuevo password encriptado
     login_new_res = client.post(
@@ -585,9 +586,85 @@ def test_protected_endpoints_reject_without_valid_token():
         "/api/v1/activity-logs",
     ]
     for path in protected_gets:
-        # Sin token -> 401
+        # Sin token -> 401 + INVALID_OR_EXPIRED_TOKEN
         res_no_token = client.get(path)
         assert res_no_token.status_code == 401
-        # Con token inválido -> 401
+        assert res_no_token.json()["error_code"] == "INVALID_OR_EXPIRED_TOKEN"
+        # Con token inválido -> 401 + INVALID_OR_EXPIRED_TOKEN
         res_bad_token = client.get(path, headers=invalid_headers)
         assert res_bad_token.status_code == 401
+        assert res_bad_token.json()["error_code"] == "INVALID_OR_EXPIRED_TOKEN"
+
+
+def test_controlled_error_codes_across_endpoints():
+    # 1. Duplicate registration -> EMAIL_ALREADY_REGISTERED (400)
+    dup_res = client.post(
+        "/api/v1/auth/register",
+        json={
+            "name_family": "Familia León",
+            "email_parent": "fredy@fhk.app",
+            "password": "some_password",
+            "approve_pin": "1234",
+        },
+    )
+    assert dup_res.status_code == 400
+    assert dup_res.json()["error_code"] == "EMAIL_ALREADY_REGISTERED"
+
+    # 2. Wrong password -> INVALID_CREDENTIALS (401)
+    bad_login = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "password": "wrong_password_123",
+        },
+    )
+    assert bad_login.status_code == 401
+    assert bad_login.json()["error_code"] == "INVALID_CREDENTIALS"
+
+    # 3. Unknown email on forgot-password -> USER_NOT_FOUND (404)
+    missing_user = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "nobody@fhk.app"},
+    )
+    assert missing_user.status_code == 404
+    assert missing_user.json()["error_code"] == "USER_NOT_FOUND"
+
+    # 4. Wrong 6-digit recovery code -> INVALID_RECOVERY_CODE (400)
+    client.post("/api/v1/auth/forgot-password", json={"email_parent": "fredy@fhk.app"})
+    wrong_code = client.post(
+        "/api/v1/auth/reset-password",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "recovery_code": "000000",
+            "new_password": "new_password_1234",
+        },
+    )
+    assert wrong_code.status_code == 400
+    assert wrong_code.json()["error_code"] == "INVALID_RECOVERY_CODE"
+
+    # 5. Validation error -> VALIDATION_ERROR (422)
+    validation_res = client.post(
+        "/api/v1/auth/login",
+        json={"email_parent": "not-an-email"},
+    )
+    assert validation_res.status_code == 422
+    validation_body = validation_res.json()
+    assert validation_body["error_code"] == "VALIDATION_ERROR"
+    assert isinstance(validation_body["errors"], list)
+
+    # 6. Protected resource not found -> TASK_NOT_FOUND (404)
+    login_ok = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "password": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        },
+    )
+    token = login_ok.json()["access_token"]
+    missing_task = client.patch(
+        "/api/v1/tasks/999999",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"name": "Does not exist"},
+    )
+    assert missing_task.status_code == 404
+    assert missing_task.json()["error_code"] == "TASK_NOT_FOUND"

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, verify_parent_ownership
 from app.core.audit import record_activity
+from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.task import Task
 from app.models.user import User
@@ -31,24 +32,18 @@ router = APIRouter()
         "`email_parent`, `description`, and `status` (defaults to `enable` automatically). "
         "The `created_at` field is auto-generated in UTC (JWT Protected)."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.PARENT_EMAIL_NOT_FOUND,
+        ErrorCode.PARENT_EMAIL_MISMATCH,
+    ),
 )
 def create_task(
     task_in: TaskCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Task:
-    parent_user = db.query(User).filter(User.email_parent == task_in.email_parent.lower()).first()
-    if not parent_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró una familia registrada con el correo `email_parent` indicado.",
-        )
-
-    if parent_user.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+    parent_user = verify_parent_ownership(db, task_in.email_parent, current_user)
 
     task = Task(
         name=task_in.name,
@@ -83,6 +78,7 @@ def create_task(
         "Allows the parent to edit any field of a task (`name`, `time_granted`, `coins_granted`, "
         "`description`) as well as toggle its `status` between `enable` and `disable` (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.TASK_NOT_FOUND),
 )
 def update_task(
     task_id: int,
@@ -96,10 +92,7 @@ def update_task(
         .first()
     )
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ninguna tarea en tu familia con el `task_id` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.TASK_NOT_FOUND)
 
     if task_in.name is not None:
         task.name = task_in.name
@@ -137,6 +130,7 @@ def update_task(
         "Returns all tasks belonging exclusively to the authenticated parent's family "
         "regardless of their status (`enable` and `disable`) (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.PARENT_EMAIL_MISMATCH),
 )
 def list_all_family_tasks(
     email_parent: Optional[str] = Query(
@@ -148,10 +142,7 @@ def list_all_family_tasks(
     current_user: User = Depends(get_current_user),
 ) -> List[Task]:
     if email_parent and email_parent.lower() != current_user.email_parent.lower():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.PARENT_EMAIL_MISMATCH)
 
     return (
         db.query(Task)
@@ -169,6 +160,7 @@ def list_all_family_tasks(
         "Returns only enabled tasks (`status = 'enable'`) belonging to the authenticated "
         "parent's family (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.PARENT_EMAIL_MISMATCH),
 )
 def list_enabled_family_tasks(
     email_parent: Optional[str] = Query(
@@ -180,10 +172,7 @@ def list_enabled_family_tasks(
     current_user: User = Depends(get_current_user),
 ) -> List[Task]:
     if email_parent and email_parent.lower() != current_user.email_parent.lower():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.PARENT_EMAIL_MISMATCH)
 
     return (
         db.query(Task)
@@ -204,6 +193,7 @@ def list_enabled_family_tasks(
         "Permanently deletes a task from the database by `task_id`, verifying "
         "that it belongs to the authenticated parent's family (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.TASK_NOT_FOUND),
 )
 def delete_task(
     task_id: int,
@@ -216,10 +206,7 @@ def delete_task(
         .first()
     )
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ninguna tarea en tu familia con el `task_id` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.TASK_NOT_FOUND)
 
     deleted_task_name = task.name
     db.delete(task)

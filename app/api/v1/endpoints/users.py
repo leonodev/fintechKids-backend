@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.audit import record_activity
+from app.core.errors import ErrorCode, api_error_responses
 from app.core.security import get_password_hash
 from app.db.session import get_db
 from app.models.user import User
@@ -18,6 +19,7 @@ router = APIRouter()
     response_model=UserResponse,
     summary="Get authenticated family / parent profile",
     description="Returns the registered profile information for the family that owns the current JWT token.",
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def read_current_user(current_user: User = Depends(get_current_user)) -> User:
     return current_user
@@ -28,6 +30,7 @@ def read_current_user(current_user: User = Depends(get_current_user)) -> User:
     response_model=UserResponse,
     summary="Update authenticated family / parent profile",
     description="Updates `name_family`, `password`, or `approve_pin` for the authenticated family account.",
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def update_current_user(
     user_in: UserUpdate,

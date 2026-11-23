@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.errors import ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.app_version import AppVersion
 from app.models.user import User
@@ -107,16 +108,16 @@ def check_app_version(
     )
 
     if is_up_to_date:
-        message = f"Tu aplicación en {platform.value} está actualizada ({current_version})."
+        message = f"Your {platform.value} app is up to date ({current_version})."
     elif force_update:
         message = (
-            f"Actualización obligatoria requerida. Debes actualizar a la versión "
-            f"{store_config.latest_version} para continuar usando la aplicación."
+            f"Mandatory update required. Please update to version "
+            f"{store_config.latest_version} to continue using the application."
         )
     else:
         message = (
-            f"Hay una nueva versión ({store_config.latest_version}) disponible en la tienda "
-            f"para {platform.value}."
+            f"A new version ({store_config.latest_version}) is available in the store "
+            f"for {platform.value}."
         )
 
     return AppVersionCheckResponse(
@@ -153,6 +154,7 @@ def list_store_versions(db: Session = Depends(get_db)) -> List[AppVersion]:
         "Updates the database record for the latest store version (`latest_version`), "
         "minimum required version (`min_required_version`), and whether updating is mandatory (`force_update`)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def update_store_version(
     platform: PlatformEnum,

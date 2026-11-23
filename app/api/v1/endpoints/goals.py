@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, verify_parent_ownership
 from app.core.audit import record_activity
+from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.goal import Goal
 from app.models.user import User
@@ -31,24 +32,18 @@ router = APIRouter()
         "`email_parent`, `name`, and `value` (Int). The `created_at` field is auto-generated in UTC and "
         "linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected)."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.PARENT_EMAIL_NOT_FOUND,
+        ErrorCode.PARENT_EMAIL_MISMATCH,
+    ),
 )
 def create_goal(
     goal_in: GoalCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Goal:
-    parent_user = db.query(User).filter(User.email_parent == goal_in.email_parent.lower()).first()
-    if not parent_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró una familia registrada con el correo `email_parent` indicado.",
-        )
-
-    if parent_user.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+    parent_user = verify_parent_ownership(db, goal_in.email_parent, current_user)
 
     goal = Goal(
         measure_type=goal_in.measure_type,
@@ -79,6 +74,7 @@ def create_goal(
     response_model=List[GoalResponse],
     summary="List goals created by the parent",
     description="Retrieves all goals registered by the authenticated parent, with an optional filter by `status`.",
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def list_goals(
     goal_status: Optional[GoalStatusEnum] = Query(
@@ -103,6 +99,7 @@ def list_goals(
         "Partially updates `name`, `measure_type`, `value`, and/or `status` (`active` / `inactive`) "
         "of an existing goal owned by the authenticated parent (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.GOAL_NOT_FOUND),
 )
 def update_goal(
     goal_id: int,
@@ -116,10 +113,7 @@ def update_goal(
         .first()
     )
     if not goal:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ninguna meta de tu familia con el `goal_id` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.GOAL_NOT_FOUND)
 
     if goal_in.name is not None:
         goal.name = goal_in.name
@@ -155,6 +149,7 @@ def update_goal(
         "Permanently deletes a goal from the database by `goal_id`, "
         "verifying ownership by the authenticated parent (JWT Protected)."
     ),
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.GOAL_NOT_FOUND),
 )
 def delete_goal(
     goal_id: int,
@@ -167,10 +162,7 @@ def delete_goal(
         .first()
     )
     if not goal:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ninguna meta de tu familia con el `goal_id` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.GOAL_NOT_FOUND)
 
     deleted_goal_name = goal.name
     db.delete(goal)

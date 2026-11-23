@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, verify_parent_ownership
 from app.core.audit import record_activity
+from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.db.session import get_db
 from app.models.family_member import FamilyMember
 from app.models.user import User
@@ -31,24 +32,19 @@ router = APIRouter()
         "`member_name`, `avatar_name`, and `name_family`. Linked via foreign key (`parent_id`) "
         "to the parent account in `users` (JWT Protected)."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.PARENT_EMAIL_NOT_FOUND,
+        ErrorCode.PARENT_EMAIL_MISMATCH,
+        ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS,
+    ),
 )
 def create_family_member(
     member_in: FamilyMemberCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> FamilyMember:
-    parent_user = db.query(User).filter(User.email_parent == member_in.email_parent.lower()).first()
-    if not parent_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró una familia registrada con el correo `email_parent` indicado.",
-        )
-
-    if parent_user.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="El `email_parent` enviado no corresponde al usuario autenticado en el token JWT.",
-        )
+    parent_user = verify_parent_ownership(db, member_in.email_parent, current_user)
 
     uuid_str = str(member_in.identification_uuid)
     existing_member = (
@@ -57,10 +53,7 @@ def create_family_member(
         .first()
     )
     if existing_member:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe un miembro de la familia registrado con este `identification_uuid`.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS)
 
     member = FamilyMember(
         identification_uuid=uuid_str,
@@ -92,6 +85,7 @@ def create_family_member(
     response_model=List[FamilyMemberResponse],
     summary="List family members",
     description="Retrieves all registered family members belonging to the authenticated parent.",
+    responses=api_error_responses(ErrorCode.INVALID_OR_EXPIRED_TOKEN, ErrorCode.ACCOUNT_INACTIVE),
 )
 def list_family_members(
     email_parent: Optional[str] = Query(
@@ -115,6 +109,10 @@ def list_family_members(
         "Updates `member_name` and/or `avatar_name` of a family member "
         "identified by `identification_uuid` (JWT Protected)."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.FAMILY_MEMBER_NOT_FOUND,
+    ),
 )
 def update_family_member(
     identification_uuid: UUID,
@@ -132,10 +130,7 @@ def update_family_member(
         .first()
     )
     if not member:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ningún miembro de tu familia con el `identification_uuid` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.FAMILY_MEMBER_NOT_FOUND)
 
     if member_in.member_name is not None:
         member.member_name = member_in.member_name
@@ -168,6 +163,10 @@ def update_family_member(
         "Permanently deletes a family member from the database by `identification_uuid`, "
         "verifying ownership by the authenticated parent (JWT Protected)."
     ),
+    responses=api_error_responses(
+        ErrorCode.INVALID_OR_EXPIRED_TOKEN,
+        ErrorCode.FAMILY_MEMBER_NOT_FOUND,
+    ),
 )
 def delete_family_member(
     identification_uuid: UUID,
@@ -184,10 +183,7 @@ def delete_family_member(
         .first()
     )
     if not member:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se encontró ningún miembro de tu familia con el `identification_uuid` proporcionado.",
-        )
+        raise AppHTTPException(error_code=ErrorCode.FAMILY_MEMBER_NOT_FOUND)
 
     deleted_name = member.member_name
     db.delete(member)

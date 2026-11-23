@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FHK Backend API",
-    "description": "REST API backend for **FintechKids (FHK)** with JWT authentication, security middleware, automated audit logging, and multi-environment persistence (**Render** + **Neon Serverless PostgreSQL**).\n\n### Active Environments\n| Environment | Base URL | Git Branch | Neon DB Branch |\n| :--- | :--- | :---: | :---: |\n| **Development** | `https://fintechkids-backend-dev.onrender.com` | `develop` | `development` |\n| **Stage (QA)** | `https://fintechkids-backend-stage.onrender.com` | `develop` | `stage` |\n| **Production** | `https://fintechkids-backend.onrender.com` | `main` | `production` |\n| **Local** | `http://localhost:8000` | `develop` | `SQLite (fhk.db)` |",
+    "description": "REST API backend for **FintechKids (FHK)** with JWT authentication, security middleware, automated audit logging, and multi-environment persistence (**Render** + **Neon Serverless PostgreSQL**).\n\n### Active Environments\n| Environment | Base URL | Git Branch | Neon DB Branch |\n| :--- | :--- | :---: | :---: |\n| **Development** | `https://fintechkids-backend-dev.onrender.com` | `develop` | `development` |\n| **Stage (QA)** | `https://fintechkids-backend-stage.onrender.com` | `develop` | `stage` |\n| **Production** | `https://fintechkids-backend.onrender.com` | `main` | `production` |\n| **Local** | `http://localhost:8000` | `develop` | `SQLite (fhk.db)` |\n\n### Standardized Error Contract\nAll non-2xx responses return a unified JSON payload with a machine-readable `error_code` (`ErrorResponse`):\n```json\n{\n  \"error_code\": \"INVALID_RECOVERY_CODE\",\n  \"detail\": \"The 6-digit recovery code is incorrect.\"\n}\n```",
     "version": "1.0.0"
   },
   "servers": [
@@ -103,11 +103,25 @@
             }
           },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -188,12 +202,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -230,12 +296,45 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "400": {
+            "description": "Controlled error response(s) for HTTP 400",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "EMAIL_ALREADY_REGISTERED": {
+                    "summary": "EMAIL_ALREADY_REGISTERED",
+                    "value": {
+                      "error_code": "EMAIL_ALREADY_REGISTERED",
+                      "detail": "A family account is already registered with this email_parent."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -272,12 +371,64 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_CREDENTIALS": {
+                    "summary": "INVALID_CREDENTIALS",
+                    "value": {
+                      "error_code": "INVALID_CREDENTIALS",
+                      "detail": "Incorrect parent email or password."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -314,12 +465,45 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "USER_NOT_FOUND": {
+                    "summary": "USER_NOT_FOUND",
+                    "value": {
+                      "error_code": "USER_NOT_FOUND",
+                      "detail": "No registered account was found with the provided email_parent."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -356,12 +540,78 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "USER_NOT_FOUND": {
+                    "summary": "USER_NOT_FOUND",
+                    "value": {
+                      "error_code": "USER_NOT_FOUND",
+                      "detail": "No registered account was found with the provided email_parent."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Controlled error response(s) for HTTP 400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RECOVERY_CODE_NOT_REQUESTED": {
+                    "summary": "RECOVERY_CODE_NOT_REQUESTED",
+                    "value": {
+                      "error_code": "RECOVERY_CODE_NOT_REQUESTED",
+                      "detail": "No active password recovery request exists for this account."
+                    }
+                  },
+                  "RECOVERY_CODE_EXPIRED": {
+                    "summary": "RECOVERY_CODE_EXPIRED",
+                    "value": {
+                      "error_code": "RECOVERY_CODE_EXPIRED",
+                      "detail": "The recovery code has expired. Please request a new one."
+                    }
+                  },
+                  "INVALID_RECOVERY_CODE": {
+                    "summary": "INVALID_RECOVERY_CODE",
+                    "value": {
+                      "error_code": "INVALID_RECOVERY_CODE",
+                      "detail": "The 6-digit recovery code is incorrect."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -398,12 +648,64 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_REFRESH_TOKEN": {
+                    "summary": "INVALID_REFRESH_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_REFRESH_TOKEN",
+                      "detail": "The provided refresh token is invalid or has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -426,6 +728,44 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
                 }
               }
             }
@@ -468,12 +808,64 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -526,12 +918,102 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Controlled error response(s) for HTTP 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "FAMILY_MEMBER_ALREADY_EXISTS": {
+                    "summary": "FAMILY_MEMBER_ALREADY_EXISTS",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_ALREADY_EXISTS",
+                      "detail": "A family member is already registered with this identification_uuid."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -588,12 +1070,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -650,12 +1184,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -700,12 +1286,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -750,12 +1388,83 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -815,12 +1524,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -876,12 +1637,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "TASK_NOT_FOUND": {
+                    "summary": "TASK_NOT_FOUND",
+                    "value": {
+                      "error_code": "TASK_NOT_FOUND",
+                      "detail": "No task was found with the provided task_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -925,12 +1738,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "TASK_NOT_FOUND": {
+                    "summary": "TASK_NOT_FOUND",
+                    "value": {
+                      "error_code": "TASK_NOT_FOUND",
+                      "detail": "No task was found with the provided task_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -992,12 +1857,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1042,12 +1959,83 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1104,12 +2092,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1165,12 +2205,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOAL_NOT_FOUND": {
+                    "summary": "GOAL_NOT_FOUND",
+                    "value": {
+                      "error_code": "GOAL_NOT_FOUND",
+                      "detail": "No parent goal was found with the provided goal_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1214,12 +2306,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOAL_NOT_FOUND": {
+                    "summary": "GOAL_NOT_FOUND",
+                    "value": {
+                      "error_code": "GOAL_NOT_FOUND",
+                      "detail": "No parent goal was found with the provided goal_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1246,6 +2390,44 @@
                   },
                   "type": "array",
                   "title": "Response List Rewards Api V1 Rewards Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
                 }
               }
             }
@@ -1288,12 +2470,83 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1357,12 +2610,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "REWARD_NOT_FOUND": {
+                    "summary": "REWARD_NOT_FOUND",
+                    "value": {
+                      "error_code": "REWARD_NOT_FOUND",
+                      "detail": "No parent reward was found with the provided reward_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1406,12 +2711,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "REWARD_NOT_FOUND": {
+                    "summary": "REWARD_NOT_FOUND",
+                    "value": {
+                      "error_code": "REWARD_NOT_FOUND",
+                      "detail": "No parent reward was found with the provided reward_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1456,12 +2813,97 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  },
+                  "GOAL_NOT_FOUND": {
+                    "summary": "GOAL_NOT_FOUND",
+                    "value": {
+                      "error_code": "GOAL_NOT_FOUND",
+                      "detail": "No parent goal was found with the provided goal_id for this family."
+                    }
+                  },
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1537,12 +2979,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1598,12 +3092,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MEMBER_GOAL_NOT_FOUND": {
+                    "summary": "MEMBER_GOAL_NOT_FOUND",
+                    "value": {
+                      "error_code": "MEMBER_GOAL_NOT_FOUND",
+                      "detail": "No member goal was found with the provided member_goal_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1647,12 +3193,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MEMBER_GOAL_NOT_FOUND": {
+                    "summary": "MEMBER_GOAL_NOT_FOUND",
+                    "value": {
+                      "error_code": "MEMBER_GOAL_NOT_FOUND",
+                      "detail": "No member goal was found with the provided member_goal_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1697,12 +3295,116 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_NOT_FOUND": {
+                    "summary": "PARENT_EMAIL_NOT_FOUND",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_NOT_FOUND",
+                      "detail": "No registered family account was found with the provided parent email."
+                    }
+                  },
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  },
+                  "REWARD_NOT_FOUND": {
+                    "summary": "REWARD_NOT_FOUND",
+                    "value": {
+                      "error_code": "REWARD_NOT_FOUND",
+                      "detail": "No parent reward was found with the provided reward_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Controlled error response(s) for HTTP 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "REWARD_NAME_OR_ID_REQUIRED": {
+                    "summary": "REWARD_NAME_OR_ID_REQUIRED",
+                    "value": {
+                      "error_code": "REWARD_NAME_OR_ID_REQUIRED",
+                      "detail": "You must provide either reward_id (to resolve the name automatically) or name_reward."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1778,12 +3480,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1839,12 +3593,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MEMBER_REWARD_NOT_FOUND": {
+                    "summary": "MEMBER_REWARD_NOT_FOUND",
+                    "value": {
+                      "error_code": "MEMBER_REWARD_NOT_FOUND",
+                      "detail": "No claimed reward was found with the provided member_reward_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1888,12 +3694,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MEMBER_REWARD_NOT_FOUND": {
+                    "summary": "MEMBER_REWARD_NOT_FOUND",
+                    "value": {
+                      "error_code": "MEMBER_REWARD_NOT_FOUND",
+                      "detail": "No claimed reward was found with the provided member_reward_id for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -1938,12 +3796,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -2001,12 +3911,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -2074,12 +4036,83 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "PARENT_EMAIL_MISMATCH": {
+                    "summary": "PARENT_EMAIL_MISMATCH",
+                    "value": {
+                      "error_code": "PARENT_EMAIL_MISMATCH",
+                      "detail": "The provided parent email does not match the authenticated JWT account."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "FAMILY_MEMBER_NOT_FOUND": {
+                    "summary": "FAMILY_MEMBER_NOT_FOUND",
+                    "value": {
+                      "error_code": "FAMILY_MEMBER_NOT_FOUND",
+                      "detail": "No family member was found with the provided UUID for this family."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -2134,12 +4167,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlled error response(s) for HTTP 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MEMBER_BALANCE_NOT_FOUND": {
+                    "summary": "MEMBER_BALANCE_NOT_FOUND",
+                    "value": {
+                      "error_code": "MEMBER_BALANCE_NOT_FOUND",
+                      "detail": "No balance record was found for the provided member_id."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -2248,12 +4333,64 @@
               }
             }
           },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "Validation Error",
+            "description": "Validation Error (VALIDATION_ERROR)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
                 }
               }
             }
@@ -2586,6 +4723,77 @@
           "min_required_version"
         ],
         "title": "AppVersionConfigUpdate"
+      },
+      "ErrorCode": {
+        "enum": [
+          "INVALID_CREDENTIALS",
+          "INVALID_OR_EXPIRED_TOKEN",
+          "INVALID_REFRESH_TOKEN",
+          "ACCOUNT_INACTIVE",
+          "EMAIL_ALREADY_REGISTERED",
+          "USER_NOT_FOUND",
+          "RECOVERY_CODE_NOT_REQUESTED",
+          "RECOVERY_CODE_EXPIRED",
+          "INVALID_RECOVERY_CODE",
+          "PARENT_EMAIL_NOT_FOUND",
+          "PARENT_EMAIL_MISMATCH",
+          "FAMILY_MEMBER_ALREADY_EXISTS",
+          "FAMILY_MEMBER_NOT_FOUND",
+          "TASK_NOT_FOUND",
+          "GOAL_NOT_FOUND",
+          "MEMBER_GOAL_NOT_FOUND",
+          "REWARD_NOT_FOUND",
+          "MEMBER_REWARD_NOT_FOUND",
+          "REWARD_NAME_OR_ID_REQUIRED",
+          "MEMBER_BALANCE_NOT_FOUND",
+          "VALIDATION_ERROR",
+          "HTTP_ERROR",
+          "INTERNAL_SERVER_ERROR"
+        ],
+        "title": "ErrorCode",
+        "type": "string"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error_code": {
+            "$ref": "#/components/schemas/ErrorCode",
+            "description": "Controlled machine-readable error code for client apps to localize and handle errors reliably",
+            "examples": [
+              "INVALID_RECOVERY_CODE"
+            ]
+          },
+          "detail": {
+            "description": "Human-readable error message explaining what went wrong",
+            "examples": [
+              "The 6-digit recovery code is incorrect."
+            ],
+            "title": "Detail",
+            "type": "string"
+          },
+          "errors": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional field-level validation details (present on HTTP 422 validation errors)",
+            "title": "Errors"
+          }
+        },
+        "required": [
+          "error_code",
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
       },
       "FamilyMemberCreate": {
         "properties": {
@@ -3069,19 +5277,6 @@
         },
         "type": "object",
         "title": "GoalUpdate"
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
       },
       "LoginRequest": {
         "properties": {
@@ -4441,46 +6636,6 @@
         },
         "type": "object",
         "title": "UserUpdate"
-      },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
       }
     },
     "securitySchemes": {
