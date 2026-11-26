@@ -118,6 +118,7 @@ def test_full_auth_and_crud_flow():
     )
     assert login_res.status_code == 200
     tokens = login_res.json()
+    assert tokens["approve_pin"] == "1234"
     access_token = tokens["access_token"]
     refresh_token = tokens["refresh_token"]
     headers = {"Authorization": f"Bearer {access_token}"}

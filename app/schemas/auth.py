@@ -32,6 +32,7 @@ class TokenResponse(BaseModel):
     refresh_token: str = Field(..., description="JWT Refresh Token to renew the session without re-entering credentials")
     token_type: str = Field(default="bearer", description="Authorization token type")
     expires_in_minutes: int = Field(..., description="Access token expiration time in minutes")
+    approve_pin: str = Field(..., description="Parental approval PIN stored for the authenticated family", examples=["1234"])
 
 
 class ForgotPasswordRequest(BaseModel):

@@ -6475,13 +6475,22 @@
             "type": "integer",
             "title": "Expires In Minutes",
             "description": "Access token expiration time in minutes"
+          },
+          "approve_pin": {
+            "type": "string",
+            "title": "Approve Pin",
+            "description": "Parental approval PIN stored for the authenticated family",
+            "examples": [
+              "1234"
+            ]
           }
         },
         "type": "object",
         "required": [
           "access_token",
           "refresh_token",
-          "expires_in_minutes"
+          "expires_in_minutes",
+          "approve_pin"
         ],
         "title": "TokenResponse"
       },

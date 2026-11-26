@@ -422,6 +422,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "refresh_token": sample_jwt_refresh,
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
+                        "approve_pin": "1234",
                     },
                     extra_responses=[
                         make_response(
@@ -448,6 +449,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "refresh_token": sample_jwt_refresh,
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
+                        "approve_pin": "1234",
                     },
                     extra_responses=[
                         make_response(
@@ -522,6 +524,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "refresh_token": sample_jwt_refresh,
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
+                        "approve_pin": "1234",
                     },
                 ),
             ],
