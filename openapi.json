@@ -6483,6 +6483,14 @@
             "examples": [
               "1234"
             ]
+          },
+          "name_family": {
+            "type": "string",
+            "title": "Name Family",
+            "description": "Family name stored for the authenticated parent account",
+            "examples": [
+              "Leon Family"
+            ]
           }
         },
         "type": "object",
@@ -6490,7 +6498,8 @@
           "access_token",
           "refresh_token",
           "expires_in_minutes",
-          "approve_pin"
+          "approve_pin",
+          "name_family"
         ],
         "title": "TokenResponse"
       },

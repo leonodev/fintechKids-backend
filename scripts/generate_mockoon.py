@@ -423,6 +423,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
                         "approve_pin": "1234",
+                        "name_family": "Leon Family",
                     },
                     extra_responses=[
                         make_response(
@@ -450,6 +451,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
                         "approve_pin": "1234",
+                        "name_family": "Leon Family",
                     },
                     extra_responses=[
                         make_response(
@@ -525,6 +527,7 @@ def build_mockoon_environment() -> Dict[str, Any]:
                         "token_type": "bearer",
                         "expires_in_minutes": 30,
                         "approve_pin": "1234",
+                        "name_family": "Leon Family",
                     },
                 ),
             ],

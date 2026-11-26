@@ -33,6 +33,7 @@ class TokenResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Authorization token type")
     expires_in_minutes: int = Field(..., description="Access token expiration time in minutes")
     approve_pin: str = Field(..., description="Parental approval PIN stored for the authenticated family", examples=["1234"])
+    name_family: str = Field(..., description="Family name stored for the authenticated parent account", examples=["Leon Family"])
 
 
 class ForgotPasswordRequest(BaseModel):

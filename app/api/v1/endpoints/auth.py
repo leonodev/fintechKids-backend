@@ -101,6 +101,7 @@ def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> Toke
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
         approve_pin=user.approve_pin,
+        name_family=user.name_family,
     )
 
 
@@ -228,6 +229,7 @@ def login_oauth2_form(
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
         approve_pin=user.approve_pin,
+        name_family=user.name_family,
     )
 
 
@@ -262,4 +264,5 @@ def refresh_access_token(body: RefreshTokenRequest, db: Session = Depends(get_db
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
         approve_pin=user.approve_pin,
+        name_family=user.name_family,
     )

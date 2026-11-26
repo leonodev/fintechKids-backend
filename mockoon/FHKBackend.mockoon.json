@@ -1550,7 +1550,7 @@
       "responses": [
         {
           "uuid": "9157e631-a1d9-555f-ab67-6298aa3a9894",
-          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\"\n}",
+          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\",\n  \"name_family\": \"Leon Family\"\n}",
           "latency": 3000,
           "statusCode": 201,
           "label": "SUCCESS 201 - Family Registered + JWT (3000ms Loader Delay)",
@@ -1874,7 +1874,7 @@
       "responses": [
         {
           "uuid": "85480f24-bd39-5386-87c8-e78d7f0afd73",
-          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\"\n}",
+          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\",\n  \"name_family\": \"Leon Family\"\n}",
           "latency": 3000,
           "statusCode": 200,
           "label": "SUCCESS 200 - Login Successful + JWT (3000ms Loader Delay)",
@@ -2846,7 +2846,7 @@
       "responses": [
         {
           "uuid": "73f57373-37f0-54be-9416-747bb1542f3a",
-          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\"\n}",
+          "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImVtYWlsIjoicGFyZW50QGZoay5hcHAiLCJyb2xlIjoidXNlciJ9.mockoon-signature-access-token\",\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2gifQ.mockoon-signature-refresh-token\",\n  \"token_type\": \"bearer\",\n  \"expires_in_minutes\": 30,\n  \"approve_pin\": \"1234\",\n  \"name_family\": \"Leon Family\"\n}",
           "latency": 3000,
           "statusCode": 200,
           "label": "SUCCESS 200 - Refreshed JWT Pair (3000ms Loader Delay)",
