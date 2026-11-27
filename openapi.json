@@ -4435,6 +4435,128 @@
           }
         }
       }
+    },
+    "/api/v1/remote-config": {
+      "get": {
+        "tags": [
+          "13. Remote Config"
+        ],
+        "summary": "Get remote app configuration (languages, bottom-bar menus, and cache TTL)",
+        "description": "Public **GET** endpoint replacing Firebase Remote Config for the mobile client.\n\nReturns:\n- `cached_time_expiration`: Cache duration in minutes.\n- `enabled_languages`: Map of language codes to booleans (`{\"es\": true, \"fr\": true, ...}`) so individual languages can be toggled off without removing them.\n- `menus_bottom_bar_enables`: List of bottom-bar menu item configurations (`id`, `name`, `icon`, `label_localized_key`, `active`).",
+        "operationId": "get_remote_config_api_v1_remote_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "13. Remote Config"
+        ],
+        "summary": "Update remote app configuration (JWT Protected)",
+        "description": "Updates `cached_time_expiration`, `enabled_languages`, and/or `menus_bottom_bar_enables` in the database for the current environment. Any omitted (`null`) field keeps its existing value.",
+        "operationId": "update_remote_config_api_v1_remote_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoteConfigUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteConfigResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -5953,6 +6075,66 @@
         ],
         "title": "MemberRewardUpdate"
       },
+      "MenuHomeItemSchema": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Id",
+            "description": "Unique numeric identifier for the bottom-bar menu item",
+            "examples": [
+              1
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Internal identifier name for the menu tab (e.g. `payments`)",
+            "examples": [
+              "payments"
+            ]
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Icon",
+            "description": "Icon asset identifier used by the mobile client",
+            "examples": [
+              "payments-icon"
+            ]
+          },
+          "label_localized_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label Localized Key",
+            "description": "Localization key used by the app to display the tab title",
+            "examples": [
+              "key_payments_title"
+            ]
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active",
+            "description": "Controls whether this bottom-bar menu item is enabled in the app",
+            "default": true,
+            "examples": [
+              true
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "icon",
+          "label_localized_key"
+        ],
+        "title": "MenuHomeItemSchema"
+      },
       "PlatformEnum": {
         "type": "string",
         "enum": [
@@ -5974,6 +6156,140 @@
           "refresh_token"
         ],
         "title": "RefreshTokenRequest"
+      },
+      "RemoteConfigResponse": {
+        "properties": {
+          "cached_time_expiration": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cached Time Expiration",
+            "description": "Client-side remote config cache duration in minutes",
+            "examples": [
+              5
+            ]
+          },
+          "enabled_languages": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Enabled Languages",
+            "description": "Map of ISO language codes to boolean flags so languages can be toggled without deleting them",
+            "examples": [
+              {
+                "en": true,
+                "es": true,
+                "fr": true,
+                "it": true
+              }
+            ]
+          },
+          "menus_bottom_bar_enables": {
+            "items": {
+              "$ref": "#/components/schemas/MenuHomeItemSchema"
+            },
+            "type": "array",
+            "title": "Menus Bottom Bar Enables",
+            "description": "List of bottom-bar home menu items and their active flags",
+            "examples": [
+              [
+                {
+                  "active": true,
+                  "icon": "payments-icon",
+                  "id": 1,
+                  "label_localized_key": "key_payments_title",
+                  "name": "payments"
+                }
+              ]
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "UTC timestamp of the last remote configuration update"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cached_time_expiration",
+          "enabled_languages",
+          "menus_bottom_bar_enables",
+          "updated_at"
+        ],
+        "title": "RemoteConfigResponse"
+      },
+      "RemoteConfigUpdate": {
+        "properties": {
+          "cached_time_expiration": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1440.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cached Time Expiration",
+            "description": "Client-side remote config cache duration in minutes (0 to 1440)",
+            "examples": [
+              5
+            ]
+          },
+          "enabled_languages": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled Languages",
+            "description": "Map of ISO language codes to boolean flags (e.g. `{\"es\": true, \"fr\": false}`)",
+            "examples": [
+              {
+                "en": true,
+                "es": true,
+                "fr": true,
+                "it": true
+              }
+            ]
+          },
+          "menus_bottom_bar_enables": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MenuHomeItemSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Menus Bottom Bar Enables",
+            "description": "Updated list of bottom-bar menu items and their visibility/active status",
+            "examples": [
+              [
+                {
+                  "active": true,
+                  "icon": "payments-icon",
+                  "id": 1,
+                  "label_localized_key": "key_payments_title",
+                  "name": "payments"
+                }
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "title": "RemoteConfigUpdate"
       },
       "ResetPasswordRequest": {
         "properties": {
@@ -6761,6 +7077,10 @@
     {
       "name": "12. Activity History (Audit Logs)",
       "description": "Query the automated historical activity and audit trail recorded per family."
+    },
+    {
+      "name": "13. Remote Config",
+      "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags)."
     }
   ]
 }

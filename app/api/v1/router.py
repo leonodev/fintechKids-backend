@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     member_balances,
     member_goals,
     member_rewards,
+    remote_config,
     rewards,
     tasks,
     users,
@@ -70,4 +71,9 @@ api_router.include_router(
     activity_logs.router,
     prefix="/activity-logs",
     tags=["12. Activity History (Audit Logs)"],
+)
+api_router.include_router(
+    remote_config.router,
+    prefix="/remote-config",
+    tags=["13. Remote Config"],
 )

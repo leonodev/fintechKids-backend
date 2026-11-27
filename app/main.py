@@ -68,6 +68,10 @@ openapi_tags = [
         "name": "12. Activity History (Audit Logs)",
         "description": "Query the automated historical activity and audit trail recorded per family.",
     },
+    {
+        "name": "13. Remote Config",
+        "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags).",
+    },
 ]
 
 

@@ -48,6 +48,7 @@ def test_health_and_swagger_document():
     assert "/api/v1/health" in schema["paths"]
     assert "/api/v1/auth/login" in schema["paths"]
     assert "/api/v1/app-version/check" in schema["paths"]
+    assert "/api/v1/remote-config" in schema["paths"]
     assert "/api/v1/tasks" in schema["paths"]
     assert "/api/v1/items" not in schema["paths"]
 
@@ -759,3 +760,108 @@ def test_forgot_password_production_email_delivery(monkeypatch):
     )
     assert network_err_res.status_code == 502
     assert network_err_res.json()["error_code"] == "EMAIL_DELIVERY_FAILED"
+
+
+def test_remote_config_endpoints():
+    # 1. Public GET returns auto-seeded defaults matching Firebase Remote Config structure
+    get_res = client.get("/api/v1/remote-config")
+    assert get_res.status_code == 200
+    data = get_res.json()
+    assert data["cached_time_expiration"] == 5
+    assert data["enabled_languages"] == {"es": True, "fr": True, "en": True, "it": True}
+    assert data["menus_bottom_bar_enables"] == [
+        {
+            "id": 1,
+            "name": "payments",
+            "icon": "payments-icon",
+            "label_localized_key": "key_payments_title",
+            "active": True,
+        }
+    ]
+    assert "updated_at" in data
+
+    # 2. Unauthenticated PUT is rejected with INVALID_OR_EXPIRED_TOKEN (401)
+    unauth_put = client.put(
+        "/api/v1/remote-config",
+        json={"cached_time_expiration": 10},
+    )
+    assert unauth_put.status_code == 401
+    assert unauth_put.json()["error_code"] == "INVALID_OR_EXPIRED_TOKEN"
+
+    # 3. Authenticated PUT updates languages, menu flags, and cache expiration
+    login_res = client.post(
+        "/api/v1/auth/login",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "password": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        },
+    )
+    assert login_res.status_code == 200
+    token = login_res.json()["access_token"]
+
+    put_res = client.put(
+        "/api/v1/remote-config",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "cached_time_expiration": 10,
+            "enabled_languages": {"es": True, "fr": False, "en": True, "it": False},
+            "menus_bottom_bar_enables": [
+                {
+                    "id": 1,
+                    "name": "payments",
+                    "icon": "payments-icon",
+                    "label_localized_key": "key_payments_title",
+                    "active": True,
+                },
+                {
+                    "id": 2,
+                    "name": "rewards",
+                    "icon": "rewards-icon",
+                    "label_localized_key": "key_rewards_title",
+                    "active": False,
+                },
+            ],
+        },
+    )
+    assert put_res.status_code == 200
+    updated = put_res.json()
+    assert updated["cached_time_expiration"] == 10
+    assert updated["enabled_languages"] == {"es": True, "fr": False, "en": True, "it": False}
+    assert len(updated["menus_bottom_bar_enables"]) == 2
+    assert updated["menus_bottom_bar_enables"][1]["active"] is False
+
+    # 4. Partial PUT keeps untouched fields
+    partial_put = client.put(
+        "/api/v1/remote-config",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"cached_time_expiration": 3},
+    )
+    assert partial_put.status_code == 200
+    assert partial_put.json()["cached_time_expiration"] == 3
+    assert partial_put.json()["enabled_languages"] == {"es": True, "fr": False, "en": True, "it": False}
+
+    # 5. Duplicate menu item id triggers controlled VALIDATION_ERROR (422)
+    dup_put = client.put(
+        "/api/v1/remote-config",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "menus_bottom_bar_enables": [
+                {
+                    "id": 1,
+                    "name": "payments",
+                    "icon": "payments-icon",
+                    "label_localized_key": "key_payments_title",
+                    "active": True,
+                },
+                {
+                    "id": 1,
+                    "name": "duplicate",
+                    "icon": "dup-icon",
+                    "label_localized_key": "key_dup_title",
+                    "active": True,
+                },
+            ]
+        },
+    )
+    assert dup_put.status_code == 422
+    assert dup_put.json()["error_code"] == "VALIDATION_ERROR"
