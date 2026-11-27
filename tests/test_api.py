@@ -670,3 +670,92 @@ def test_controlled_error_codes_across_endpoints():
     )
     assert missing_task.status_code == 404
     assert missing_task.json()["error_code"] == "TASK_NOT_FOUND"
+
+
+def test_forgot_password_production_email_delivery(monkeypatch):
+    import httpx
+    from app.core import email as email_module
+    from app.core.config import settings
+
+    # 1. Production without RESEND_API_KEY -> 503 EMAIL_SERVICE_NOT_CONFIGURED
+    monkeypatch.setattr(settings, "ENVIRONMENT", "production")
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "")
+
+    unconfigured_res = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "fredy@fhk.app"},
+    )
+    assert unconfigured_res.status_code == 503
+    assert unconfigured_res.json()["error_code"] == "EMAIL_SERVICE_NOT_CONFIGURED"
+
+    # 2. Production with RESEND_API_KEY and Resend 200 OK -> sends email and hides debug_recovery_code
+    captured_requests = []
+
+    class DummyResponse:
+        def __init__(self, status_code: int, text: str = "{}"):
+            self.status_code = status_code
+            self.text = text
+
+    def fake_post_success(url, *, headers=None, json=None, timeout=None):
+        captured_requests.append({"url": url, "headers": headers, "json": json, "timeout": timeout})
+        return DummyResponse(200, '{"id": "email_test_123"}')
+
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "re_test_fake_key_123")
+    monkeypatch.setattr(settings, "EMAIL_FROM", "FintechKids <no-reply@fhk.app>")
+    monkeypatch.setattr(email_module.httpx, "post", fake_post_success)
+
+    prod_res = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "fredy@fhk.app"},
+    )
+    assert prod_res.status_code == 200
+    prod_body = prod_res.json()
+    assert prod_body["debug_recovery_code"] is None
+    assert len(captured_requests) == 1
+
+    sent = captured_requests[0]
+    assert sent["url"] == email_module.RESEND_EMAILS_URL
+    assert sent["headers"]["Authorization"] == "Bearer re_test_fake_key_123"
+    assert sent["json"]["from"] == "FintechKids <no-reply@fhk.app>"
+    assert sent["json"]["to"] == ["fredy@fhk.app"]
+
+    # Extract 6-digit code from the plain text body and verify /reset-password accepts it
+    import re
+
+    match = re.search(r"\b(\d{6})\b", sent["json"]["text"])
+    assert match is not None
+    emailed_code = match.group(1)
+    assert emailed_code in sent["json"]["html"]
+
+    reset_res = client.post(
+        "/api/v1/auth/reset-password",
+        json={
+            "email_parent": "fredy@fhk.app",
+            "recovery_code": emailed_code,
+            "new_password": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        },
+    )
+    assert reset_res.status_code == 200
+
+    # 3. Resend rejects with 403 or network error -> 502 EMAIL_DELIVERY_FAILED
+    def fake_post_rejected(url, *, headers=None, json=None, timeout=None):
+        return DummyResponse(403, '{"message": "Domain not verified"}')
+
+    monkeypatch.setattr(email_module.httpx, "post", fake_post_rejected)
+    rejected_res = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "fredy@fhk.app"},
+    )
+    assert rejected_res.status_code == 502
+    assert rejected_res.json()["error_code"] == "EMAIL_DELIVERY_FAILED"
+
+    def fake_post_network_error(url, *, headers=None, json=None, timeout=None):
+        raise httpx.ConnectError("Network unreachable")
+
+    monkeypatch.setattr(email_module.httpx, "post", fake_post_network_error)
+    network_err_res = client.post(
+        "/api/v1/auth/forgot-password",
+        json={"email_parent": "fredy@fhk.app"},
+    )
+    assert network_err_res.status_code == 502
+    assert network_err_res.json()["error_code"] == "EMAIL_DELIVERY_FAILED"

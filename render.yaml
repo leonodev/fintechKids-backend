@@ -58,3 +58,7 @@ services:
         generateValue: true
       - key: DATABASE_URL
         sync: false # Set to Neon 'production' branch connection string in Render Dashboard
+      - key: RESEND_API_KEY
+        sync: false # Set your Resend API key (re_...) in Render Dashboard
+      - key: EMAIL_FROM
+        sync: false # Optional: e.g. 'FintechKids <no-reply@yourdomain.com>' (defaults to onboarding@resend.dev)

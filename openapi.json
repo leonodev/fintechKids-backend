@@ -442,7 +442,7 @@
           "3. Authentication"
         ],
         "summary": "Password Recovery - Step 1: Request 6-digit verification code",
-        "description": "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, and persists it in the database to be sent to the parent's email.",
+        "description": "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, persists it in the database, and sends it to the parent's email via Resend when configured (mandatory in production).",
         "operationId": "forgot_password_api_v1_auth_forgot_password_post",
         "requestBody": {
           "content": {
@@ -478,6 +478,44 @@
                     "value": {
                       "error_code": "USER_NOT_FOUND",
                       "detail": "No registered account was found with the provided email_parent."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Controlled error response(s) for HTTP 503",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "EMAIL_SERVICE_NOT_CONFIGURED": {
+                    "summary": "EMAIL_SERVICE_NOT_CONFIGURED",
+                    "value": {
+                      "error_code": "EMAIL_SERVICE_NOT_CONFIGURED",
+                      "detail": "Transactional email service is not configured for this environment."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Controlled error response(s) for HTTP 502",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "EMAIL_DELIVERY_FAILED": {
+                    "summary": "EMAIL_DELIVERY_FAILED",
+                    "value": {
+                      "error_code": "EMAIL_DELIVERY_FAILED",
+                      "detail": "Could not deliver the password recovery email. Please try again later."
                     }
                   }
                 }
@@ -4746,6 +4784,8 @@
           "MEMBER_REWARD_NOT_FOUND",
           "REWARD_NAME_OR_ID_REQUIRED",
           "MEMBER_BALANCE_NOT_FOUND",
+          "EMAIL_SERVICE_NOT_CONFIGURED",
+          "EMAIL_DELIVERY_FAILED",
           "VALIDATION_ERROR",
           "HTTP_ERROR",
           "INTERNAL_SERVER_ERROR"

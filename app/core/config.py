@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     RESET_CODE_EXPIRE_MINUTES: int = 15
 
+    # Transactional Email (Resend HTTPS API)
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "FintechKids <onboarding@resend.dev>"
+    EMAIL_TIMEOUT_SECONDS: float = 10.0
+
     # Base de datos (SQLite por defecto en local, PostgreSQL en producción)
     DATABASE_URL: str = "sqlite:///./fhk.db"
 

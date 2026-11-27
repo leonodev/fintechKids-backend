@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.audit import record_activity
 from app.core.config import settings
+from app.core.email import send_password_recovery_email
 from app.core.errors import AppHTTPException, ErrorCode, api_error_responses
 from app.core.security import (
     create_access_token,
@@ -111,9 +112,14 @@ def login_json(credentials: LoginRequest, db: Session = Depends(get_db)) -> Toke
     summary="Password Recovery - Step 1: Request 6-digit verification code",
     description=(
         "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, "
-        "and persists it in the database to be sent to the parent's email."
+        "persists it in the database, and sends it to the parent's email via Resend when configured "
+        "(mandatory in production)."
     ),
-    responses=api_error_responses(ErrorCode.USER_NOT_FOUND),
+    responses=api_error_responses(
+        ErrorCode.USER_NOT_FOUND,
+        ErrorCode.EMAIL_SERVICE_NOT_CONFIGURED,
+        ErrorCode.EMAIL_DELIVERY_FAILED,
+    ),
 )
 def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) -> ForgotPasswordResponse:
     user = db.query(User).filter(User.email_parent == body.email_parent.lower()).first()
@@ -122,6 +128,13 @@ def forgot_password(body: ForgotPasswordRequest, db: Session = Depends(get_db)) 
 
     recovery_code = f"{secrets.randbelow(900000) + 100000}"
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.RESET_CODE_EXPIRE_MINUTES)
+
+    send_password_recovery_email(
+        to_email=user.email_parent,
+        recovery_code=recovery_code,
+        family_name=user.name_family,
+        expires_in_minutes=settings.RESET_CODE_EXPIRE_MINUTES,
+    )
 
     user.reset_code = recovery_code
     user.reset_code_expires_at = expires_at

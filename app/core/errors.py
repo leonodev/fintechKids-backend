@@ -41,6 +41,8 @@ class ErrorCode(str, Enum):
     MEMBER_BALANCE_NOT_FOUND = "MEMBER_BALANCE_NOT_FOUND"
 
     # Generic / Validation / System
+    EMAIL_SERVICE_NOT_CONFIGURED = "EMAIL_SERVICE_NOT_CONFIGURED"
+    EMAIL_DELIVERY_FAILED = "EMAIL_DELIVERY_FAILED"
     VALIDATION_ERROR = "VALIDATION_ERROR"
     HTTP_ERROR = "HTTP_ERROR"
     INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
@@ -83,6 +85,14 @@ ERROR_CATALOG: Dict[ErrorCode, Tuple[int, str]] = {
     ErrorCode.INVALID_RECOVERY_CODE: (
         status.HTTP_400_BAD_REQUEST,
         "The 6-digit recovery code is incorrect.",
+    ),
+    ErrorCode.EMAIL_SERVICE_NOT_CONFIGURED: (
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+        "Transactional email service is not configured for this environment.",
+    ),
+    ErrorCode.EMAIL_DELIVERY_FAILED: (
+        status.HTTP_502_BAD_GATEWAY,
+        "Could not deliver the password recovery email. Please try again later.",
     ),
     ErrorCode.PARENT_EMAIL_NOT_FOUND: (
         status.HTTP_404_NOT_FOUND,
