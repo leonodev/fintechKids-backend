@@ -267,10 +267,132 @@
         }
       }
     },
+    "/api/v1/remote-config": {
+      "get": {
+        "tags": [
+          "3. Remote Config"
+        ],
+        "summary": "Get remote app configuration (languages, bottom-bar menus, and cache TTL)",
+        "description": "Public **GET** endpoint replacing Firebase Remote Config for the mobile client.\n\nReturns:\n- `cached_time_expiration`: Cache duration in minutes.\n- `enabled_languages`: Map of language codes to booleans (`{\"es\": true, \"fr\": true, ...}`) so individual languages can be toggled off without removing them.\n- `menus_bottom_bar_enables`: List of bottom-bar menu item configurations (`id`, `name`, `icon`, `label_localized_key`, `active`).",
+        "operationId": "get_remote_config_api_v1_remote_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "3. Remote Config"
+        ],
+        "summary": "Update remote app configuration (JWT Protected)",
+        "description": "Updates `cached_time_expiration`, `enabled_languages`, and/or `menus_bottom_bar_enables` in the database for the current environment. Any omitted (`null`) field keeps its existing value.",
+        "operationId": "update_remote_config_api_v1_remote_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoteConfigUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteConfigResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Controlled error response(s) for HTTP 401",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INVALID_OR_EXPIRED_TOKEN": {
+                    "summary": "INVALID_OR_EXPIRED_TOKEN",
+                    "value": {
+                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
+                      "detail": "Could not validate credentials or the access token has expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Controlled error response(s) for HTTP 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "ACCOUNT_INACTIVE": {
+                    "summary": "ACCOUNT_INACTIVE",
+                    "value": {
+                      "error_code": "ACCOUNT_INACTIVE",
+                      "detail": "The family account is currently inactive."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error (VALIDATION_ERROR)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error_code": "VALIDATION_ERROR",
+                  "detail": "Request payload or parameter validation failed.",
+                  "errors": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "field_name"
+                      ],
+                      "msg": "Field required"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2Password": []
+          },
+          {
+            "BearerJWT": []
+          }
+        ]
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "tags": [
-          "3. Authentication"
+          "4. Authentication"
         ],
         "summary": "Register a new family / parent",
         "description": "Registers a family in the database receiving `name_family`, `email_parent`, `password` (client-encrypted from the app), and `approve_pin`. The `created_at` field is automatically assigned by the server in UTC.",
@@ -345,7 +467,7 @@
     "/api/v1/auth/login": {
       "post": {
         "tags": [
-          "3. Authentication"
+          "4. Authentication"
         ],
         "summary": "Log in from the App (JSON)",
         "description": "Receives `email_parent` and `password` (the same client-encrypted password sent during registration) and returns a JWT `access_token` and `refresh_token`.",
@@ -439,7 +561,7 @@
     "/api/v1/auth/forgot-password": {
       "post": {
         "tags": [
-          "3. Authentication"
+          "4. Authentication"
         ],
         "summary": "Password Recovery - Step 1: Request 6-digit verification code",
         "description": "Receives `email_parent`, generates a temporary 6-digit recovery code valid for 15 minutes, persists it in the database, and sends it to the parent's email via Resend when configured (mandatory in production).",
@@ -552,7 +674,7 @@
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
-          "3. Authentication"
+          "4. Authentication"
         ],
         "summary": "Password Recovery - Step 2: Confirm code and update password",
         "description": "Receives `email_parent`, `recovery_code` (6 digits), and the new client-encrypted `new_password`. Validates that the code matches and has not expired, updates the password in the database, and invalidates the code.",
@@ -660,7 +782,7 @@
     "/api/v1/auth/refresh": {
       "post": {
         "tags": [
-          "3. Authentication"
+          "4. Authentication"
         ],
         "summary": "Renew Access Token using Refresh Token",
         "description": "Allows the mobile app to obtain a new `access_token` without forcing the user to log in again.",
@@ -754,7 +876,7 @@
     "/api/v1/users/me": {
       "get": {
         "tags": [
-          "4. Users / Family"
+          "5. Users / Family"
         ],
         "summary": "Get authenticated family / parent profile",
         "description": "Returns the registered profile information for the family that owns the current JWT token.",
@@ -820,7 +942,7 @@
       },
       "patch": {
         "tags": [
-          "4. Users / Family"
+          "5. Users / Family"
         ],
         "summary": "Update authenticated family / parent profile",
         "description": "Updates `name_family`, `password`, or `approve_pin` for the authenticated family account.",
@@ -922,7 +1044,7 @@
     "/api/v1/family-members": {
       "post": {
         "tags": [
-          "5. Family Members"
+          "6. Family Members"
         ],
         "summary": "Create a new family member",
         "description": "Registers a new family member receiving `email_parent`, `identification_uuid` (UUID), `member_name`, `avatar_name`, and `name_family`. Linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
@@ -1060,7 +1182,7 @@
       },
       "get": {
         "tags": [
-          "5. Family Members"
+          "6. Family Members"
         ],
         "summary": "List family members",
         "description": "Retrieves all registered family members belonging to the authenticated parent.",
@@ -1176,7 +1298,7 @@
     "/api/v1/family-members/{identification_uuid}": {
       "patch": {
         "tags": [
-          "5. Family Members"
+          "6. Family Members"
         ],
         "summary": "Update a family member's name or avatar",
         "description": "Updates `member_name` and/or `avatar_name` of a family member identified by `identification_uuid` (JWT Protected).",
@@ -1288,7 +1410,7 @@
       },
       "delete": {
         "tags": [
-          "5. Family Members"
+          "6. Family Members"
         ],
         "summary": "Delete a family member",
         "description": "Permanently deletes a family member from the database by `identification_uuid`, verifying ownership by the authenticated parent (JWT Protected).",
@@ -1392,7 +1514,7 @@
     "/api/v1/tasks": {
       "post": {
         "tags": [
-          "6. Family Tasks"
+          "7. Family Tasks"
         ],
         "summary": "1. Create a new family task (by parent)",
         "description": "Registers a new family task receiving `name`, `time_granted`, `coins_granted`, `email_parent`, `description`, and `status` (defaults to `enable` automatically). The `created_at` field is auto-generated in UTC (JWT Protected).",
@@ -1511,7 +1633,7 @@
       },
       "get": {
         "tags": [
-          "6. Family Tasks"
+          "7. Family Tasks"
         ],
         "summary": "3. List all family tasks (any status)",
         "description": "Returns all tasks belonging exclusively to the authenticated parent's family regardless of their status (`enable` and `disable`) (JWT Protected).",
@@ -1630,7 +1752,7 @@
     "/api/v1/tasks/{task_id}": {
       "patch": {
         "tags": [
-          "6. Family Tasks"
+          "7. Family Tasks"
         ],
         "summary": "2. Edit a family task (including enabling/disabling status)",
         "description": "Allows the parent to edit any field of a task (`name`, `time_granted`, `coins_granted`, `description`) as well as toggle its `status` between `enable` and `disable` (JWT Protected).",
@@ -1741,7 +1863,7 @@
       },
       "delete": {
         "tags": [
-          "6. Family Tasks"
+          "7. Family Tasks"
         ],
         "summary": "5. Delete a family task",
         "description": "Permanently deletes a task from the database by `task_id`, verifying that it belongs to the authenticated parent's family (JWT Protected).",
@@ -1844,7 +1966,7 @@
     "/api/v1/tasks/enabled": {
       "get": {
         "tags": [
-          "6. Family Tasks"
+          "7. Family Tasks"
         ],
         "summary": "4. List family tasks with 'enable' status only",
         "description": "Returns only enabled tasks (`status = 'enable'`) belonging to the authenticated parent's family (JWT Protected).",
@@ -1963,7 +2085,7 @@
     "/api/v1/goals": {
       "post": {
         "tags": [
-          "7. Parent Goals"
+          "8. Parent Goals"
         ],
         "summary": "Create a new parent goal",
         "description": "Registers a new goal in the database receiving `measure_type`, `status` (`active` or `inactive`), `email_parent`, `name`, and `value` (Int). The `created_at` field is auto-generated in UTC and linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
@@ -2082,7 +2204,7 @@
       },
       "get": {
         "tags": [
-          "7. Parent Goals"
+          "8. Parent Goals"
         ],
         "summary": "List goals created by the parent",
         "description": "Retrieves all goals registered by the authenticated parent, with an optional filter by `status`.",
@@ -2198,7 +2320,7 @@
     "/api/v1/goals/{goal_id}": {
       "patch": {
         "tags": [
-          "7. Parent Goals"
+          "8. Parent Goals"
         ],
         "summary": "Update a goal created by the parent",
         "description": "Partially updates `name`, `measure_type`, `value`, and/or `status` (`active` / `inactive`) of an existing goal owned by the authenticated parent (JWT Protected).",
@@ -2309,7 +2431,7 @@
       },
       "delete": {
         "tags": [
-          "7. Parent Goals"
+          "8. Parent Goals"
         ],
         "summary": "Delete a goal created by the parent",
         "description": "Permanently deletes a goal from the database by `goal_id`, verifying ownership by the authenticated parent (JWT Protected).",
@@ -2412,7 +2534,7 @@
     "/api/v1/rewards": {
       "get": {
         "tags": [
-          "8. Parent Rewards"
+          "9. Parent Rewards"
         ],
         "summary": "List rewards created by the parent",
         "description": "Retrieves all rewards registered by the authenticated parent (JWT Protected).",
@@ -2482,7 +2604,7 @@
       },
       "post": {
         "tags": [
-          "8. Parent Rewards"
+          "9. Parent Rewards"
         ],
         "summary": "Create a new parent reward",
         "description": "Registers a new reward created by the parent receiving `name`, `time_required`, `coins_required`, and `email_parent`. The `created_at` field is auto-generated in UTC and linked via foreign key (`parent_id`) to the parent account in `users` (JWT Protected).",
@@ -2603,7 +2725,7 @@
     "/api/v1/rewards/{reward_id}": {
       "patch": {
         "tags": [
-          "8. Parent Rewards"
+          "9. Parent Rewards"
         ],
         "summary": "Update a reward created by the parent",
         "description": "Partially updates `name`, `time_required`, and/or `coins_required` of an existing reward owned by the authenticated parent (JWT Protected).",
@@ -2714,7 +2836,7 @@
       },
       "delete": {
         "tags": [
-          "8. Parent Rewards"
+          "9. Parent Rewards"
         ],
         "summary": "Delete a reward created by the parent",
         "description": "Permanently deletes a reward from the database by `reward_id`, verifying ownership by the authenticated parent (JWT Protected).",
@@ -2817,7 +2939,7 @@
     "/api/v1/member-goals": {
       "post": {
         "tags": [
-          "9. Member Goals"
+          "10. Member Goals"
         ],
         "summary": "Assign / Create a goal for a family member",
         "description": "Registers a goal selected by a family member based on a goal created by the parent. Receives `goal_id`, `member_id` (UUID), `rewards_system_type`, `rewards_system_value`, `accumulated_value`, `parent_email`, and `name`. The `created_at` field is auto-generated in UTC and relational integrity with the parent, base goal, and family member is validated (JWT Protected).",
@@ -2950,7 +3072,7 @@
       },
       "get": {
         "tags": [
-          "9. Member Goals"
+          "10. Member Goals"
         ],
         "summary": "List family member goals",
         "description": "Retrieves all goals assigned to family members of the authenticated parent, with optional filters by `member_id` (UUID) or `goal_id`.",
@@ -3085,7 +3207,7 @@
     "/api/v1/member-goals/{member_goal_id}": {
       "patch": {
         "tags": [
-          "9. Member Goals"
+          "10. Member Goals"
         ],
         "summary": "Update progress (accumulated_value) or details of a member goal",
         "description": "Updates the progress (`accumulated_value`) and optionally the name or reward settings of a member's goal identified by `member_goal_id` (JWT Protected).",
@@ -3196,7 +3318,7 @@
       },
       "delete": {
         "tags": [
-          "9. Member Goals"
+          "10. Member Goals"
         ],
         "summary": "Delete a family member's goal",
         "description": "Permanently deletes a goal assigned to a family member by `member_goal_id`, verifying ownership by the authenticated parent (JWT Protected).",
@@ -3299,7 +3421,7 @@
     "/api/v1/member-rewards": {
       "post": {
         "tags": [
-          "10. Member Rewards"
+          "11. Member Rewards"
         ],
         "summary": "Register a reward claimed by a family member",
         "description": "Registers a reward selected by a family member with initial state `PENDING`. You can send `reward_id` so the backend automatically resolves `name_reward` by matching it against the parent's `rewards` table, or send `name_reward` directly (JWT Protected).",
@@ -3451,7 +3573,7 @@
       },
       "get": {
         "tags": [
-          "10. Member Rewards"
+          "11. Member Rewards"
         ],
         "summary": "List claimed/collected member rewards",
         "description": "Retrieves rewards claimed by family members, with optional filters by `member_id` (UUID) and `state` (`PENDING` or `COLLECTED`) (JWT Protected).",
@@ -3586,7 +3708,7 @@
     "/api/v1/member-rewards/{member_reward_id}": {
       "patch": {
         "tags": [
-          "10. Member Rewards"
+          "11. Member Rewards"
         ],
         "summary": "Update claimed reward state (from PENDING to COLLECTED)",
         "description": "Allows the parent to change the `state` of a claimed reward (for example, from `PENDING` to `COLLECTED` once the reward has been delivered to the family member) (JWT Protected).",
@@ -3697,7 +3819,7 @@
       },
       "delete": {
         "tags": [
-          "10. Member Rewards"
+          "11. Member Rewards"
         ],
         "summary": "Delete a claimed/collected member reward",
         "description": "Permanently deletes a claimed/collected reward by `member_reward_id`, verifying ownership by the authenticated parent (JWT Protected).",
@@ -3800,7 +3922,7 @@
     "/api/v1/member-balances": {
       "post": {
         "tags": [
-          "11. Member Balances"
+          "12. Member Balances"
         ],
         "summary": "Create / Register a family member's balance",
         "description": "Registers the coin (`coins_obtained`) and time (`time_obtained`) balance of a family member identified by `member_id` (UUID). The `created_at` field is auto-generated in UTC. If the member already has a registered balance, updates its values and returns the record (JWT Protected).",
@@ -3900,7 +4022,7 @@
       },
       "get": {
         "tags": [
-          "11. Member Balances"
+          "12. Member Balances"
         ],
         "summary": "List balances of all family members",
         "description": "Retrieves the coin and time balances of all family members belonging to the authenticated parent, with an optional filter by `member_id` (UUID).",
@@ -4017,7 +4139,7 @@
     "/api/v1/member-balances/{member_id}": {
       "get": {
         "tags": [
-          "11. Member Balances"
+          "12. Member Balances"
         ],
         "summary": "Get the balance of a specific family member",
         "description": "Returns the balance object (`coins_obtained` and `time_obtained`) of a specific family member by `member_id` (`identification_uuid`), validating that it belongs to the authenticated parent's `email_parent`. If the member exists but has no balance record yet, initializes and returns a default balance with `0` coins and `00:00:00`.",
@@ -4159,7 +4281,7 @@
       },
       "patch": {
         "tags": [
-          "11. Member Balances"
+          "12. Member Balances"
         ],
         "summary": "Update a family member's balance by UUID",
         "description": "Updates `coins_obtained` and/or `time_obtained` of a family member's balance identified by `member_id` (UUID) (JWT Protected).",
@@ -4273,7 +4395,7 @@
     "/api/v1/activity-logs": {
       "get": {
         "tags": [
-          "12. Activity History (Audit Logs)"
+          "13. Activity History (Audit Logs)"
         ],
         "summary": "Query the family's activity history (Audit Log)",
         "description": "Returns the historical audit trail of actions automatically recorded by the backend for the authenticated parent's family, ordered from newest to oldest. Supports optional filtering by `member_id`, `entity_type`, or `action` (JWT Protected).",
@@ -4434,128 +4556,6 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/remote-config": {
-      "get": {
-        "tags": [
-          "13. Remote Config"
-        ],
-        "summary": "Get remote app configuration (languages, bottom-bar menus, and cache TTL)",
-        "description": "Public **GET** endpoint replacing Firebase Remote Config for the mobile client.\n\nReturns:\n- `cached_time_expiration`: Cache duration in minutes.\n- `enabled_languages`: Map of language codes to booleans (`{\"es\": true, \"fr\": true, ...}`) so individual languages can be toggled off without removing them.\n- `menus_bottom_bar_enables`: List of bottom-bar menu item configurations (`id`, `name`, `icon`, `label_localized_key`, `active`).",
-        "operationId": "get_remote_config_api_v1_remote_config_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RemoteConfigResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "13. Remote Config"
-        ],
-        "summary": "Update remote app configuration (JWT Protected)",
-        "description": "Updates `cached_time_expiration`, `enabled_languages`, and/or `menus_bottom_bar_enables` in the database for the current environment. Any omitted (`null`) field keeps its existing value.",
-        "operationId": "update_remote_config_api_v1_remote_config_put",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RemoteConfigUpdate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RemoteConfigResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Controlled error response(s) for HTTP 401",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "examples": {
-                  "INVALID_OR_EXPIRED_TOKEN": {
-                    "summary": "INVALID_OR_EXPIRED_TOKEN",
-                    "value": {
-                      "error_code": "INVALID_OR_EXPIRED_TOKEN",
-                      "detail": "Could not validate credentials or the access token has expired."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Controlled error response(s) for HTTP 403",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "examples": {
-                  "ACCOUNT_INACTIVE": {
-                    "summary": "ACCOUNT_INACTIVE",
-                    "value": {
-                      "error_code": "ACCOUNT_INACTIVE",
-                      "detail": "The family account is currently inactive."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error (VALIDATION_ERROR)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "error_code": "VALIDATION_ERROR",
-                  "detail": "Request payload or parameter validation failed.",
-                  "errors": [
-                    {
-                      "type": "missing",
-                      "loc": [
-                        "body",
-                        "field_name"
-                      ],
-                      "msg": "Field required"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2Password": []
-          },
-          {
-            "BearerJWT": []
-          }
-        ]
       }
     }
   },
@@ -7039,48 +7039,48 @@
       "description": "Check the currently installed app version (`IOS` or `AND`) against the latest version published in stores."
     },
     {
-      "name": "3. Authentication",
+      "name": "3. Remote Config",
+      "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags)."
+    },
+    {
+      "name": "4. Authentication",
       "description": "Family registration, login, 6-digit password recovery, and JWT token refresh (`access_token` and `refresh_token`)."
     },
     {
-      "name": "4. Users / Family",
+      "name": "5. Users / Family",
       "description": "Retrieve and update the authenticated parent / family profile."
     },
     {
-      "name": "5. Family Members",
+      "name": "6. Family Members",
       "description": "Create, update, list, and delete family members linked to the parent account."
     },
     {
-      "name": "6. Family Tasks",
+      "name": "7. Family Tasks",
       "description": "Create, edit, list (all or `enable` only), and delete family tasks created by the parent."
     },
     {
-      "name": "7. Parent Goals",
+      "name": "8. Parent Goals",
       "description": "Create and manage base goals configured by the family parent/guardian."
     },
     {
-      "name": "8. Parent Rewards",
+      "name": "9. Parent Rewards",
       "description": "Create and manage rewards configured by the family parent/guardian."
     },
     {
-      "name": "9. Member Goals",
+      "name": "10. Member Goals",
       "description": "Assign, list, update progress (`accumulated_value`), and delete goals selected by family members."
     },
     {
-      "name": "10. Member Rewards",
+      "name": "11. Member Rewards",
       "description": "Claim rewards (`PENDING`), update delivery state (`COLLECTED`), and delete claimed member rewards."
     },
     {
-      "name": "11. Member Balances",
+      "name": "12. Member Balances",
       "description": "Create, retrieve, and update the coin (`coins_obtained`) and time (`time_obtained`) balance of each family member."
     },
     {
-      "name": "12. Activity History (Audit Logs)",
+      "name": "13. Activity History (Audit Logs)",
       "description": "Query the automated historical activity and audit trail recorded per family."
-    },
-    {
-      "name": "13. Remote Config",
-      "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags)."
     }
   ]
 }

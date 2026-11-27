@@ -29,48 +29,48 @@ openapi_tags = [
         "description": "Check the currently installed app version (`IOS` or `AND`) against the latest version published in stores.",
     },
     {
-        "name": "3. Authentication",
+        "name": "3. Remote Config",
+        "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags).",
+    },
+    {
+        "name": "4. Authentication",
         "description": "Family registration, login, 6-digit password recovery, and JWT token refresh (`access_token` and `refresh_token`).",
     },
     {
-        "name": "4. Users / Family",
+        "name": "5. Users / Family",
         "description": "Retrieve and update the authenticated parent / family profile.",
     },
     {
-        "name": "5. Family Members",
+        "name": "6. Family Members",
         "description": "Create, update, list, and delete family members linked to the parent account.",
     },
     {
-        "name": "6. Family Tasks",
+        "name": "7. Family Tasks",
         "description": "Create, edit, list (all or `enable` only), and delete family tasks created by the parent.",
     },
     {
-        "name": "7. Parent Goals",
+        "name": "8. Parent Goals",
         "description": "Create and manage base goals configured by the family parent/guardian.",
     },
     {
-        "name": "8. Parent Rewards",
+        "name": "9. Parent Rewards",
         "description": "Create and manage rewards configured by the family parent/guardian.",
     },
     {
-        "name": "9. Member Goals",
+        "name": "10. Member Goals",
         "description": "Assign, list, update progress (`accumulated_value`), and delete goals selected by family members.",
     },
     {
-        "name": "10. Member Rewards",
+        "name": "11. Member Rewards",
         "description": "Claim rewards (`PENDING`), update delivery state (`COLLECTED`), and delete claimed member rewards.",
     },
     {
-        "name": "11. Member Balances",
+        "name": "12. Member Balances",
         "description": "Create, retrieve, and update the coin (`coins_obtained`) and time (`time_obtained`) balance of each family member.",
     },
     {
-        "name": "12. Activity History (Audit Logs)",
+        "name": "13. Activity History (Audit Logs)",
         "description": "Query the automated historical activity and audit trail recorded per family.",
-    },
-    {
-        "name": "13. Remote Config",
-        "description": "Retrieve and update global remote app configuration (cache TTL, enabled languages, and bottom-bar menu flags).",
     },
 ]
 

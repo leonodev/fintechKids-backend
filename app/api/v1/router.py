@@ -23,57 +23,57 @@ api_router.include_router(
     tags=["2. App Version (Stores)"],
 )
 api_router.include_router(
+    remote_config.router,
+    prefix="/remote-config",
+    tags=["3. Remote Config"],
+)
+api_router.include_router(
     auth.router,
     prefix="/auth",
-    tags=["3. Authentication"],
+    tags=["4. Authentication"],
 )
 api_router.include_router(
     users.router,
     prefix="/users",
-    tags=["4. Users / Family"],
+    tags=["5. Users / Family"],
 )
 api_router.include_router(
     family_members.router,
     prefix="/family-members",
-    tags=["5. Family Members"],
+    tags=["6. Family Members"],
 )
 api_router.include_router(
     tasks.router,
     prefix="/tasks",
-    tags=["6. Family Tasks"],
+    tags=["7. Family Tasks"],
 )
 api_router.include_router(
     goals.router,
     prefix="/goals",
-    tags=["7. Parent Goals"],
+    tags=["8. Parent Goals"],
 )
 api_router.include_router(
     rewards.router,
     prefix="/rewards",
-    tags=["8. Parent Rewards"],
+    tags=["9. Parent Rewards"],
 )
 api_router.include_router(
     member_goals.router,
     prefix="/member-goals",
-    tags=["9. Member Goals"],
+    tags=["10. Member Goals"],
 )
 api_router.include_router(
     member_rewards.router,
     prefix="/member-rewards",
-    tags=["10. Member Rewards"],
+    tags=["11. Member Rewards"],
 )
 api_router.include_router(
     member_balances.router,
     prefix="/member-balances",
-    tags=["11. Member Balances"],
+    tags=["12. Member Balances"],
 )
 api_router.include_router(
     activity_logs.router,
     prefix="/activity-logs",
-    tags=["12. Activity History (Audit Logs)"],
-)
-api_router.include_router(
-    remote_config.router,
-    prefix="/remote-config",
-    tags=["13. Remote Config"],
+    tags=["13. Activity History (Audit Logs)"],
 )
